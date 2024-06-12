@@ -38,7 +38,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
         SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceConfig.region());
         //config.setSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio24Khz96KBitRateMonoMp3);
-
+        config.setSpeechSynthesisVoiceName(voiceName);
         //AudioConfig audioConfig = AudioConfig.fromWavFileOutput("output/output.mp3");
         List<SpeechSynthesisWordBoundaryEventArgs> wordBoundaries = new ArrayList<>();
 
