@@ -2,6 +2,8 @@ package com.gintel.cognitiveservices.tts.azure;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import org.aeonbits.owner.ConfigFactory;
@@ -40,27 +42,25 @@ public class AzureTextToSpeechService implements TextToSpeech {
         //AudioConfig audioConfig = AudioConfig.fromWavFileOutput("output/output.mp3");
         List<SpeechSynthesisWordBoundaryEventArgs> wordBoundaries = new ArrayList<>();
 
-        try (SpeechSynthesizer synthesizer = new SpeechSynthesizer(config)) {
-            // Subscribes to word boundary event
-            synthesizer.WordBoundary.addEventListener((o, e) -> {
-                // The unit of e.AudioOffset is tick (1 tick = 100 nanoseconds), divide by 10,000 to convert to milliseconds.
-                System.out.print("Word boundary event received. Audio offset: " + (e.getAudioOffset() + 5000) / 10000 + "ms, ");
-                System.out.println("text offset: " + e.getTextOffset() + ", word length: " + e.getWordLength() + ".");
-                wordBoundaries.add(e);
-            });
+        try (SpeechSynthesizer synth = new SpeechSynthesizer(config)) {
 
-            try (SpeechSynthesisResult result = synthesizer.SpeakSsmlAsync(text).get()) {
+                assert (config != null);
+                assert (synth != null);
+
+                int exitCode = 1;
+
+                Future<SpeechSynthesisResult> task = synth.SpeakTextAsync(text);
+                assert (task != null);
+
+                SpeechSynthesisResult result = task.get();
+                assert (result != null);
+
                 if (result.getReason() == ResultReason.SynthesizingAudioCompleted) {
-                    byte[] audioData = result.getAudioData();
-
-                    logger.debug("Speech synthesized. {} bytes of audio data received.", audioData.length);
-
-                    String srt = getSrt(text, wordBoundaries);
-
-                    return new TextToSpeechResult(TextToSpeechStatus.OK, audioData, srt);
-                }
-                else if (result.getReason() == ResultReason.Canceled) {
-                    SpeechSynthesisCancellationDetails cancellation = SpeechSynthesisCancellationDetails.fromResult(result);
+                    exitCode = 0;
+                    return new TextToSpeechResult(TextToSpeechStatus.OK, null, null);
+                } else if (result.getReason() == ResultReason.Canceled) {
+                    SpeechSynthesisCancellationDetails cancellation = SpeechSynthesisCancellationDetails
+                            .fromResult(result);
                     System.out.println("CANCELED: Reason=" + cancellation.getReason());
 
                     if (cancellation.getReason() == CancellationReason.Error) {
@@ -69,8 +69,9 @@ public class AzureTextToSpeechService implements TextToSpeech {
                         System.out.println("CANCELED: Did you update the subscription info?");
                     }
                 }
-            }
-        } catch (Exception ex) {
+
+                System.exit(exitCode);
+            } catch (Exception ex) {
             logger.error("Exception in textToSpeech", ex);
         }
         return new TextToSpeechResult(TextToSpeechStatus.ERROR, null, null);
