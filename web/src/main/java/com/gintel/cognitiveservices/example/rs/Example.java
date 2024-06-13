@@ -21,3 +21,4 @@ public interface Example {
             @QueryParam("text") String text)
                     throws Exception;
 }
+
