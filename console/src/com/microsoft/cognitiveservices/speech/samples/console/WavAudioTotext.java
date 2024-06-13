@@ -20,12 +20,12 @@ public class WavAudioToText {
         //String speechSubscriptionKey = "b16f6e70cac14487af395758c3db4e59";
         // Replace below with your own service region (e.g., "westus").
         String serviceRegion = "norwayeast";
-        String audioFilePath = "console/es-mx.wav";
+        String audioFilePath = "console/sampledata_audiofiles_katiesteve.wav";
 
         // Creates an instance of a speech recognizer using speech configuration with specified
         // subscription key and service region and microphone as default audio input.
         try (SpeechConfig config = SpeechConfig.fromSubscription(ReadProperties.getProperties("./conf/web.properties").get("azure.tts.subscription_key"), serviceRegion);
-            AudioConfig audioInput = AudioConfig.fromWavFileInput(audioFilePath); SpeechRecognizer reco = new SpeechRecognizer(config, "es-MX", audioInput)) {
+            AudioConfig audioInput = AudioConfig.fromWavFileInput(audioFilePath); SpeechRecognizer reco = new SpeechRecognizer(config, "en-US", audioInput)) {
 
             assert(config != null);
             assert(reco != null);

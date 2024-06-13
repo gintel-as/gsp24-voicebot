@@ -1,1 +1,1 @@
-¿Cuál es la distancia entre la Tierra y la Luna?
+Good morning, Steve. Good morning, Katie. Have you tried the latest real time diarization in Microsoft Speech Service, which can tell you who said what in real time? Not yet. I've been using the batch transcription with diarization functionality, but it produces diarization result until whole audio get processed. Is the new feature can diarize in real time? Absolutely. That's exciting. Let me try it right now.
