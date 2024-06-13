@@ -81,31 +81,4 @@ public class AzureTextToSpeechService implements TextToSpeech {
         }
         return new TextToSpeechResult(TextToSpeechStatus.ERROR, null, null);
     }
-
-    private String getSrt(String text, List<SpeechSynthesisWordBoundaryEventArgs> wordBoundaries) {
-        StringBuilder srtBuilder2 = new StringBuilder();
-
-        for (int idx = 0; idx < wordBoundaries.size(); idx++) {
-            srtBuilder2.append(Integer.toString(idx + 1) + '\n');
-            SpeechSynthesisWordBoundaryEventArgs e = wordBoundaries.get(idx);
-            long millis = e.getAudioOffset() / 10000;
-            String startTime = String.format("%02d:%02d:%02d,%03d", TimeUnit.MILLISECONDS.toHours(millis),
-                    TimeUnit.MILLISECONDS.toMinutes(millis) % TimeUnit.HOURS.toMinutes(1),
-                    TimeUnit.MILLISECONDS.toSeconds(millis) % TimeUnit.MINUTES.toSeconds(1),
-                    millis % 1000);
-            long endMillis;
-            if (idx < wordBoundaries.size() - 1) {
-                endMillis = wordBoundaries.get(idx + 1).getAudioOffset() / 10000;
-            } else {
-                endMillis = millis + 1000;
-            }
-            String endTime = String.format("%02d:%02d:%02d,%03d", TimeUnit.MILLISECONDS.toHours(endMillis),
-                    TimeUnit.MILLISECONDS.toMinutes(endMillis) % TimeUnit.HOURS.toMinutes(1),
-                    TimeUnit.MILLISECONDS.toSeconds(endMillis) % TimeUnit.MINUTES.toSeconds(1),
-                    endMillis % 1000);
-            srtBuilder2.append(startTime + " --> " + endTime + '\n');
-            srtBuilder2.append(text.substring((int)e.getTextOffset(), (int)(e.getTextOffset() + e.getWordLength())) + "\n\n");
-        }
-        return srtBuilder2.toString();
-    }
 }
