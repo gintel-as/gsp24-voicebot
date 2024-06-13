@@ -10,24 +10,22 @@ import com.microsoft.cognitiveservices.speech.SpeechConfig;
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer;
 import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
 
-public class WavAudioTotext {
-    /**
+public class WavAudioToText {
+      /**
      * @param args Arguments are ignored in this sample.
      */
     public static void audioToText(String[] args) {
 
         // Replace below with your own subscription key
-        String speechSubscriptionKey = "b16f6e70cac14487af395758c3db4e59";
+        //String speechSubscriptionKey = "b16f6e70cac14487af395758c3db4e59";
         // Replace below with your own service region (e.g., "westus").
         String serviceRegion = "norwayeast";
-        // Specify the path to your .wav file
-        String audioFilePath = "path/to/your/file.wav";
+        String audioFilePath = "console/es-mx.wav";
 
         // Creates an instance of a speech recognizer using speech configuration with specified
-        // subscription key and service region and audio file as input.
-        try (SpeechConfig config = SpeechConfig.fromSubscription(speechSubscriptionKey, serviceRegion);
-             AudioConfig audioInput = AudioConfig.fromWavFileInput(audioFilePath);
-             SpeechRecognizer reco = new SpeechRecognizer(config, "nb-NO", audioInput)) {
+        // subscription key and service region and microphone as default audio input.
+        try (SpeechConfig config = SpeechConfig.fromSubscription(ReadProperties.getProperties("./conf/web.properties").get("azure.tts.subscription_key"), serviceRegion);
+            AudioConfig audioInput = AudioConfig.fromWavFileInput(audioFilePath); SpeechRecognizer reco = new SpeechRecognizer(config, "es-MX", audioInput)) {
 
             assert(config != null);
             assert(reco != null);
