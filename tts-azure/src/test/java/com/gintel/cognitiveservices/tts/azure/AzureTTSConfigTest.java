@@ -8,7 +8,7 @@ import org.junit.Test;
 public class AzureTTSConfigTest {
     @Test
     public void readTest() {
-        ConfigFactory.setProperty("config_file", "../config/web.properties");
+        ConfigFactory.setProperty("config_file", "../conf/web.properties");
         AzureTTSConfig config = ConfigFactory.create(AzureTTSConfig.class);
         assertNotNull(config.region());
     }

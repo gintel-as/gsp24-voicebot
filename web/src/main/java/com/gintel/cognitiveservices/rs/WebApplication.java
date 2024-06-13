@@ -1,6 +1,8 @@
 package com.gintel.cognitiveservices.rs;
 
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import javax.servlet.ServletContext;
@@ -13,9 +15,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gintel.cognitiveservices.config.WebConfig;
+import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.example.ExampleController;
 import com.gintel.cognitiveservices.example.rs.ExampleResource;
 import com.gintel.cognitiveservices.rs.filters.LogRequestFilter;
+import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
+import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 
 @ApplicationPath("/")
 public class WebApplication extends Application {
@@ -37,14 +42,21 @@ public class WebApplication extends Application {
 
     @Override
     public Set<Object> getSingletons() {
-        ConfigFactory.setProperty("config_file", "web.properties");
+        String strPath = System.getProperty("catalina.base");
+        ConfigFactory.setProperty("config_file", strPath + "/conf/web.properties");
         final WebConfig config = ConfigFactory.create(WebConfig.class);
-        final ExampleResource authResource = new ExampleResource(new ExampleController(config));
+
+        List<TextToSpeech> ttsServices = getTextToSpeechServices();
+        final ExampleResource authResource = new ExampleResource(new ExampleController(config, ttsServices));
         final LogRequestFilter logRequestFilter = new LogRequestFilter();
 
         Set<Object> singletons = new HashSet<>();
         singletons.add(authResource);
         singletons.add(logRequestFilter);
         return singletons;
+    }
+
+    private List<TextToSpeech> getTextToSpeechServices() {
+        return Arrays.asList(new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class)));
     }
 }

@@ -28,10 +28,9 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
     private AzureTTSConfig serviceConfig;
 
-    public AzureTextToSpeechService() {
+    public AzureTextToSpeechService(AzureTTSConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
 
-        ConfigFactory.setProperty("config_file", "web.properties");
-        serviceConfig = ConfigFactory.create(AzureTTSConfig.class);
         logger.info("region is {}", serviceConfig.region());
     }
 
@@ -42,7 +41,9 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
         SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceConfig.region());
         //config.setSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio24Khz96KBitRateMonoMp3);
-        config.setSpeechSynthesisVoiceName(voiceName);
+        if (voiceName != null) {
+            config.setSpeechSynthesisVoiceName(voiceName);
+        }
         //AudioConfig audioConfig = AudioConfig.fromWavFileOutput("output/output.mp3");
         List<SpeechSynthesisWordBoundaryEventArgs> wordBoundaries = new ArrayList<>();
 
