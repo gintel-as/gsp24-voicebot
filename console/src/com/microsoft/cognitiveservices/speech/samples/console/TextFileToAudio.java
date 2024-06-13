@@ -27,7 +27,8 @@ public class TextFileToAudio {
         // subscription key and service region. Replace with your own subscription key
         // and service region (e.g., "westus").
         // The default language is "en-us".
-        SpeechConfig config = SpeechConfig.fromSubscription("b16f6e70cac14487af395758c3db4e59", "norwayeast");
+        
+        SpeechConfig config = SpeechConfig.fromSubscription(ReadProperties.getProperties("./conf/web.properties").get("azure.tts.subscription_key"), "norwayeast");
         //config.setSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio24Khz96KBitRateMonoMp3);
         
         // Save to audio file
