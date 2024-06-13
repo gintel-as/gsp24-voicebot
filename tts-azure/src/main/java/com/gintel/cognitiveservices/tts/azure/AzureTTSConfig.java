@@ -14,10 +14,8 @@ import com.gintel.cognitiveservices.config.ConfigTrim;
 @Sources("file:${config_file}")
 public interface AzureTTSConfig extends Config, Reloadable {
     @Key("azure.tts.subscription_key")
-    @DefaultValue("b16f6e70cac14487af395758c3db4e59")
     String subscriptionKey();
 
     @Key("azure.tts.region")
-    @DefaultValue("norwayeast")
     String region();
 }

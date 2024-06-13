@@ -29,12 +29,16 @@ public class AzureTextToSpeechService implements TextToSpeech {
     private AzureTTSConfig serviceConfig;
 
     public AzureTextToSpeechService() {
+
+        ConfigFactory.setProperty("config_file", "web.properties");
         serviceConfig = ConfigFactory.create(AzureTTSConfig.class);
+        logger.info("region is {}", serviceConfig.region());
     }
 
     @Override
     public TextToSpeechResult textToSpeech(String language, String voiceName, String text,
             InputFormat input, OutputFormat output) {
+
 
         SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceConfig.region());
         //config.setSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio24Khz96KBitRateMonoMp3);
