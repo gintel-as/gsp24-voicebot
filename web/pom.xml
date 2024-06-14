@@ -18,10 +18,9 @@
 			<artifactId>tts-azure</artifactId>
 		</dependency>
 		<dependency>
-				<groupId>com.gintel</groupId>
-				<artifactId>stt-azure</artifactId>
-				<version>${project.version}</version>
-			</dependency>
+			<groupId>com.gintel</groupId>
+			<artifactId>stt-azure</artifactId>
+		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>

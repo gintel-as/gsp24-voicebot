@@ -6,6 +6,5 @@ import com.gintel.cognitiveservices.core.stt.types.OutputFormat;
 
 
 public interface SpeechToText {
-    SpeechToTextResult speechToText(String language, String voiceName, String text,
-            InputFormat input, OutputFormat output);
+    SpeechToTextResult speechToText(InputFormat input, OutputFormat output);
 }

@@ -4,23 +4,23 @@ package com.gintel.cognitiveservices.core.stt.types;
 
 public class SpeechToTextResult {
     private SpeechToTextStatus status;
-    private byte[] text;
-    private String srt;
+    private String text;
+    private String detectedLanguage;
 
     public SpeechToTextResult() {
     }
 
-    public SpeechToTextResult(SpeechToTextStatus status, byte[] text, String srt) {
+    public SpeechToTextResult(SpeechToTextStatus status, String text, String detectedLanguage) {
         this.status = status;
         this.text = text;
-        this.srt = srt;
+        this.detectedLanguage = detectedLanguage;
     }
 
-    public byte[] getText() {
+    public String getText() {
         return text;
     }
 
-    public void setText(byte[] text) {
+    public void setText(String text) {
         this.text = text;
     }
 
@@ -32,11 +32,11 @@ public class SpeechToTextResult {
         this.status = status;
     }
 
-    public String getSrt() {
-        return srt;
+    public String getDetectedLanguage() {
+        return detectedLanguage;
     }
 
-    public void setSrt(String srt) {
-        this.srt = srt;
+    public void setDetectedLanguage(String detectedLanguage) {
+        this.detectedLanguage = detectedLanguage;
     }
 }

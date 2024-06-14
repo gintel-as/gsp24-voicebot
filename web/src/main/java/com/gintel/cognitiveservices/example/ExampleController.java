@@ -27,10 +27,10 @@ public class ExampleController {
         throw new RuntimeException("No tts implementations found");
     }
 
-    public SpeechToTextResult speechToText(String language, String voiceName, String text) {
+    public SpeechToTextResult speechToText() {
         for (SpeechToText impl : sttServices) {
             // for now, just pick the first one
-            return impl.speechToText(language, voiceName, text, null, null);            
+            return impl.speechToText(null, null);            
         }
         throw new RuntimeException("No stt implementations found");
     }

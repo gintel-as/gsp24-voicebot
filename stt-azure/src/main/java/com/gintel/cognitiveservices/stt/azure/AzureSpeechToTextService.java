@@ -13,8 +13,6 @@ import com.gintel.cognitiveservices.core.stt.types.InputFormat;
 import com.gintel.cognitiveservices.core.stt.types.OutputFormat;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextResult;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;
-import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
-import com.gintel.cognitiveservices.core.tts.types.TextToSpeechStatus;
 import com.microsoft.cognitiveservices.speech.CancellationDetails;
 import com.microsoft.cognitiveservices.speech.CancellationReason;
 import com.microsoft.cognitiveservices.speech.ResultReason;
@@ -37,8 +35,7 @@ public class AzureSpeechToTextService implements SpeechToText{
     }
 
     @Override
-    public SpeechToTextResult speechToText(String language, String voiceName, String text,
-            InputFormat input, OutputFormat output) {
+    public SpeechToTextResult speechToText(InputFormat input, OutputFormat output) {
         
         String serviceRegion = serviceConfig.region();
 
@@ -69,13 +66,12 @@ public class AzureSpeechToTextService implements SpeechToText{
 
             if (result.getReason() == ResultReason.RecognizedSpeech) {
                 System.out.println("We recognized: " + result.getText());
-                FileWriter writer = new FileWriter("output/output.txt");
-                writer.write(result.getText());
-                writer.close();
                 exitCode = 0;
+                return new SpeechToTextResult(SpeechToTextStatus.OK, result.getText(), reco.getSpeechRecognitionLanguage());
             }
             else if (result.getReason() == ResultReason.NoMatch) {
                 System.out.println("NOMATCH: Speech could not be recognized.");
+                return new SpeechToTextResult(SpeechToTextStatus.ERROR, null, null);
             }
             else if (result.getReason() == ResultReason.Canceled) {
                 CancellationDetails cancellation = CancellationDetails.fromResult(result);
@@ -86,6 +82,7 @@ public class AzureSpeechToTextService implements SpeechToText{
                     System.out.println("CANCELED: ErrorDetails=" + cancellation.getErrorDetails());
                     System.out.println("CANCELED: Did you update the subscription info?");
                 }
+                return new SpeechToTextResult(SpeechToTextStatus.ERROR, null, null);
             }
             
             System.exit(exitCode);
