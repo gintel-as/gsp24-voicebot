@@ -15,6 +15,6 @@ public class STTExampleResource implements STTExample {
     @Override
     public Response echo(String language) throws Exception {
 
-        return Response.ok().entity(controller.speechToText()).build();
+        return Response.ok().entity(controller.speechToText(language)).build();
     }
 }

@@ -18,10 +18,6 @@ import com.microsoft.cognitiveservices.speech.CancellationReason;
 import com.microsoft.cognitiveservices.speech.ResultReason;
 import com.microsoft.cognitiveservices.speech.SpeechConfig;
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer;
-import com.microsoft.cognitiveservices.speech.SpeechSynthesisCancellationDetails;
-import com.microsoft.cognitiveservices.speech.SpeechSynthesisResult;
-import com.microsoft.cognitiveservices.speech.SpeechSynthesisWordBoundaryEventArgs;
-import com.microsoft.cognitiveservices.speech.SpeechSynthesizer;
 
 public class AzureSpeechToTextService implements SpeechToText{
     private static final Logger logger = LoggerFactory.getLogger(AzureSpeechToTextService.class);
@@ -35,9 +31,16 @@ public class AzureSpeechToTextService implements SpeechToText{
     }
 
     @Override
-    public SpeechToTextResult speechToText(InputFormat input, OutputFormat output) {
+    public SpeechToTextResult speechToText(String language, InputFormat input, OutputFormat output) {
         
         String serviceRegion = serviceConfig.region();
+
+        String lang = "nb-NO";
+
+        if (language != null) {
+            lang = language.replace(new StringBuilder().append('"'), "");
+        }
+
 
 
         //SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceConfig.region());
@@ -50,8 +53,7 @@ public class AzureSpeechToTextService implements SpeechToText{
        List<SpeechRecognizer> recognizeSpeechRecognizers = new ArrayList<>();
 
         try (SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceRegion);
-             SpeechRecognizer reco = new SpeechRecognizer(config, "nb-NO")) {
-
+             SpeechRecognizer reco = new SpeechRecognizer(config, lang)) {
             assert(config != null);
             assert(reco != null);
             int exitCode = 1;
