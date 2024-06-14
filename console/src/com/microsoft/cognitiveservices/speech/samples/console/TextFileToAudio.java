@@ -1,9 +1,12 @@
 package com.microsoft.cognitiveservices.speech.samples.console;
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -47,7 +50,9 @@ public class TextFileToAudio {
 
             String ssml;
             try {
-                BufferedReader reader = new BufferedReader(new FileReader("input/ssml.txt"));
+                File file = new File("input/ssml.txt");
+                BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF-8")
+                    );
                 ssml = reader.lines().collect(Collectors.joining(System.lineSeparator()));
                 reader.close();
             } catch (FileNotFoundException e) {
