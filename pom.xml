@@ -12,6 +12,7 @@
 		<module>core</module>
 		<module>tts-azure</module>
 		<module>stt-azure</module>
+		<module>loop</module>
 	</modules>
 
 	<properties>
