@@ -15,10 +15,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gintel.cognitiveservices.config.WebConfig;
+import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.example.ExampleController;
 import com.gintel.cognitiveservices.example.rs.ExampleResource;
+import com.gintel.cognitiveservices.example.rs.STTExampleResource;
 import com.gintel.cognitiveservices.rs.filters.LogRequestFilter;
+import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
+import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
 import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
 import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 
@@ -47,13 +51,21 @@ public class WebApplication extends Application {
         final WebConfig config = ConfigFactory.create(WebConfig.class);
 
         List<TextToSpeech> ttsServices = getTextToSpeechServices();
-        final ExampleResource authResource = new ExampleResource(new ExampleController(config, ttsServices));
+        List<SpeechToText> sttServices = getSpeechToTextServices();
+        final ExampleResource authResource = new ExampleResource(new ExampleController(config, ttsServices, sttServices));
+        final STTExampleResource authSTTResource = new STTExampleResource(new ExampleController(config, ttsServices, sttServices));
         final LogRequestFilter logRequestFilter = new LogRequestFilter();
 
         Set<Object> singletons = new HashSet<>();
         singletons.add(authResource);
+        singletons.add(authSTTResource);
         singletons.add(logRequestFilter);
         return singletons;
+    }
+
+    private List<SpeechToText> getSpeechToTextServices() {
+        // TODO Auto-generated method stub
+        return Arrays.asList(new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
     }
 
     private List<TextToSpeech> getTextToSpeechServices() {
