@@ -8,7 +8,7 @@
 
 	<context-param>
 		<param-name>resteasy.servlet.mapping.prefix</param-name>
-		<param-value>/</param-value>
+		<param-value>/rest</param-value>
 	</context-param>
 	<context-param>
 		<param-name>resteasy.use.builtin.providers</param-name>
@@ -30,6 +30,6 @@
 
 	<servlet-mapping>
 		<servlet-name>Resteasy</servlet-name>
-		<url-pattern>/*</url-pattern>
+		<url-pattern>/rest/*</url-pattern>
 	</servlet-mapping>
 </web-app>

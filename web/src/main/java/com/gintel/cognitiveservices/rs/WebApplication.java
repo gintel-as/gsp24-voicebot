@@ -26,7 +26,7 @@ import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
 import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
 import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 
-@ApplicationPath("/")
+@ApplicationPath("/rest")
 public class WebApplication extends Application {
     private static final Logger logger = LoggerFactory.getLogger(WebApplication.class);
 
