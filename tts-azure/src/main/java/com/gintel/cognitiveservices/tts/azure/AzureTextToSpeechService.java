@@ -42,7 +42,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
         }
         List<SpeechSynthesisWordBoundaryEventArgs> wordBoundaries = new ArrayList<>();
 
-        try (SpeechSynthesizer synth = new SpeechSynthesizer(config, null)) {
+        try (SpeechSynthesizer synth = new SpeechSynthesizer(config)) {
 
             assert (config != null);
             assert (synth != null);
