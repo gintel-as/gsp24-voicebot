@@ -20,7 +20,7 @@ public class WavAudioToText {
         //String speechSubscriptionKey = "b16f6e70cac14487af395758c3db4e59";
         // Replace below with your own service region (e.g., "westus").
         String serviceRegion = "norwayeast";
-        String audioFilePath = "console/sampledata_audiofiles_katiesteve.wav";
+        String audioFilePath = "console/TalkForAFewSeconds16.wav";
 
         // Creates an instance of a speech recognizer using speech configuration with specified
         // subscription key and service region and microphone as default audio input.
