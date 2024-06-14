@@ -1,5 +1,8 @@
-<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="en-US">
-    <voice name="en-US-AvaMultilingualNeural">
-        This is the text that is spoken.
+<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="no-NO">
+    <voice name="nb-NO-PernilleNeural">
+        <p>
+            <s> Butikken er nå stengt. </s>
+            <s> Våre åpningstider er: Mandag til fredag fra kl. 9 til 17 <break time="1s"/>Telefonen er <emphasis level="strong"> betjent </emphasis> fra kl. 9 til 15 hver torsdag. Ha en fin dag videre. </s>
+        </p>
     </voice>
 </speak>

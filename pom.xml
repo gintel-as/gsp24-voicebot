@@ -11,6 +11,7 @@
 		<module>web</module>
 		<module>core</module>
 		<module>tts-azure</module>
+		<module>stt-azure</module>
 	</modules>
 
 	<properties>
@@ -39,6 +40,11 @@
 			<dependency>
 				<groupId>com.gintel</groupId>
 				<artifactId>tts-azure</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.gintel</groupId>
+				<artifactId>stt-azure</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 

@@ -40,7 +40,6 @@ public class AzureTextToSpeechService implements TextToSpeech {
         if (voiceName != null) {
             config.setSpeechSynthesisVoiceName(voiceName);
         }
-
         List<SpeechSynthesisWordBoundaryEventArgs> wordBoundaries = new ArrayList<>();
 
         try (SpeechSynthesizer synth = new SpeechSynthesizer(config, null)) {
