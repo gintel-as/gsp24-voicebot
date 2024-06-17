@@ -22,15 +22,23 @@ public class LoopMain {
    public static void main(String[] args) throws Exception
    {
     while (true){
-        String str = getHTML("http://localhost:8080/web/example/stt");
-        String s = str.substring(str.indexOf("text")+7);
+        System.out.println("Speak now ------");
+        String voiceInput = getHTML("http://localhost:8080/web/example/stt");
+        String s = voiceInput.substring(voiceInput.indexOf("text")+7);
         String p = s.substring(0, s.indexOf("detectedLanguage")-3);
         System.out.println(p);
-        getHTML("http://localhost:8080/web/example/v1?text="+p.replace(" ", "%20"));
-        System.out.println(str);
-        if (str.contains("Stop") || str.contains("stop")){
+        if (voiceInput.contains("Stop") || voiceInput.contains("stop")){
             break;
         }
+
+        String botInput = getHTML("http://localhost:8080/web/example/openai?text="+p.replace(" ", "%20"));
+        String a = botInput.substring(botInput.indexOf("response")+10);
+        String b = a.substring(0, a.indexOf("input")-3);
+        b.replace("\n", "%20");
+        System.out.println(b);
+
+        getHTML("http://localhost:8080/web/example/v1?text="+b.replace(" ", "%20"));
+        System.out.println(botInput);
     }
    }
 }
