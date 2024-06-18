@@ -30,7 +30,7 @@ import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 
-@ApplicationPath("/")
+@ApplicationPath("/rest")
 public class WebApplication extends Application {
     private static final Logger logger = LoggerFactory.getLogger(WebApplication.class);
 
