@@ -2,6 +2,7 @@ package com.microsoft.cognitiveservices.speech.samples.console;
 
 import java.io.*;
 import java.net.*;
+import java.util.Scanner;
 
 public class LoopMain {
 
@@ -11,11 +12,12 @@ public class LoopMain {
       HttpURLConnection conn = (HttpURLConnection) url.openConnection();
       conn.setRequestMethod("GET");
       try (BufferedReader reader = new BufferedReader(
-                  new InputStreamReader(conn.getInputStream()))) {
+                  new InputStreamReader(conn.getInputStream(), "UTF-8"))) {
           for (String line; (line = reader.readLine()) != null; ) {
               result.append(line);
           }
       }
+      System.out.println(result);
       return result.toString();
    }
 
@@ -32,12 +34,13 @@ public class LoopMain {
         }
 
         String botInput = getHTML("http://localhost:8080/web/example/openai?text="+p.replace(" ", "%20"));
-        String a = botInput.substring(botInput.indexOf("response")+10);
+        String a = botInput.substring(botInput.indexOf("response")+11);
         String b = a.substring(0, a.indexOf("input")-3);
-        b.replace("\n", "%20");
+        b = b.replaceAll("\\\\n", "");
+        b = b.replaceAll("\\\\", "");
         System.out.println(b);
 
-        getHTML("http://localhost:8080/web/example/v1?text="+b.replace(" ", "%20"));
+        String wallah = getHTML("http://localhost:8080/web/example/v1?text="+b.replace(" ", "%20"));
         System.out.println(botInput);
     }
    }
