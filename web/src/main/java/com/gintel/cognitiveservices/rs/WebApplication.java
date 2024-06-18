@@ -15,16 +15,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gintel.cognitiveservices.config.WebConfig;
+import com.gintel.cognitiveservices.core.openai.Openai;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.example.ExampleController;
-import com.gintel.cognitiveservices.example.rs.ExampleResource;
+import com.gintel.cognitiveservices.example.rs.TTSExampleResource;
 import com.gintel.cognitiveservices.example.rs.STTExampleResource;
+import com.gintel.cognitiveservices.example.rs.OpenaiExampleResource;
 import com.gintel.cognitiveservices.rs.filters.LogRequestFilter;
 import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
 import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
 import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
 import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
+import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
+import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 
 @ApplicationPath("/rest")
 public class WebApplication extends Application {
@@ -52,13 +56,16 @@ public class WebApplication extends Application {
 
         List<TextToSpeech> ttsServices = getTextToSpeechServices();
         List<SpeechToText> sttServices = getSpeechToTextServices();
-        final ExampleResource authResource = new ExampleResource(new ExampleController(config, ttsServices, sttServices));
-        final STTExampleResource authSTTResource = new STTExampleResource(new ExampleController(config, ttsServices, sttServices));
+        List<Openai> openaiServices = getOpenaiServices();
+        final TTSExampleResource authResource = new TTSExampleResource(new ExampleController(config, ttsServices, sttServices, openaiServices));
+        final STTExampleResource authSTTResource = new STTExampleResource(new ExampleController(config, ttsServices, sttServices, openaiServices));
+        final OpenaiExampleResource authOpenaiResource = new OpenaiExampleResource(new ExampleController(config, ttsServices, sttServices, openaiServices));
         final LogRequestFilter logRequestFilter = new LogRequestFilter();
 
         Set<Object> singletons = new HashSet<>();
         singletons.add(authResource);
         singletons.add(authSTTResource);
+        singletons.add(authOpenaiResource);
         singletons.add(logRequestFilter);
         return singletons;
     }
@@ -70,5 +77,9 @@ public class WebApplication extends Application {
 
     private List<TextToSpeech> getTextToSpeechServices() {
         return Arrays.asList(new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class)));
+    }
+
+    private List<Openai> getOpenaiServices() {
+        return Arrays.asList(new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)));
     }
 }

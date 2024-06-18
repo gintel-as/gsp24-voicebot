@@ -16,6 +16,7 @@ public class Main {
         System.out.println(" 1. Speech synthesis to audio and SRT files.");
         System.out.println(" 2. Speech synthesis to text.");
         System.out.println(" 3. Speech synthesis from wav file to text.");
+        System.out.println(" 4. ChatGPT implementation.");
 
         System.out.print(prompt);
 
@@ -33,6 +34,10 @@ public class Main {
                     break;
                 case "3":
                     WavAudioToText.audioToText(args);
+                    break;
+                case "4":
+                    LoopMain.main(args);
+                    break;
                 }
                 System.out.println("\nExecution done. " + prompt);
             } while (!x.equals("0"));
