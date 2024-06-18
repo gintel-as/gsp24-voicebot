@@ -11,7 +11,7 @@ import javax.ws.rs.core.Response;
 @Path("example/v1")
 @Produces({ MediaType.APPLICATION_JSON })
 @Consumes({ MediaType.APPLICATION_JSON })
-public interface Example {
+public interface TTSExample {
     @GET
     @Path("/")
     @Consumes({ MediaType.APPLICATION_JSON, MediaType.WILDCARD })

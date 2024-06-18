@@ -19,7 +19,7 @@ import com.gintel.cognitiveservices.core.openai.Openai;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.example.ExampleController;
-import com.gintel.cognitiveservices.example.rs.ExampleResource;
+import com.gintel.cognitiveservices.example.rs.TTSExampleResource;
 import com.gintel.cognitiveservices.example.rs.STTExampleResource;
 import com.gintel.cognitiveservices.example.rs.OpenaiExampleResource;
 import com.gintel.cognitiveservices.rs.filters.LogRequestFilter;
@@ -57,7 +57,7 @@ public class WebApplication extends Application {
         List<TextToSpeech> ttsServices = getTextToSpeechServices();
         List<SpeechToText> sttServices = getSpeechToTextServices();
         List<Openai> openaiServices = getOpenaiServices();
-        final ExampleResource authResource = new ExampleResource(new ExampleController(config, ttsServices, sttServices, openaiServices));
+        final TTSExampleResource authResource = new TTSExampleResource(new ExampleController(config, ttsServices, sttServices, openaiServices));
         final STTExampleResource authSTTResource = new STTExampleResource(new ExampleController(config, ttsServices, sttServices, openaiServices));
         final OpenaiExampleResource authOpenaiResource = new OpenaiExampleResource(new ExampleController(config, ttsServices, sttServices, openaiServices));
         final LogRequestFilter logRequestFilter = new LogRequestFilter();
