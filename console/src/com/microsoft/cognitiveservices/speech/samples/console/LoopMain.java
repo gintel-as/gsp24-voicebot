@@ -25,7 +25,7 @@ public class LoopMain {
    {
     while (true){
         System.out.println("Speak now ------");
-        String voiceInput = getHTML("http://localhost:8080/web/example/stt");
+        String voiceInput = getHTML("http://localhost:8080/web/rest/example/stt");
         String s = voiceInput.substring(voiceInput.indexOf("text")+7);
         String p = s.substring(0, s.indexOf("detectedLanguage")-3);
         System.out.println(p);
@@ -33,14 +33,14 @@ public class LoopMain {
             break;
         }
 
-        String botInput = getHTML("http://localhost:8080/web/example/openai?text="+p.replace(" ", "%20"));
+        String botInput = getHTML("http://localhost:8080/web/rest/example/openai?text="+p.replace(" ", "%20"));
         String a = botInput.substring(botInput.indexOf("response")+11);
         String b = a.substring(0, a.indexOf("input")-3);
         b = b.replaceAll("\\\\n", "");
         b = b.replaceAll("\\\\", "");
         System.out.println(b);
 
-        String wallah = getHTML("http://localhost:8080/web/example/v1?text="+b.replace(" ", "%20"));
+        String ubrukeligString = getHTML("http://localhost:8080/web/rest/example/v1?text="+b.replace(" ", "%20"));
         System.out.println(botInput);
     }
    }
