@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.gintel.cognitiveservices.config.WebConfig;
 import com.gintel.cognitiveservices.core.openai.Openai;
+import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
 import com.gintel.cognitiveservices.core.openai.types.OpenaiResult;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextResult;
@@ -39,10 +40,10 @@ public class ExampleController {
         throw new RuntimeException("No stt implementations found");
     }
 
-    public OpenaiResult openai(String text){
+    public OpenaiResult openai(String text, ChatBotContext ctx){
         for (Openai impl : openaiServices) {
             // for now, just pick the first one
-            return impl.openai(text, null, null);            
+            return impl.openai(text, ctx, null, null); 
         }
         throw new RuntimeException("No openai implementations found");
     }

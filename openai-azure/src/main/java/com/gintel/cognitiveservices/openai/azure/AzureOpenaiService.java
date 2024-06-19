@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.gintel.cognitiveservices.core.openai.Openai;
+import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
 import com.gintel.cognitiveservices.core.openai.types.InputFormat;
 import com.gintel.cognitiveservices.core.openai.types.OutputFormat;
 import com.gintel.cognitiveservices.core.openai.types.OpenaiResult;
@@ -39,7 +40,7 @@ public class AzureOpenaiService implements Openai{
     }
 
     @Override
-    public OpenaiResult openai(String text, InputFormat input, OutputFormat output) {
+    public OpenaiResult openai(String text, ChatBotContext ctx, InputFormat input, OutputFormat output) {
         String azureOpenaiKey = serviceConfig.subscriptionKey();
         String endpoint = "https://gintel-openai-resource.openai.azure.com/";
         String deploymentOrModelId = "testDeployment";
@@ -50,10 +51,16 @@ public class AzureOpenaiService implements Openai{
             .buildClient();
         
 
+
         List<ChatRequestMessage> chatMessages = new ArrayList<>();
         chatMessages.add(new ChatRequestSystemMessage("You are a helpful assistant."));
-        chatMessages.add(new ChatRequestUserMessage(text));
+        if (ctx.getMessages() != null){chatMessages = ctx.getMessages();}
 
+        chatMessages.add(new ChatRequestUserMessage(text));
+        if (chatMessages != null) {ctx.addMessages(chatMessages);}
+
+
+        
         ChatCompletions chatCompletions = client.getChatCompletions(deploymentOrModelId, new ChatCompletionsOptions(chatMessages));
 
         String mld = new String();
