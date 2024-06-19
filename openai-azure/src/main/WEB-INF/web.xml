@@ -4,11 +4,11 @@
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
 	id="WebApp_ID" version="3.0">
 
-	<display-name>Summer24</display-name>
+	<display-name>MSS</display-name>
 
 	<context-param>
 		<param-name>resteasy.servlet.mapping.prefix</param-name>
-		<param-value>/rest</param-value>
+		<param-value>/</param-value>
 	</context-param>
 	<context-param>
 		<param-name>resteasy.use.builtin.providers</param-name>
@@ -17,7 +17,7 @@
 
 	<context-param>
 		<param-name>javax.ws.rs.Application</param-name>
-		<param-value>com.gintel.cognitiveservices.rs.WebApplication</param-value>
+		<param-value>com.gintel.uc.acs.rs.BackendApplication</param-value>
 	</context-param>
 	<listener>
 		<listener-class>org.jboss.resteasy.plugins.server.servlet.ResteasyBootstrap</listener-class>
@@ -30,6 +30,6 @@
 
 	<servlet-mapping>
 		<servlet-name>Resteasy</servlet-name>
-		<url-pattern>/rest/*</url-pattern>
+		<url-pattern>/*</url-pattern>
 	</servlet-mapping>
 </web-app>

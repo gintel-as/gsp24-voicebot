@@ -1,6 +1,5 @@
 package com.gintel.cognitiveservices.stt.azure;
 
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -8,8 +7,13 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
+import com.gintel.cognitiveservices.core.communication.types.MediaSession;
+import com.gintel.cognitiveservices.core.stt.EventHandler;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
+import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
 import com.gintel.cognitiveservices.core.stt.types.InputFormat;
+import com.gintel.cognitiveservices.core.stt.types.MediaStream;
 import com.gintel.cognitiveservices.core.stt.types.OutputFormat;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextResult;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;
@@ -18,8 +22,11 @@ import com.microsoft.cognitiveservices.speech.CancellationReason;
 import com.microsoft.cognitiveservices.speech.ResultReason;
 import com.microsoft.cognitiveservices.speech.SpeechConfig;
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer;
+import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
+import com.microsoft.cognitiveservices.speech.audio.AudioInputStream;
+import com.microsoft.cognitiveservices.speech.audio.PushAudioInputStream;
 
-public class AzureSpeechToTextService implements SpeechToText{
+public class AzureSpeechToTextService implements SpeechToText {
     private static final Logger logger = LoggerFactory.getLogger(AzureSpeechToTextService.class);
 
     private AzureSTTConfig serviceConfig;
@@ -92,5 +99,78 @@ public class AzureSpeechToTextService implements SpeechToText{
             logger.error("Exception in speechToText", ex);
         }
         return new SpeechToTextResult(SpeechToTextStatus.ERROR, null, null);
+    }
+
+    @Override
+    public MediaSession startSpeechToTextSession(String sessionId, String language,
+            EventHandler<BaseEvent> eventHandler) {
+
+        logger.info("createSession(sessionId={}, language={})", sessionId, language);
+
+        String serviceRegion = serviceConfig.region();
+
+        String lang = "nb-NO";
+
+        if (language != null) {
+            lang = language.replace(new StringBuilder().append('"'), "");
+        }
+
+        try {
+            PushAudioInputStream is = AudioInputStream.createPushStream();
+            AudioConfig audioCfg = AudioConfig.fromStreamInput(is);
+
+            SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(),
+                serviceRegion); 
+            SpeechRecognizer recognizer = new SpeechRecognizer(config, audioCfg);
+            recognizer.recognizing.addEventListener((s, e) -> {
+                eventHandler.onEvent(s, new SpeechToTextEvent("RECOGNIZING: " + e.getResult().getText()));
+            });
+
+            recognizer.recognized.addEventListener((s, e) -> {
+                if (e.getResult().getReason() == ResultReason.RecognizedSpeech) {
+                    eventHandler.onEvent(s, new SpeechToTextEvent("RECOGNIZED: " + e.getResult().getText()));
+                } else if (e.getResult().getReason() == ResultReason.NoMatch) {
+                    eventHandler.onEvent(s,
+                            new SpeechToTextEvent("NOMATCH: Speech could not be recognized."));
+                }
+            });
+
+            recognizer.canceled.addEventListener((s, e) -> {
+                String result = "CANCELED: Reason=" + e.getReason();
+
+                if (e.getReason() == CancellationReason.Error) {
+                    result += "CANCELED: ErrorCode=" + e.getErrorCode() + "\n";
+                    result += "CANCELED: ErrorDetails=" + e.getErrorDetails() + "\n";
+                    result += "CANCELED: Did you update the subscription info?";
+                }
+                eventHandler.onEvent(s, new SpeechToTextEvent(result));
+            });
+
+            recognizer.sessionStarted.addEventListener((s, e) -> {
+                eventHandler.onEvent(s, new SpeechToTextEvent("Session started event."));
+            });
+
+            recognizer.sessionStopped.addEventListener((s, e) -> {
+                eventHandler.onEvent(s, new SpeechToTextEvent("Session stopped event."));
+            });
+
+            recognizer.startContinuousRecognitionAsync();
+
+            return new MediaSession(sessionId, eventHandler, new MediaStream() {
+                @Override
+                public void write(byte[] data) {
+                    is.write(data);
+                }
+
+                @Override
+                public void close() {
+                    is.close();
+                    recognizer.close();
+                    config.close();
+                }
+            });
+        } catch (Exception ex) {
+            throw new RuntimeException("Exception in speechToTextSession", ex);
+        }
     }
 }

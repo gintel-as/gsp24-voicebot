@@ -14,12 +14,21 @@
 	</build>
 	<dependencies>
 		<dependency>
+			<groupId>javax.websocket</groupId>
+			<artifactId>javax.websocket-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>com.gintel</groupId>
 			<artifactId>tts-azure</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.gintel</groupId>
 			<artifactId>stt-azure</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.gintel</groupId>
+			<artifactId>openai-azure</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>ch.qos.logback</groupId>

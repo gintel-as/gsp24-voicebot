@@ -7,12 +7,12 @@ import org.slf4j.LoggerFactory;
 
 import com.gintel.cognitiveservices.example.ExampleController;
 
-public class ExampleResource implements Example {
-    private static final Logger logger = LoggerFactory.getLogger(ExampleResource.class);
+public class TTSExampleResource implements TTSExample {
+    private static final Logger logger = LoggerFactory.getLogger(TTSExampleResource.class);
 
     private ExampleController controller;
 
-    public ExampleResource(ExampleController controller) {
+    public TTSExampleResource(ExampleController controller) {
         this.controller = controller;
     }
 
