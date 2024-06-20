@@ -26,6 +26,7 @@ import com.gintel.cognitiveservices.core.communication.CommunicationServiceListe
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEvent;
+import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
 import com.gintel.cognitiveservices.core.stt.EventHandler;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
@@ -44,6 +45,7 @@ public class WebSocketCommunicationService implements CommunicationService {
 
     private Map<String, MediaSession> sessions = new ConcurrentHashMap<>();
     private Map<String, Session> wsSessions = new ConcurrentHashMap<>();
+    private Map<String, ChatBotContext> contexts = new ConcurrentHashMap<>();
 
     public WebSocketCommunicationService() {
         logger.info("Created");
@@ -100,6 +102,7 @@ public class WebSocketCommunicationService implements CommunicationService {
         logger.info("onOpen({}, {})", sessionId, config);
 
         wsSessions.put(session.getId(), session);
+        contexts.put(sessionId, new ChatBotContext());
 
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
@@ -109,7 +112,7 @@ public class WebSocketCommunicationService implements CommunicationService {
             }    
         };
 
-        listeners.forEach(c -> c.onEvent(this, new IncomingEvent(session.getId(), handler)));
+        listeners.forEach(c -> c.onEvent(this, new IncomingEvent(session.getId(), handler), contexts.get(sessionId)));
     }
 
     @OnClose
@@ -121,6 +124,7 @@ public class WebSocketCommunicationService implements CommunicationService {
             localSession.getInputStream().close();
         }
         wsSessions.remove(session.getId());
+        contexts.remove(session.getId());
     }
 
     @OnMessage

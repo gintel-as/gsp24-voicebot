@@ -35,17 +35,17 @@ public class CognitiveServices implements CommunicationServiceListener {
     }
 
     @Override
-    public void onEvent(CommunicationService service, BaseEvent event) {
+    public void onEvent(CommunicationService service, BaseEvent event, ChatBotContext ctx) {
         logger.info("onEvent(service={}, event={})", service, event);
 
         if (event instanceof IncomingEvent) {
-            handleIncoming(service, (IncomingEvent) event);
+            handleIncoming(service, (IncomingEvent) event, ctx);
         } else if (event instanceof AnsweredEvent) {
             // service.playMedia();
         }
     }
 
-    private void handleIncoming(CommunicationService service, IncomingEvent event) {
+    private void handleIncoming(CommunicationService service, IncomingEvent event, ChatBotContext ctx) {
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
 //                session.getBasicRemote().sendText(e.toString());
@@ -55,7 +55,6 @@ public class CognitiveServices implements CommunicationServiceListener {
                         // todo openai integration
                         for (Openai ai : getServices(Openai.class)){
                             service.playMedia(event.getSessionId(), e.toString());
-                            ChatBotContext ctx = new ChatBotContext();
                             OpenaiResult aiResult = ai.openai(e.toString().replaceAll("RECOGNIZED: ", ""), ctx, null, null);
                             service.playMedia(event.getSessionId(), aiResult.getResponse());
                             for (TextToSpeech tts : getServices(TextToSpeech.class)){
