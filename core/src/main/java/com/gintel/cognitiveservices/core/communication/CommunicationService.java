@@ -4,7 +4,9 @@ import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.service.Service;
 
 public interface CommunicationService extends Service {
-    void playMedia();
+    void playMedia(String sessionId, String data);
+    
+    void playMedia(String sessionId, byte[] data);
 
     void answer(MediaSession session);
 

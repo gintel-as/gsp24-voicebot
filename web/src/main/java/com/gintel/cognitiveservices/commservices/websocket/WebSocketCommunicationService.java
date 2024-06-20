@@ -26,11 +26,16 @@ import com.gintel.cognitiveservices.core.communication.CommunicationServiceListe
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEvent;
+import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
 import com.gintel.cognitiveservices.core.stt.EventHandler;
+import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
+import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 import com.gintel.cognitiveservices.service.CognitiveServices;
 import com.gintel.cognitiveservices.service.Service;
 import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
 import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
+import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
+import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 
 @ServerEndpoint(value = "/websocket")
 public class WebSocketCommunicationService implements CommunicationService {
@@ -39,6 +44,8 @@ public class WebSocketCommunicationService implements CommunicationService {
     private List<CommunicationServiceListener> listeners = new ArrayList<>();
 
     private Map<String, MediaSession> sessions = new ConcurrentHashMap<>();
+    private Map<String, Session> wsSessions = new ConcurrentHashMap<>();
+    private Map<String, ChatBotContext> contexts = new ConcurrentHashMap<>();
 
     public WebSocketCommunicationService() {
         logger.info("Created");
@@ -48,6 +55,8 @@ public class WebSocketCommunicationService implements CommunicationService {
         Map<String, Service> services = new HashMap<>();
         services.put("ws", this);
         services.put("azure-stt", new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
+        services.put("azure-openai", new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)));
+        services.put("azure-tts", new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class)));
         new CognitiveServices(services);
     }
 
@@ -92,6 +101,9 @@ public class WebSocketCommunicationService implements CommunicationService {
 
         logger.info("onOpen({}, {})", sessionId, config);
 
+        wsSessions.put(session.getId(), session);
+        contexts.put(sessionId, new ChatBotContext());
+
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
                 session.getBasicRemote().sendText(e.toString());
@@ -100,7 +112,7 @@ public class WebSocketCommunicationService implements CommunicationService {
             }    
         };
 
-        listeners.forEach(c -> c.onEvent(this, new IncomingEvent(session.getId(), handler)));
+        listeners.forEach(c -> c.onEvent(this, new IncomingEvent(session.getId(), handler), contexts.get(sessionId)));
     }
 
     @OnClose
@@ -111,6 +123,8 @@ public class WebSocketCommunicationService implements CommunicationService {
         if (localSession != null) {
             localSession.getInputStream().close();
         }
+        wsSessions.remove(session.getId());
+        contexts.remove(session.getId());
     }
 
     @OnMessage
@@ -119,8 +133,21 @@ public class WebSocketCommunicationService implements CommunicationService {
     }
 
     @Override
-    public void playMedia() {
-        
+    public void playMedia(String sessionId, String data) {
+        try {
+            wsSessions.get(sessionId).getBasicRemote().sendText(new String(data));
+        } catch (IOException e) {
+            logger.error("Exception in playmedia", e);
+        }
+    }
+
+    @Override
+    public void playMedia(String sessionId, byte[] data) {
+        try {
+            wsSessions.get(sessionId).getBasicRemote().sendBinary(ByteBuffer.wrap(data));
+        } catch (IOException e) {
+            logger.error("Exception in playmedia", e);
+        }
     }
 
     @Override
