@@ -33,6 +33,8 @@ import com.gintel.cognitiveservices.service.CognitiveServices;
 import com.gintel.cognitiveservices.service.Service;
 import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
 import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
+import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
+import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 
 @ServerEndpoint(value = "/websocket")
 public class WebSocketCommunicationService implements CommunicationService {
@@ -52,6 +54,7 @@ public class WebSocketCommunicationService implements CommunicationService {
         services.put("ws", this);
         services.put("azure-stt", new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
         services.put("azure-openai", new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)));
+        services.put("azure-tts", new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class)));
         new CognitiveServices(services);
     }
 
@@ -129,6 +132,15 @@ public class WebSocketCommunicationService implements CommunicationService {
     public void playMedia(String sessionId, String data) {
         try {
             wsSessions.get(sessionId).getBasicRemote().sendText(new String(data));
+        } catch (IOException e) {
+            logger.error("Exception in playmedia", e);
+        }
+    }
+
+    @Override
+    public void playMedia(String sessionId, byte[] data) {
+        try {
+            wsSessions.get(sessionId).getBasicRemote().sendBinary(ByteBuffer.wrap(data));
         } catch (IOException e) {
             logger.error("Exception in playmedia", e);
         }

@@ -57,9 +57,11 @@ public class CognitiveServices implements CommunicationServiceListener {
                             service.playMedia(event.getSessionId(), e.toString());
                             ChatBotContext ctx = new ChatBotContext();
                             OpenaiResult aiResult = ai.openai(e.toString().replaceAll("RECOGNIZED: ", ""), ctx, null, null);
-                            // TextToSpeech tts = (TextToSpeech) getServices(TextToSpeech.class);
-                            // TextToSpeechResult ttsResult = tts.textToSpeech("en-US", "en-US-AvaMultilingualNeural", aiResult.getResponse(), null, null);
                             service.playMedia(event.getSessionId(), aiResult.getResponse());
+                            for (TextToSpeech tts : getServices(TextToSpeech.class)){
+                                TextToSpeechResult ttsResult = tts.textToSpeech("en-US", "en-US-AvaMultilingualNeural", aiResult.getResponse().toString(), null, null);
+                                service.playMedia(event.getSessionId(), ttsResult.getAudio());
+                            }
                         }
                     }
                 }
