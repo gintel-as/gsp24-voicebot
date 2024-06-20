@@ -1,5 +1,6 @@
 package com.gintel.cognitiveservices.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -13,7 +14,13 @@ import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.AnsweredEvent;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEvent;
+import com.gintel.cognitiveservices.core.openai.Openai;
+import com.gintel.cognitiveservices.core.openai.types.OpenaiResult;
+import com.gintel.cognitiveservices.core.stt.EventHandler;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
+import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
+import com.gintel.cognitiveservices.core.tts.TextToSpeech;
+import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 
 public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
@@ -33,14 +40,35 @@ public class CognitiveServices implements CommunicationServiceListener {
         if (event instanceof IncomingEvent) {
             handleIncoming(service, (IncomingEvent) event);
         } else if (event instanceof AnsweredEvent) {
-            service.playMedia();
+            // service.playMedia();
         }
     }
 
     private void handleIncoming(CommunicationService service, IncomingEvent event) {
+        EventHandler<BaseEvent> handler = (s, e) -> {
+            try {
+//                session.getBasicRemote().sendText(e.toString());
+                if (e instanceof SpeechToTextEvent) {
+                    SpeechToTextEvent casted = (SpeechToTextEvent) e;
+                    if (e.toString().contains("RECOGNIZED")) {
+                        // todo openai integration
+                        OpenaiResult aiResult;
+                        for (Openai ai : getServices(Openai.class)){
+                            aiResult = ai.openai(e.toString().replaceAll("RECOGNIZED:", ""), null, null, null);
+                            TextToSpeech tts = (TextToSpeech) getServices(TextToSpeech.class);
+                            TextToSpeechResult ttsResult = tts.textToSpeech("en-US", "en-US-AvaMultilingualNeural", aiResult.getResponse(), null, null);
+                            service.playMedia(event.getSessionId(), aiResult.getResponse().getBytes());
+                        }
+                    }    
+                }
+            } catch (Exception ex) {
+                logger.error("Exception when sending text to client", ex);
+            }    
+        };
+
         for (SpeechToText stt : getServices(SpeechToText.class)) {
             MediaSession session = stt.startSpeechToTextSession(event.getSessionId(), null,
-                    event.getEventHandler());
+                    handler);
             service.answer(session);
         }
     }

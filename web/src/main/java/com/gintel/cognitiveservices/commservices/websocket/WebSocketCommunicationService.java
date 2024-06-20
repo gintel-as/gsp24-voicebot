@@ -27,6 +27,8 @@ import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEvent;
 import com.gintel.cognitiveservices.core.stt.EventHandler;
+import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
+import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 import com.gintel.cognitiveservices.service.CognitiveServices;
 import com.gintel.cognitiveservices.service.Service;
 import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
@@ -39,6 +41,7 @@ public class WebSocketCommunicationService implements CommunicationService {
     private List<CommunicationServiceListener> listeners = new ArrayList<>();
 
     private Map<String, MediaSession> sessions = new ConcurrentHashMap<>();
+    private Map<String, Session> wsSessions = new ConcurrentHashMap<>();
 
     public WebSocketCommunicationService() {
         logger.info("Created");
@@ -92,6 +95,8 @@ public class WebSocketCommunicationService implements CommunicationService {
 
         logger.info("onOpen({}, {})", sessionId, config);
 
+        wsSessions.put(session.getId(), session);
+
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
                 session.getBasicRemote().sendText(e.toString());
@@ -111,6 +116,7 @@ public class WebSocketCommunicationService implements CommunicationService {
         if (localSession != null) {
             localSession.getInputStream().close();
         }
+        wsSessions.remove(session.getId());
     }
 
     @OnMessage
@@ -119,8 +125,12 @@ public class WebSocketCommunicationService implements CommunicationService {
     }
 
     @Override
-    public void playMedia() {
-        
+    public void playMedia(String sessionId, byte[] data) {
+        try {
+            wsSessions.get(sessionId).getBasicRemote().sendText(new String(data));
+        } catch (IOException e) {
+            logger.error("Exception in playmedia", e);
+        }
     }
 
     @Override
