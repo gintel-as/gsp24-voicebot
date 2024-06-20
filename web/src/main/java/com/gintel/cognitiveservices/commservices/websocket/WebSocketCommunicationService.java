@@ -51,6 +51,7 @@ public class WebSocketCommunicationService implements CommunicationService {
         Map<String, Service> services = new HashMap<>();
         services.put("ws", this);
         services.put("azure-stt", new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
+        services.put("azure-openai", new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)));
         new CognitiveServices(services);
     }
 
@@ -125,7 +126,7 @@ public class WebSocketCommunicationService implements CommunicationService {
     }
 
     @Override
-    public void playMedia(String sessionId, byte[] data) {
+    public void playMedia(String sessionId, String data) {
         try {
             wsSessions.get(sessionId).getBasicRemote().sendText(new String(data));
         } catch (IOException e) {
