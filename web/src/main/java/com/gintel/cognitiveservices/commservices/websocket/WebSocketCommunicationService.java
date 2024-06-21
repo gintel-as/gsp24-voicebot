@@ -23,11 +23,11 @@ import org.slf4j.LoggerFactory;
 
 import com.gintel.cognitiveservices.core.communication.CommunicationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationServiceListener;
+import com.gintel.cognitiveservices.core.communication.EventHandler;
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEvent;
 import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
-import com.gintel.cognitiveservices.core.stt.EventHandler;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 import com.gintel.cognitiveservices.service.CognitiveServices;

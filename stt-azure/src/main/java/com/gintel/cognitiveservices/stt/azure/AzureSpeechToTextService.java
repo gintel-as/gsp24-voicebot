@@ -7,13 +7,13 @@ import java.util.concurrent.Future;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gintel.cognitiveservices.core.communication.EventHandler;
+import com.gintel.cognitiveservices.core.communication.MediaStream;
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
-import com.gintel.cognitiveservices.core.stt.EventHandler;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
 import com.gintel.cognitiveservices.core.stt.types.InputFormat;
-import com.gintel.cognitiveservices.core.stt.types.MediaStream;
 import com.gintel.cognitiveservices.core.stt.types.OutputFormat;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextResult;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;

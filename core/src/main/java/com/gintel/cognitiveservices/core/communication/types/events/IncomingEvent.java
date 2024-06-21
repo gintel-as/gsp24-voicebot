@@ -1,7 +1,7 @@
 package com.gintel.cognitiveservices.core.communication.types.events;
 
+import com.gintel.cognitiveservices.core.communication.EventHandler;
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
-import com.gintel.cognitiveservices.core.stt.EventHandler;
 
 public class IncomingEvent extends BaseEvent {
     private final String sessionId;
