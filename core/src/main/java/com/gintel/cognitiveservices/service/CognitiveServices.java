@@ -21,6 +21,7 @@ import com.gintel.cognitiveservices.core.openai.types.OpenaiResult;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
+import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 
 public class CognitiveServices implements CommunicationServiceListener {
@@ -58,7 +59,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                             OpenaiResult aiResult = ai.openai(e.toString().replaceAll("RECOGNIZED: ", ""), ctx, null, null);
                             service.playMedia(event.getSessionId(), aiResult.getResponse());
                             for (TextToSpeech tts : getServices(TextToSpeech.class)){
-                                TextToSpeechResult ttsResult = tts.textToSpeech("en-US", "en-US-AvaMultilingualNeural", aiResult.getResponse().toString(), null, null);
+                                TextToSpeechByteResult ttsResult = tts.textToStream("en-US", "en-US-AvaMultilingualNeural", aiResult.getResponse().toString(), null, null);
                                 service.playMedia(event.getSessionId(), ttsResult.getAudio());
                             }
                         }
