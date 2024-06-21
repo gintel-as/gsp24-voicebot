@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import com.gintel.cognitiveservices.core.communication.CommunicationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationServiceListener;
+import com.gintel.cognitiveservices.core.communication.EventHandler;
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.AnsweredEvent;
@@ -17,7 +18,6 @@ import com.gintel.cognitiveservices.core.communication.types.events.IncomingEven
 import com.gintel.cognitiveservices.core.openai.Openai;
 import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
 import com.gintel.cognitiveservices.core.openai.types.OpenaiResult;
-import com.gintel.cognitiveservices.core.stt.EventHandler;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
