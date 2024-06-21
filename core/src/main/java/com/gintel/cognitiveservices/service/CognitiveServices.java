@@ -3,6 +3,7 @@ package com.gintel.cognitiveservices.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
@@ -21,12 +22,16 @@ import com.gintel.cognitiveservices.core.openai.types.OpenaiResult;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
+import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 
 public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
 
     private Map<String, Service> services;
+
+    long openaiTime;
+    long ttsTime;
 
     public CognitiveServices(Map<String, Service> services) {
         this.services = services;
@@ -55,10 +60,17 @@ public class CognitiveServices implements CommunicationServiceListener {
                         for (Openai ai : getServices(Openai.class)){
                             service.playMedia(event.getSessionId(), e.toString());
                             service.playMedia(event.getSessionId(), "stop_recording");
+                            long t1 = System.currentTimeMillis();
                             OpenaiResult aiResult = ai.openai(e.toString().replaceAll("RECOGNIZED: ", ""), ctx, null, null);
+                            long t2 = System.currentTimeMillis();
+                            openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2-t1);
                             service.playMedia(event.getSessionId(), aiResult.getResponse());
                             for (TextToSpeech tts : getServices(TextToSpeech.class)){
-                                TextToSpeechResult ttsResult = tts.textToSpeech("en-US", "en-US-AvaMultilingualNeural", aiResult.getResponse().toString(), null, null);
+                                long a1 = System.currentTimeMillis();
+                                TextToSpeechByteResult ttsResult = tts.textToStream("en-US", "en-US-AvaMultilingualNeural", aiResult.getResponse().toString(), null, null);
+                                long a2 = System.currentTimeMillis();
+                                ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2-a1);
+                                service.playMedia(event.getSessionId(), "AI Time: " + openaiTime + " seconds. TTS time: " + ttsTime + " seconds.");
                                 service.playMedia(event.getSessionId(), ttsResult.getAudio());
                             }
                         }
