@@ -6,16 +6,23 @@
     <button id="startButton">Start Streaming</button>
     <button id="stopButton">Stop Streaming</button>
     <div id="responseContainer"></div>
-    <audio src="" id="audio"controls autoplay></audio>
+    <audio src="data:audio" id="audio" controls autoplay></audio>
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
     <script>
         var protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
         let ws = new WebSocket(protocol + '://' + window.location.host + '/web/websocket');
         let mediaRecorder;
+        let recorder;
 
         var audio = document.getElementById("audio");
         ws.onmessage = event => {
             if (!(event.data instanceof Blob)) {
+                if (event.data == "stop_recording"){
+                    recorder.pauseRecording();
+                    let responseContainer = document.getElementById('responseContainer');
+                    responseContainer.innerHTML += `<b>~~ Paused recording ~~</b>`;
+                    return;
+                }
                 let responseContainer = document.getElementById('responseContainer');
                 responseContainer.innerHTML += `<p>${event.data}</p>`;
 				return;				
@@ -23,15 +30,17 @@
  
         	console.log('blob received: ' + event.data.size);
         	blobToBase64(event.data).then(b64 => {
+                recorder.pauseRecording();
         		audio.src = "data:audio/x-wav;base64," + b64;
         		console.log(audio.src);
+                audio.load();
                 audio.play();
+                setTimeout(() => {
+                    recorder.resumeRecording();
+                    let responseContainer = document.getElementById('responseContainer');
+                    responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
+                }, 1000);
         	});
-        };
-
-        ws.onmessage = event => {
-            let responseContainer = document.getElementById('responseContainer');
-            responseContainer.innerHTML += `<p>${event.data}</p>`;
         };
 
         let handleDataAvailable = (event) => {
@@ -57,7 +66,7 @@
 
         navigator.mediaDevices.getUserMedia({ audio: true })
             .then(stream => {
-                let recorder = RecordRTC(stream, {
+                recorder = RecordRTC(stream, {
                     type: 'audio',
                     recorderType: StereoAudioRecorder,
                     mimeType: 'audio/wav',
@@ -69,6 +78,8 @@
 
                 document.getElementById('startButton').addEventListener('click', () => {
                     recorder.startRecording();
+                    let responseContainer = document.getElementById('responseContainer');
+                    responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
                 });
 
                 document.getElementById('stopButton').addEventListener('click', () => {

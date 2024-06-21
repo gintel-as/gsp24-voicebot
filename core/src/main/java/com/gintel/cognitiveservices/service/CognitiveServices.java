@@ -52,9 +52,9 @@ public class CognitiveServices implements CommunicationServiceListener {
                 if (e instanceof SpeechToTextEvent) {
                     SpeechToTextEvent casted = (SpeechToTextEvent) e;
                     if (e.toString().charAt(9) == 'D') {
-                        // todo openai integration
                         for (Openai ai : getServices(Openai.class)){
                             service.playMedia(event.getSessionId(), e.toString());
+                            service.playMedia(event.getSessionId(), "stop_recording");
                             OpenaiResult aiResult = ai.openai(e.toString().replaceAll("RECOGNIZED: ", ""), ctx, null, null);
                             service.playMedia(event.getSessionId(), aiResult.getResponse());
                             for (TextToSpeech tts : getServices(TextToSpeech.class)){
