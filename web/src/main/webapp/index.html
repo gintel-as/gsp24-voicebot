@@ -13,6 +13,7 @@
         let ws = new WebSocket(protocol + '://' + window.location.host + '/web/websocket');
         let mediaRecorder;
         let recorder;
+        var recorderState = '';
 
         var audio = document.getElementById("audio");
         ws.onmessage = event => {
@@ -39,9 +40,11 @@
                 audio.onloadedmetadata = function() {
                     x = audio.duration*1000;
                     setTimeout(() => {
-                        recorder.resumeRecording();
-                        let responseContainer = document.getElementById('responseContainer');
-                        responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
+                        if (recorderState != 'pausedByButton') {
+                            recorder.resumeRecording();
+                            let responseContainer = document.getElementById('responseContainer');
+                            responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
+                        }
                     }, x+1000);
                 };
         	});
@@ -81,15 +84,22 @@
                 });
 
                 document.getElementById('startButton').addEventListener('click', () => {
-                    recorder.startRecording();
+                    if (recorder.state == 'paused') {
+                        recorder.resumeRecording();
+                    } else {
+                        recorder.startRecording();
+                    }
                     let responseContainer = document.getElementById('responseContainer');
                     responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
                 });
 
                 document.getElementById('stopButton').addEventListener('click', () => {
-                    recorder.pauseRecording();
-                    let responseContainer = document.getElementById('responseContainer');
-                    responseContainer.innerHTML += `<b>~~ Stopped Recording ~~</b>`;
+                    if (recorder.state == 'recording') {
+                        recorder.pauseRecording();
+                        recorderState = 'pausedByButton';
+                        let responseContainer = document.getElementById('responseContainer');
+                        responseContainer.innerHTML += `<b>~~ Stopped Recording ~~</b>`;
+                    }
                 });
             });
 
