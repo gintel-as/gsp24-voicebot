@@ -6,7 +6,6 @@ import com.gintel.cognitiveservices.core.communication.EventHandler;
 import com.gintel.cognitiveservices.core.communication.MediaStream;
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
-import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 
 
 public class WebSocketMediaSession extends MediaSession {

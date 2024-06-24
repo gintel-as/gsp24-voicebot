@@ -1,6 +1,7 @@
 package com.gintel.cognitiveservices.stt.azure;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
@@ -17,6 +18,7 @@ import com.gintel.cognitiveservices.core.stt.types.InputFormat;
 import com.gintel.cognitiveservices.core.stt.types.OutputFormat;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextResult;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;
+import com.microsoft.cognitiveservices.speech.AutoDetectSourceLanguageConfig;
 import com.microsoft.cognitiveservices.speech.CancellationDetails;
 import com.microsoft.cognitiveservices.speech.CancellationReason;
 import com.microsoft.cognitiveservices.speech.ResultReason;
@@ -109,19 +111,20 @@ public class AzureSpeechToTextService implements SpeechToText {
 
         String serviceRegion = serviceConfig.region();
 
-        String lang = "nb-NO";
-
-        if (language != null) {
-            lang = language.replace(new StringBuilder().append('"'), "");
-        }
-
         try {
             PushAudioInputStream is = AudioInputStream.createPushStream();
             AudioConfig audioCfg = AudioConfig.fromStreamInput(is);
 
+            AutoDetectSourceLanguageConfig autoDetectLanguages =
+            AutoDetectSourceLanguageConfig.fromLanguages(Arrays.asList("en-US", "nb-NO"));
+
+            if (language != null) {
+                autoDetectLanguages = AutoDetectSourceLanguageConfig.fromLanguages(Arrays.asList(language));
+            }
+
             SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(),
                 serviceRegion); 
-            SpeechRecognizer recognizer = new SpeechRecognizer(config, audioCfg);
+            SpeechRecognizer recognizer = new SpeechRecognizer(config, autoDetectLanguages, audioCfg);
             recognizer.recognizing.addEventListener((s, e) -> {
                 eventHandler.onEvent(s, new SpeechToTextEvent("RECOGNIZING: " + e.getResult().getText()));
             });
