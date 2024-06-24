@@ -43,10 +43,14 @@ public class CognitiveServices implements CommunicationServiceListener {
     public void onEvent(CommunicationService service, BaseEvent event, ChatBotContext ctx) {
         logger.info("onEvent(service={}, event={})", service, event);
 
-        if (event instanceof IncomingEvent) {
-            handleIncoming(service, (IncomingEvent) event, ctx);
-        } else if (event instanceof AnsweredEvent) {
-            // service.playMedia();
+        try {
+            if (event instanceof IncomingEvent) {
+                handleIncoming(service, (IncomingEvent) event, ctx);
+            } else if (event instanceof AnsweredEvent) {
+                // service.playMedia();
+            }
+        } catch (Exception ex) {
+            logger.error("Error handling event: {}", event.getClass().getSimpleName(), ex);
         }
     }
 
@@ -75,16 +79,21 @@ public class CognitiveServices implements CommunicationServiceListener {
                             }
                         }
                     }
+                } else {
+                    logger.warn("Unhandled event type: {}", e.getClass().getSimpleName());
                 }
             } catch (Exception ex) {
                 logger.error("Exception when sending text to client", ex);
             }    
         };
 
-        for (SpeechToText stt : getServices(SpeechToText.class)) {
-            MediaSession session = stt.startSpeechToTextSession(event.getSessionId(), null,
-                    handler);
-            service.answer(session);
+        try {
+            for (SpeechToText stt : getServices(SpeechToText.class)) {
+                MediaSession session = stt.startSpeechToTextSession(event.getSessionId(), null, handler);
+                service.answer(session);
+            }
+        } catch (Exception ex) {
+            logger.error("Failed to start STT session for session ID: {}", event.getSessionId(), ex);
         }
     }
 

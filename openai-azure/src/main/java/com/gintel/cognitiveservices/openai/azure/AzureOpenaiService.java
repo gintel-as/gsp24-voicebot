@@ -41,40 +41,45 @@ public class AzureOpenaiService implements Openai{
 
     @Override
     public OpenaiResult openai(String text, ChatBotContext ctx, InputFormat input, OutputFormat output) {
-        String azureOpenaiKey = serviceConfig.subscriptionKey();
-        String endpoint = "https://gintel-openai-resource.openai.azure.com/";
-        String deploymentOrModelId = "testDeployment";
+        try {
+            String azureOpenaiKey = serviceConfig.subscriptionKey();
+            String endpoint = "https://gintel-openai-resource.openai.azure.com/";
+            String deploymentOrModelId = "testDeployment";
 
-        OpenAIClient client = new OpenAIClientBuilder()
-            .endpoint(endpoint)
-            .credential(new AzureKeyCredential(azureOpenaiKey))
-            .buildClient();
-        
-
-
-        List<ChatRequestMessage> chatMessages = new ArrayList<>();
-        chatMessages.add(new ChatRequestSystemMessage("You are a helpful assistant."));
-        if (ctx.getMessages() != null){chatMessages = ctx.getMessages();}
-
-        chatMessages.add(new ChatRequestUserMessage(text));
-        if (chatMessages != null) {ctx.addMessages(chatMessages);}
+            OpenAIClient client = new OpenAIClientBuilder()
+                .endpoint(endpoint)
+                .credential(new AzureKeyCredential(azureOpenaiKey))
+                .buildClient();
+            
 
 
-        
-        ChatCompletions chatCompletions = client.getChatCompletions(deploymentOrModelId, new ChatCompletionsOptions(chatMessages));
+            List<ChatRequestMessage> chatMessages = new ArrayList<>();
+            chatMessages.add(new ChatRequestSystemMessage("You are a helpful assistant."));
+            if (ctx.getMessages() != null){chatMessages = ctx.getMessages();}
 
-        String mld = new String();
+            chatMessages.add(new ChatRequestUserMessage(text));
+            if (chatMessages != null) {ctx.addMessages(chatMessages);}
 
-        for (ChatChoice choice : chatCompletions.getChoices()) {
-            ChatResponseMessage message = choice.getMessage();
-            System.out.printf("Index: %d, Chat Role: %s.%n", choice.getIndex(), message.getRole());
-            System.out.println("Message:");
-            System.out.println(message.getContent());
-            if (message.getRole().toString() == "assistant"){
-                mld = message.getContent();
+
+            
+            ChatCompletions chatCompletions = client.getChatCompletions(deploymentOrModelId, new ChatCompletionsOptions(chatMessages));
+
+            String mld = new String();
+
+            for (ChatChoice choice : chatCompletions.getChoices()) {
+                ChatResponseMessage message = choice.getMessage();
+                System.out.printf("Index: %d, Chat Role: %s.%n", choice.getIndex(), message.getRole());
+                System.out.println("Message:");
+                System.out.println(message.getContent());
+                if (message.getRole().toString() == "assistant"){
+                    mld = message.getContent();
+                }
             }
-        }
 
-        return new OpenaiResult(OpenaiStatus.OK, mld, text);
+            return new OpenaiResult(OpenaiStatus.OK, mld, text);
+        } catch (Exception ex) {
+            logger.error("Failed to process openAI request: {}", text, ex);
+            return new OpenaiResult(OpenaiStatus.ERROR, "Error processing request", text);
+        }
     }
 }
