@@ -15,6 +15,7 @@
         let recorder;
         var timeoutHandle;
         var recorderState = '';
+        var isAudioPlaying = false;
 
         var audio = document.getElementById("audio");
         ws.onmessage = event => {
@@ -37,14 +38,16 @@
         		console.log(audio.src);
                 audio.load();
                 audio.play();
+                document.getElementById('startButton').disabled = true;
                 audio.onloadedmetadata = function() {
-                    clearTimeout(timeoutHandle);
-                    timeoutHandle = setTimeout (() => {
-                        if (!(recorderState == 'pausedByButton')) {
+                    setTimeout (() => {
+                        if (recorderState !== 'pausedByButton') {
                             recorder.resumeRecording();
+                            recorderState = '';
                             let responseContainer = document.getElementById('responseContainer');
                             responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
                         }
+                        document.getElementById('startButton').disabled = false;
                     }, audio.duration*1000 + 1000);
                 };
         	});
@@ -85,7 +88,7 @@
 
                 document.getElementById('startButton').addEventListener('click', () => {
                     if (recorder.state == 'paused') {
-                        recorder.resumeRecording();
+                    recorder.resumeRecording();
                     } else {
                         recorder.startRecording();
                     }
@@ -97,7 +100,6 @@
                 document.getElementById('stopButton').addEventListener('click', () => {
                         recorder.pauseRecording();
                         recorderState = 'pausedByButton';
-                        clearTimeout(timeoutHandle);
                         let responseContainer = document.getElementById('responseContainer');
                         responseContainer.innerHTML += `<b>~~ Stopped Recording ~~</b>`;
                 });
