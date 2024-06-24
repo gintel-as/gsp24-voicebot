@@ -61,17 +61,29 @@ public class AzureOpenaiService implements Openai{
             if (chatMessages != null) {ctx.addMessages(chatMessages);}
 
 
+            ChatCompletionsOptions completionsOptions = new ChatCompletionsOptions(chatMessages);
+            completionsOptions.setMaxTokens(500);
             
-            ChatCompletions chatCompletions = client.getChatCompletions(deploymentOrModelId, new ChatCompletionsOptions(chatMessages));
+            ChatCompletions chatCompletions = client.getChatCompletions(deploymentOrModelId, completionsOptions);
+            CompletionsUsage usage = chatCompletions.getUsage();
+            if (usage != null) {
+                logger.info("Prompt tokens used: {}", usage.getPromptTokens());
+                logger.info("Completion tokens used: {}", usage.getCompletionTokens());
+                logger.info("Total tokens used: {}", usage.getTotalTokens());
 
-            String mld = new String();
+                if (usage.getTotalTokens() >= completionsOptions.getMaxTokens()) {
+                    logger.warn("The maximum number of tokens has been reached.");
+                    return new OpenaiResult(OpenaiStatus.ERROR, "Maximum token limit reached", text);
+                }
+            }
 
+            String mld = "";
             for (ChatChoice choice : chatCompletions.getChoices()) {
                 ChatResponseMessage message = choice.getMessage();
                 System.out.printf("Index: %d, Chat Role: %s.%n", choice.getIndex(), message.getRole());
                 System.out.println("Message:");
                 System.out.println(message.getContent());
-                if (message.getRole().toString() == "assistant"){
+                if ("assistant".equals(message.getRole().toString())) {
                     mld = message.getContent();
                 }
             }
