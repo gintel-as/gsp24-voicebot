@@ -13,6 +13,7 @@
         let ws = new WebSocket(protocol + '://' + window.location.host + '/web/websocket');
         let mediaRecorder;
         let recorder;
+        var timeoutHandle;
         var recorderState = '';
 
         var audio = document.getElementById("audio");
@@ -36,16 +37,15 @@
         		console.log(audio.src);
                 audio.load();
                 audio.play();
-                let x;
                 audio.onloadedmetadata = function() {
-                    x = audio.duration*1000;
-                    setTimeout(() => {
-                        if (recorderState != 'pausedByButton') {
+                    clearTimeout(timeoutHandle);
+                    timeoutHandle = setTimeout (() => {
+                        if (!(recorderState == 'pausedByButton')) {
                             recorder.resumeRecording();
                             let responseContainer = document.getElementById('responseContainer');
                             responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
                         }
-                    }, x+1000);
+                    }, audio.duration*1000 + 1000);
                 };
         	});
         };
@@ -89,17 +89,17 @@
                     } else {
                         recorder.startRecording();
                     }
+                    recorderState = '';
                     let responseContainer = document.getElementById('responseContainer');
                     responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
                 });
 
                 document.getElementById('stopButton').addEventListener('click', () => {
-                    if (recorder.state == 'recording') {
                         recorder.pauseRecording();
                         recorderState = 'pausedByButton';
+                        clearTimeout(timeoutHandle);
                         let responseContainer = document.getElementById('responseContainer');
                         responseContainer.innerHTML += `<b>~~ Stopped Recording ~~</b>`;
-                    }
                 });
             });
 
