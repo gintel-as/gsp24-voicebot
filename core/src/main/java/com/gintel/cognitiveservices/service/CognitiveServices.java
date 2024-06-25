@@ -1,6 +1,5 @@
 package com.gintel.cognitiveservices.service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +22,6 @@ import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
-import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 
 public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);

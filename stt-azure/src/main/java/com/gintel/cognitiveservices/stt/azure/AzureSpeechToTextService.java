@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.aeonbits.owner.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -126,6 +127,7 @@ public class AzureSpeechToTextService implements SpeechToText {
             SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(),
                 serviceRegion);
             config.setProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs,"2000");
+            config.setProperty(PropertyId.SpeechServiceConnection_LanguageIdMode, "Continuous");
             SpeechRecognizer recognizer = new SpeechRecognizer(config, autoDetectLanguages, audioCfg);
             
             recognizer.recognizing.addEventListener((s, e) -> {

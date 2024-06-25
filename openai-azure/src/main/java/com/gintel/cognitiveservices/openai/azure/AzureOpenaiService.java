@@ -18,15 +18,12 @@ import com.azure.ai.openai.OpenAIClientBuilder;
 import com.azure.ai.openai.models.ChatChoice;
 import com.azure.ai.openai.models.ChatCompletions;
 import com.azure.ai.openai.models.ChatCompletionsOptions;
-import com.azure.ai.openai.models.ChatMessageContentItem;
-import com.azure.ai.openai.models.ChatRequestAssistantMessage;
 import com.azure.ai.openai.models.ChatRequestMessage;
 import com.azure.ai.openai.models.ChatRequestSystemMessage;
 import com.azure.ai.openai.models.ChatRequestUserMessage;
 import com.azure.ai.openai.models.ChatResponseMessage;
 import com.azure.ai.openai.models.CompletionsUsage;
 import com.azure.core.credential.AzureKeyCredential;
-import com.azure.core.util.Configuration;
 
 public class AzureOpenaiService implements Openai{
     private static final Logger logger = LoggerFactory.getLogger(AzureOpenaiService.class);
@@ -62,7 +59,7 @@ public class AzureOpenaiService implements Openai{
 
 
             ChatCompletionsOptions completionsOptions = new ChatCompletionsOptions(chatMessages);
-            completionsOptions.setMaxTokens(500);
+            completionsOptions.setMaxTokens(4000);
             
             ChatCompletions chatCompletions = client.getChatCompletions(deploymentOrModelId, completionsOptions);
             CompletionsUsage usage = chatCompletions.getUsage();
