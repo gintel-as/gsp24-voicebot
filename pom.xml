@@ -13,6 +13,7 @@
 		<module>tts-azure</module>
 		<module>stt-azure</module>
 		<module>openai-azure</module>
+		<module>translation-azure</module>
 	</modules>
 
 	<properties>
