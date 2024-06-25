@@ -59,10 +59,9 @@ public class CognitiveServices implements CommunicationServiceListener {
             try {
 //                session.getBasicRemote().sendText(e.toString());
                 if (e instanceof SpeechToTextEvent) {
-                    service.playMedia(event.getSessionId(), e.toString());
                     if (e.toString().charAt(9) == 'D' && e.toString().length() > 12) {
                         for (Openai ai : getServices(Openai.class)){
-                            
+                            service.playMedia(event.getSessionId(), e.toString());
                             service.playMedia(event.getSessionId(), "stop_recording");
                             long t1 = System.currentTimeMillis();
                             OpenaiResult aiResult = ai.openai(e.toString().replaceAll("RECOGNIZED: ", ""), ctx, null, null);
