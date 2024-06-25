@@ -30,24 +30,7 @@ public class AzureTranslationService implements Translation {
 
     @Override
     public TranslationResult translation(String text, Optional<String> fromLanguage, String toLanguage) {
-        HttpClient client = HttpClient.newHttpClient();
-        String languageQueryParam = fromLanguage.isPresent() ? "&from=" + fromLanguage.get() : "";
-        HttpRequest request = HttpRequest.newBuilder()
-            .uri(URI.create(endpoint + "/translate?api-version=3.0" + languageQueryParam + "&to=" + toLanguage))
-            .header("Content-Type", "application/json")
-            .header("Ocp-Apim-Subscription-Key", key)
-            .POST(BodyPublishers.ofString("[{\"Text\":\"" + text + "\"}]"))
-            .build();
-
-        try {
-            HttpResponse<String> response = client.send(request, BodyHandlers.ofString());
-            TranslationResult result = mapper.readValue(response.body(), TranslationResult.class);
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new TranslationResult(TranslationStatus.ERROR, null, null);
-        }
+        //TODO: implement translation
+        throw new UnsupportedOperationException();
     }
-
-    
 }
