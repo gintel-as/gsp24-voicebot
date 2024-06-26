@@ -8,7 +8,12 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gintel.cognitiveservices.core.communication.EventHandler;
+import com.gintel.cognitiveservices.core.communication.MediaStream;
+import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
+import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
+import com.gintel.cognitiveservices.core.tts.TextToSpeechEvent;
 import com.gintel.cognitiveservices.core.tts.types.InputFormat;
 import com.gintel.cognitiveservices.core.tts.types.OutputFormat;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
@@ -21,6 +26,9 @@ import com.microsoft.cognitiveservices.speech.SpeechSynthesisCancellationDetails
 import com.microsoft.cognitiveservices.speech.SpeechSynthesisResult;
 import com.microsoft.cognitiveservices.speech.SpeechSynthesisWordBoundaryEventArgs;
 import com.microsoft.cognitiveservices.speech.SpeechSynthesizer;
+import com.microsoft.cognitiveservices.speech.audio.AudioConfig;
+import com.microsoft.cognitiveservices.speech.audio.AudioOutputStream;
+import com.microsoft.cognitiveservices.speech.audio.PushAudioOutputStream;
 
 public class AzureTextToSpeechService implements TextToSpeech {
     private static final Logger logger = LoggerFactory.getLogger(AzureTextToSpeechService.class);
@@ -167,4 +175,43 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
         return String.format("%02d:%02d:%02d,%03d", hours, minutes, seconds, milliseconds);
     }
+     public MediaSession startTextToSpeechSession(String sessionId, String text, String language, EventHandler<BaseEvent> eventHandler) {
+        logger.info("createSession(sessionId={}, language={})", sessionId, language);
+        String serviceRegion = serviceConfig.region();
+        String lang = language != null ? language.replace("\"", "") : "nb-NO";
+
+        try {
+            SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceRegion);
+            PushAudioOutputStream os = AudioOutputStream.createPushStream(null);
+            AudioConfig audioConfig = AudioConfig.fromStreamOutput(os);
+            SpeechSynthesizer synthesizer = new SpeechSynthesizer(config, audioConfig);
+
+            synthesizer.SynthesisStarted.addEventListener((s, e) -> eventHandler.onEvent(s, new TextToSpeechEvent("")));
+            synthesizer.SynthesisCompleted.addEventListener((s, e) -> eventHandler.onEvent(s, new TextToSpeechEvent("")));
+            synthesizer.SynthesisCanceled.addEventListener((s, e) -> {
+                String result = "CANCELED";
+                eventHandler.onEvent(s, new TextToSpeechEvent(result));
+            });
+            synthesizer.SpeakTextAsync(text);
+
+            return new MediaSession(sessionId, eventHandler, new MediaStream() {
+                @Override
+                public void write(byte[] data) {}
+
+                @Override
+                public void close() {
+                    os.close();
+                    synthesizer.close();
+                    config.close();
+                }
+
+            });
+        } catch (Exception e) {
+            throw new RuntimeException("Exception in textToSpeechSession", e);
+        }
+    }
+
+    
+
+  
 }
