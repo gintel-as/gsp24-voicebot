@@ -59,7 +59,7 @@ public class AzureOpenaiService implements Openai{
 
 
             ChatCompletionsOptions completionsOptions = new ChatCompletionsOptions(chatMessages);
-            completionsOptions.setMaxTokens(4000);
+            completionsOptions.setMaxTokens(500);
             
             ChatCompletions chatCompletions = client.getChatCompletions(deploymentOrModelId, completionsOptions);
             CompletionsUsage usage = chatCompletions.getUsage();
