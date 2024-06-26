@@ -3,6 +3,7 @@ package com.gintel.cognitiveservices.service;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -16,12 +17,14 @@ import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.AnsweredEvent;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEvent;
+import com.gintel.cognitiveservices.core.communication.types.events.IncomingEventText;
 import com.gintel.cognitiveservices.core.openai.Openai;
 import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
 import com.gintel.cognitiveservices.core.openai.types.OpenaiResult;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
+import com.gintel.cognitiveservices.core.tts.TextToSpeechEvent;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 
@@ -42,13 +45,29 @@ public class CognitiveServices implements CommunicationServiceListener {
     @Override
     public void onEvent(CommunicationService service, BaseEvent event, ChatBotContext ctx) {
         logger.info("onEvent(service={}, event={})", service, event);
+      
 
         try {
-            if (event instanceof IncomingEvent) {
-                handleIncoming(service, (IncomingEvent) event, ctx);
-            } else if (event instanceof AnsweredEvent) {
+            if (event instanceof IncomingEvent ) {
+                if (service.getServiceName().equals("WebSocketCommunicationService")) {
+                    handleIncoming(service, (IncomingEvent) event, ctx);
+                }
+              
+               
+               
+            } else if (event instanceof IncomingEventText) {
+                IncomingEventText casted = (IncomingEventText) event;
+                if (casted.getText() == null) {
+                    service.answer(new MediaSession(casted.getSessionId(), null, null));
+                } else if (service.getServiceName().equals("WebSocketCommunicationServiceText")) {
+                    handleIncomingText(service, (IncomingEventText) event, ctx);
+                }
+                
+            }
+            else if (event instanceof AnsweredEvent) {
                 // service.playMedia();
             }
+            
         } catch (Exception ex) {
             logger.error("Error handling event: {}", event.getClass().getSimpleName(), ex);
         }
@@ -60,6 +79,7 @@ public class CognitiveServices implements CommunicationServiceListener {
 //                session.getBasicRemote().sendText(e.toString());
                 if (e instanceof SpeechToTextEvent) {
                     SpeechToTextEvent casted = (SpeechToTextEvent) e;
+                    logger.info(e.toString() + " this is e for speek");
                     if (e.toString().charAt(9) == 'D') {
                         for (Openai ai : getServices(Openai.class)){
                             service.playMedia(event.getSessionId(), e.toString());
@@ -79,7 +99,9 @@ public class CognitiveServices implements CommunicationServiceListener {
                             }
                         }
                     }
-                } else {
+                }
+                
+                else {
                     logger.warn("Unhandled event type: {}", e.getClass().getSimpleName());
                 }
             } catch (Exception ex) {
@@ -97,11 +119,66 @@ public class CognitiveServices implements CommunicationServiceListener {
         }
     }
 
+    private void handleIncomingText(CommunicationService service, IncomingEventText event, ChatBotContext ctx){
+        EventHandler<BaseEvent> handler = (s, e) -> {
+            try {
+                logger.info(event.toString() + "this is the text");
+//                session.getBasicRemote().sendText(e.toString());
+                if (e instanceof TextToSpeechEvent) {
+                    TextToSpeechEvent casted = (TextToSpeechEvent) e;
+                    if (!event.toString().isEmpty()) {
+                        for (Openai ai : getServices(Openai.class)){
+                            service.playMedia(event.getSessionId(), e.toString());
+                            long t1 = System.currentTimeMillis();
+                            OpenaiResult aiResult = ai.openai(event.toString(), ctx, null, null);
+                            long t2 = System.currentTimeMillis();
+                            openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2-t1);
+                            service.playMedia(event.getSessionId(), aiResult.getResponse());
+                            for (TextToSpeech tts : getServices(TextToSpeech.class)){
+                                long a1 = System.currentTimeMillis();
+                                TextToSpeechByteResult ttsResult = tts.textToStream("en-US", "en-US-AvaMultilingualNeural", aiResult.getResponse().toString(), null, null);
+                                long a2 = System.currentTimeMillis();
+                                ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2-a1);
+                                service.playMedia(event.getSessionId(), "AI Time: " + openaiTime + " seconds. TTS time: " + ttsTime + " seconds.");
+                                service.playMedia(event.getSessionId(), ttsResult.getAudio());
+                            }
+                        }
+                    }
+                }
+                
+                else {
+                    logger.warn("Unhandled event type here: {}", e.getClass().getSimpleName());
+                }
+            } catch (Exception ex) {
+                logger.error("Exception when sending text to client", ex);
+            }    
+        };
+
+        try {
+            for (TextToSpeech tts : getServices(TextToSpeech.class)) {
+                MediaSession session = tts.startTextToSpeechSession(event.getSessionId(), event.toString(), null, handler);
+                service.answer(session);
+            }
+        } catch (Exception ex) {
+            logger.error("Failed to start TTS session for session ID: {}", event.getSessionId(), ex);
+        }
+
+    }
+
     @SuppressWarnings("unchecked")
     public <T extends Service> List<T> getServices(Class<T> clazz) {
         return services.values().stream()
                 .filter(clazz::isInstance)
                 .map(c -> (T) c)
                 .collect(Collectors.toList());
+    }
+    @SuppressWarnings("unchecked")
+    public <T extends Service> T getService(Class<T> clazz, String serviceName) {
+        return services.values().stream()
+                .filter(clazz::isInstance)
+                .filter(c -> serviceName == null || Objects.equals(serviceName, c.getServiceName()))
+                .map(c -> (T) c)
+                .findFirst()
+                .orElse(null);
     }
 }
