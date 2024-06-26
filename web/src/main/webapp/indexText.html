@@ -1,110 +1,98 @@
-<html lang="eng">
-  <head>
-    <meta charset="UTF-8" />
-  </head>
-  <body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Text To Speech</title>
+</head>
+<body>
     <input type="text" id="input" placeholder="Enter text" />
-    <button
-      id="sendButton"
-      onclick="ws.send(input.value); responseContainer.innerHTML += `<p>${input.value}</p>`;"
-    >
-      Send Message
-    </button>
-    <button id="stopButton">Stop Chat</button>
+    <button id="sendButton" onclick="sendMessage()">Send Message</button>
+    <button id="stopButton" onclick="stopChat()">Stop Chat</button>
     <div id="responseContainer"></div>
     <audio id="audio" controls autoplay>
-      <source src="" />
+        <source src="" />
     </audio>
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
     <script>
-      //.onkeypress = ws.send(input.data);
-      var protocol = window.location.protocol === "http:" ? "ws" : "wss";
-      let ws = new WebSocket(
-        protocol + "://" + window.location.host + "/web/websocket/text"
-      );
-      var audio = document.getElementById("audio");
-      var input = document.getElementById("input");
+        var protocol = window.location.protocol === "http:" ? "ws" : "wss";
+        let ws = new WebSocket(protocol + "://" + window.location.host + "/web/websocket/text");
+        var audio = document.getElementById("audio");
+        var input = document.getElementById("input");
 
-      input.addEventListener("keypress", function (event) {
-        if (event.key === "Enter") {
-          if (ws && ws.readyState === WebSocket.OPEN) {
-            console.log(input.value);
-            event.preventDefault();
-            responseContainer.innerHTML += `<p>${input.value}</p>`;
-            //document.getElementById("sendButton").click();
-
-            ws.send(input.value);
-            //playAudio();
-          }
+        function sendMessage() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                let message = input.value;
+                ws.send(message);
+                document.getElementById("responseContainer").innerHTML += `<p>${message}</p>`;
+                input.value = ''; 
+            }
         }
-      });
-      ws.onmessage = (event) => {
-        if (!(event.data instanceof Blob)) {
-          let responseContainer = document.getElementById("responseContainer");
-          responseContainer.innerHTML += `<p>${event.data}</p>`;
-          audio.src = "data:audio/x-wav;base64," + event.data;
-          return;
+
+        input.addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        ws.onmessage = event => {
+          
+            let responseContainer = document.getElementById("responseContainer");
+            if (typeof event.data === "string") {
+                responseContainer.innerHTML += `<p>${event.data}</p>`;
+            } else if (event.data instanceof Blob) {
+                blobToBase64(event.data).then(b64 => {
+                    audio.src = "data:audio/x-wav;base64," + b64;
+                    audio.play();
+                });
+            }
+        };
+
+        function blobToBase64(blob) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(blob);
+                reader.onload = () => {
+                    const base64String = reader.result.split(",")[1];
+                    resolve(base64String);
+                };
+                reader.onerror = error => reject(error);
+            });
         }
-        console.log("blob received: " + event.data.size);
-        blobToBase64(event.data).then((b64) => {
-          audio.src = "data:audio/x-wav;base64," + b64;
-          console.log(audio.src);
-          audio.play();
-        });
-        //ws.send(input.value);
-        //playAudio();
-      };
 
-      function playAudio() {
-        var a = new SpeechSynthesisUtterance();
-        a.text = input.value;
-        window.speechSynthesis.speak(a);
-      }
-
-      let handleDataAvailable = (event) => {
-        if (event.size > 0) {
-          console.log("blob", event);
-          blobToBase64(event).then((b64) => {
-            ws.send(b64);
-          });
+        function handleDataAvailable(event) {
+            if (event.size > 0) {
+                blobToBase64(event).then(b64 => {
+                    ws.send(b64);
+                });
+            }
         }
-      };
 
-      function blobToBase64(blob) {
-        return new Promise((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsDataURL(blob);
-          reader.onload = () => {
-            const base64String = reader.result.split(",")[1];
-            resolve(base64String);
-          };
-          reader.onerror = (error) => reject(error);
-        });
-      }
-
-      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
-        let recorder = RecordRTC(stream, {
-          type: "audio",
-          recorderType: StereoAudioRecorder,
-          mimeType: "audio/wav",
-          timeSlice: 500,
-          desiredSampRate: 16000,
-          numberOfAudioChannels: 1,
-          ondataavailable: handleDataAvailable,
+        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
+            let recorder = RecordRTC(stream, {
+                type: "audio",
+                recorderType: StereoAudioRecorder,
+                mimeType: "audio/wav",
+                timeSlice: 500,
+                desiredSampRate: 16000,
+                numberOfAudioChannels: 1,
+                ondataavailable: handleDataAvailable
+            });
         });
 
-        document.getElementById("stopButton").addEventListener("click", () => {
-          ws.onclose();
-        });
-      });
+        function stopChat() {
+            if (ws) {
+                ws.close();
+            }
+        }
 
-      ws.onopen = () => {
-        console.log("WebSocket connection opened");
-      };
+        ws.onopen = () => {
+            console.log("WebSocket connection opened");
+        };
 
-      ws.onclose = () => {
-        console.log("WebSocket connection closed");
-      };
+        ws.onclose = () => {
+            console.log("WebSocket connection closed");
+        };
     </script>
-  </body>
+</body>
 </html>
