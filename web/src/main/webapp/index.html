@@ -3,10 +3,15 @@
     <meta charset="UTF-8">
 </head>
 <body>
-    <button id="startButton">Start Streaming</button>
-    <button id="stopButton">Stop Streaming</button>
-    <div id="responseContainer"></div>
-    <audio src="data:audio" id="audio" controls autoplay></audio>
+    <div style="width: min-content;">
+        <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="startButton">Start Streaming</button>
+        <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="stopButton">Stop Streaming</button>
+        <br/>
+        <br/>
+        <div style="margin: 8px;" id="responseContainer"></div>
+        <br/>
+        <audio src="data:audio" id="audio" controls autoplay></audio>
+    </div>
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
     <script>
         var protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
@@ -23,11 +28,11 @@
                 if (event.data == "stop_recording"){
                     recorder.pauseRecording();
                     let responseContainer = document.getElementById('responseContainer');
-                    responseContainer.innerHTML += `<b>~~ Paused recording ~~</b>`;
+                    responseContainer.innerHTML += `<b style="font-size: 12px; border-radius: 16px; background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Paused recording ~~</b>`;
                     return;
                 }
                 let responseContainer = document.getElementById('responseContainer');
-                responseContainer.innerHTML += `<p>${event.data}</p>`;
+                responseContainer.innerHTML += `<p style="border-radius: 16px; background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; right: 0px;">${event.data}</p>`;
 				return;				
         	}
  
@@ -45,10 +50,10 @@
                             recorder.resumeRecording();
                             recorderState = '';
                             let responseContainer = document.getElementById('responseContainer');
-                            responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
+                            responseContainer.innerHTML += `<b style="font-size: 12px; border-radius: 16px; background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Recording ~~</b>`;
                         }
                         document.getElementById('startButton').disabled = false;
-                    }, audio.duration*1000 + 1000);
+                    }, audio.duration*1000 + 1500);
                 };
         	});
         };
@@ -94,14 +99,14 @@
                     }
                     recorderState = '';
                     let responseContainer = document.getElementById('responseContainer');
-                    responseContainer.innerHTML += `<b>~~ Recording ~~</b>`;
+                    responseContainer.innerHTML += `<b style="font-size: 12px; border-radius: 16px; background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Recording ~~</b>`;
                 });
 
                 document.getElementById('stopButton').addEventListener('click', () => {
                         recorder.pauseRecording();
                         recorderState = 'pausedByButton';
                         let responseContainer = document.getElementById('responseContainer');
-                        responseContainer.innerHTML += `<b>~~ Stopped Recording ~~</b>`;
+                        responseContainer.innerHTML += `<b style="font-size: 12px; border-radius: 16px; background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Stopped Recording ~~</b>`;
                 });
             });
 
@@ -110,7 +115,7 @@
         };
 
         ws.onclose = () => {
-            recorder.pauseRecording();
+            recorder.stopRecording();
             console.log('WebSocket connection closed');
         };
     </script>
