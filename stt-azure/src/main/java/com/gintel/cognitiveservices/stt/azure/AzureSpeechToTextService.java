@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Future;
 
+import org.aeonbits.owner.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +22,7 @@ import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;
 import com.microsoft.cognitiveservices.speech.AutoDetectSourceLanguageConfig;
 import com.microsoft.cognitiveservices.speech.CancellationDetails;
 import com.microsoft.cognitiveservices.speech.CancellationReason;
+import com.microsoft.cognitiveservices.speech.PropertyId;
 import com.microsoft.cognitiveservices.speech.ResultReason;
 import com.microsoft.cognitiveservices.speech.SpeechConfig;
 import com.microsoft.cognitiveservices.speech.SpeechRecognizer;
@@ -123,8 +125,11 @@ public class AzureSpeechToTextService implements SpeechToText {
             }
 
             SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(),
-                serviceRegion); 
+                serviceRegion);
+            config.setProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs,"2000");
+            config.setProperty(PropertyId.SpeechServiceConnection_LanguageIdMode, "Continuous");
             SpeechRecognizer recognizer = new SpeechRecognizer(config, autoDetectLanguages, audioCfg);
+            
             recognizer.recognizing.addEventListener((s, e) -> {
                 eventHandler.onEvent(s, new SpeechToTextEvent("RECOGNIZING: " + e.getResult().getText()));
             });

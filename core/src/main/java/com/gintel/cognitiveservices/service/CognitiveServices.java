@@ -1,6 +1,5 @@
 package com.gintel.cognitiveservices.service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,7 +25,6 @@ import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.core.tts.TextToSpeechEvent;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
-import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 
 public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
@@ -78,9 +76,7 @@ public class CognitiveServices implements CommunicationServiceListener {
             try {
 //                session.getBasicRemote().sendText(e.toString());
                 if (e instanceof SpeechToTextEvent) {
-                    SpeechToTextEvent casted = (SpeechToTextEvent) e;
-                    logger.info(e.toString() + " this is e for speek");
-                    if (e.toString().charAt(9) == 'D') {
+                    if (e.toString().charAt(9) == 'D' && e.toString().length() > 12) {
                         for (Openai ai : getServices(Openai.class)){
                             service.playMedia(event.getSessionId(), e.toString());
                             service.playMedia(event.getSessionId(), "stop_recording");
