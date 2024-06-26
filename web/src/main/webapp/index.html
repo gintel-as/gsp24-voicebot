@@ -4,11 +4,14 @@
 </head>
 <body>
     <div style="width: min-content;">
+        <br/>
+        <div class="welcome-message" style="border-radius: 16px; background-color: #6879D0; color: white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">Welcome! Press "Start Streaming" to record.</div>
+        <br/>
+        <div style="margin: 8px;" id="responseContainer"></div>
+        <br/>
         <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="startButton">Start Streaming</button>
         <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="stopButton">Stop Streaming</button>
         <br/>
-        <br/>
-        <div style="margin: 8px;" id="responseContainer"></div>
         <br/>
         <audio src="data:audio" id="audio" controls autoplay></audio>
     </div>
