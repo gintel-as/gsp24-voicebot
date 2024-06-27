@@ -38,5 +38,10 @@
 			<groupId>com.azure</groupId>
 			<artifactId>azure-identity</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.knuddels</groupId>
+			<artifactId>jtokkit</artifactId>
+			<version>1.0.0</version>
+		</dependency>
 	</dependencies>
 </project>

@@ -101,6 +101,12 @@
 				<artifactId>azure-identity</artifactId>
 				<version>1.12.2</version>
 			</dependency>
+			<dependency>
+				<groupId>com.knuddels</groupId>
+				<artifactId>jtokkit</artifactId>
+				<version>1.0.0</version>
+			</dependency>
+
     <dependency>
       <groupId>com.microsoft.cognitiveservices.speech</groupId>
       <artifactId>client-sdk</artifactId>

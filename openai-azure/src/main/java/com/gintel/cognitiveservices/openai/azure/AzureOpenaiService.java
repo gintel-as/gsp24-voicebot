@@ -25,11 +25,18 @@ import com.azure.ai.openai.models.ChatRequestUserMessage;
 import com.azure.ai.openai.models.ChatResponseMessage;
 import com.azure.ai.openai.models.CompletionsUsage;
 import com.azure.core.credential.AzureKeyCredential;
+import com.knuddels.jtokkit.api.EncodingRegistry;
+import com.knuddels.jtokkit.Encodings;
+import com.knuddels.jtokkit.api.Encoding;
+import com.knuddels.jtokkit.api.EncodingType;
 
 public class AzureOpenaiService implements Openai{
     private static final Logger logger = LoggerFactory.getLogger(AzureOpenaiService.class);
 
     private AzureOpenaiConfig serviceConfig;
+
+    EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
+    Encoding enc = registry.getEncoding(EncodingType.CL100K_BASE);
 
     public AzureOpenaiService(AzureOpenaiConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
@@ -55,14 +62,14 @@ public class AzureOpenaiService implements Openai{
             if (ctx.getMessages() != null){
                 chatMessages = ctx.getMessages();
             } else {
-                chatMessages.add(new ChatRequestSystemMessage("You are a helpful assistant. Reply in a conversational language with only the necessary content."));
-                ctx.addTokenCost("You are a helpful assistant.".length()*4);
+                chatMessages.add(new ChatRequestSystemMessage("You are a helpful assistant, speaking in a conversational language."));
+                ctx.addTokenCost(enc.encode("You are a helpful assistant, speaking in a conversational language.").size());
             }
 
             chatMessages.add(new ChatRequestUserMessage(text));
             if (chatMessages != null) {
                 ctx.addMessages(chatMessages);
-                ctx.addTokenCost(text.length()*4);
+                ctx.addTokenCost(enc.encode(text).size());
             }
 
 
@@ -94,7 +101,7 @@ public class AzureOpenaiService implements Openai{
                             chatCompletions = client.getChatCompletions(deploymentOrModelId, completionsOptions);
                             usage = chatCompletions.getUsage();
                             if (usage != null) {
-                                logger.info("Deleted " + messages + " messages");
+                                logger.info("Deleted " + messages + 1 + " messages");
                                 logger.info("Prompt tokens used (after deletion): {}", usage.getPromptTokens());
                                 logger.info("Completion tokens used (after deletion): {}", usage.getCompletionTokens());
                                 logger.info("Total tokens used (after deletion): {}", usage.getTotalTokens());
@@ -110,7 +117,7 @@ public class AzureOpenaiService implements Openai{
                                     mld = message.getContent();
                                     chatMessages.add(new ChatRequestAssistantMessage(message.getContent()));
                                     ctx.addMessages(chatMessages);
-                                    ctx.addTokenCost(message.getContent().length()*4);
+                                    ctx.addTokenCost(enc.encode(message.getContent()).size());
                                 }
                             }
 
@@ -133,7 +140,7 @@ public class AzureOpenaiService implements Openai{
                     mld = message.getContent();
                     chatMessages.add(new ChatRequestAssistantMessage(message.getContent()));
                     ctx.addMessages(chatMessages);
-                    ctx.addTokenCost(message.getContent().length()*4);
+                    ctx.addTokenCost(enc.encode(message.getContent()).size());
                 }
             }
 
