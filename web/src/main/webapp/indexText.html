@@ -68,17 +68,6 @@
             }
         }
 
-        navigator.mediaDevices.getUserMedia({ audio: true }).then(stream => {
-            let recorder = RecordRTC(stream, {
-                type: "audio",
-                recorderType: StereoAudioRecorder,
-                mimeType: "audio/wav",
-                timeSlice: 500,
-                desiredSampRate: 16000,
-                numberOfAudioChannels: 1,
-                ondataavailable: handleDataAvailable
-            });
-        });
 
         function stopChat() {
             if (ws) {

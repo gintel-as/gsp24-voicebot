@@ -65,6 +65,7 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
     @OnMessage
     public void onTextInput(Session session, String msg, boolean last) {
         String sessionId = session.getId();
+        
         logger.info("onTextInput: {}", msg);
         try {
             if (!sessions.containsKey(session.getId())) {
@@ -96,15 +97,7 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
             logger.error("Exception in onTextInput", e);
         }
     }
-    private boolean isBase64Encoded(String message) {
-        try {
-            byte[] decodedBytes = Base64.getDecoder().decode(message);
-            String reEncodedMessage = Base64.getEncoder().encodeToString(decodedBytes);
-            return message.equals(reEncodedMessage);
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
-    }
+   
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
@@ -112,10 +105,10 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
         logger.info("onOpen({}, {})", sessionId, config);
         wsSessions.put(session.getId(), session);
         contexts.put(sessionId, new ChatBotContext());
+        logger.info(contexts.toString() + "this is context");
         
-       
 
-        EventHandler<BaseEvent> handler = (s, e) -> { //the problem is here!
+        EventHandler<BaseEvent> handler = (s, e) -> {
             try {
                 logger.info("Sending event data to client: {}", e);
                 session.getBasicRemote().sendText(e.toString());
@@ -189,6 +182,8 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
             logger.error("Exception in playMedia with sessionId {}: {}", sessionId, e);
         }
     }
+
+   
 
  
 }
