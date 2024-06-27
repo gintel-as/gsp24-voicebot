@@ -116,13 +116,13 @@ public class CognitiveServices implements CommunicationServiceListener {
     }
 
     private void handleIncomingText(CommunicationService service, IncomingEventText event, ChatBotContext ctx){
+        String[] text = {""};
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
-                logger.info(event.toString() + "this is the text");
 //                session.getBasicRemote().sendText(e.toString());
                 if (e instanceof TextToSpeechEvent) {
                     TextToSpeechEvent casted = (TextToSpeechEvent) e;
-                    if (!event.toString().isEmpty()) {
+                    if (!event.toString().isEmpty() && !text[0].equals(event.toString())) {
                         for (Openai ai : getServices(Openai.class)){
                             service.playMedia(event.getSessionId(), e.toString());
                             long t1 = System.currentTimeMillis();
@@ -139,6 +139,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                                 service.playMedia(event.getSessionId(), ttsResult.getAudio());
                             }
                         }
+                        text[0] = event.toString();
                     }
                 }
                 
