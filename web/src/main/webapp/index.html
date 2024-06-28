@@ -1,19 +1,35 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <style>
+        #responseContainer::-webkit-scrollbar {
+            width: 8px;
+            background: transparent;
+        }
+        #responseContainer::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #responseContainer::-webkit-scrollbar-thumb {
+            background: #d3d3d3;
+            border-radius: 8px;
+        }
+    </style>
 </head>
 <body>
-    <div style="width: min-content;">
-        <br/>
-        <div class="welcome-message" style="border-radius: 16px; background-color: #6879D0; color: white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">Welcome! Press "Start Streaming" to record.</div>
-        <br/>
-        <div style="margin: 8px;" id="responseContainer"></div>
-        <br/>
-        <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="startButton">Start Streaming</button>
-        <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="stopButton" disabled>Stop Streaming</button>
-        <br/>
-        <br/>
-        <audio src="data:audio" id="audio" controls autoplay></audio>
+    <div style="display: flex; width: 99vw; justify-content: center;">
+        <div style="display:flex; flex-direction: column; align-items: center; justify-content: center; width: 30vw; height: 85vh; border-radius: 16px; border: 1px solid black; padding: 8px;" id="app-container">
+            <br/>
+            <div id="welcome-message" class="welcome-message" style="border-radius: 16px; background-color: #6879D0; color: white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">Welcome! Press "Start Streaming" to record.</div>
+            <br />
+            <div style="display: flex; flex-direction: column; height: 100%; overflow-y: scroll; width: 100%; border-bottom: 1px solid black; border-top: 1px solid black;" id="responseContainer"></div>
+            <br/>
+            <div style="display: flex; flex-direction: row; width: fit-content; gap: 24px;">
+                <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="startButton">Start Streaming</button>
+                <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="stopButton" disabled>Stop Streaming</button>
+            </div>
+            <br/>
+            <audio src="data:audio" id="audio" controls autoplay></audio>
+        </div>
     </div>
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
     <script>
@@ -32,11 +48,17 @@
                     recorder.pauseRecording();
                     isPausedByAI = true;
                     let responseContainer = document.getElementById('responseContainer');
-                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Paused recording ~~</b><br>`;
+                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Paused recording ~~</b><br>`;
+                    responseContainer.scrollTop = responseContainer.scrollHeight;
                     return;
                 }
                 let responseContainer = document.getElementById('responseContainer');
-                responseContainer.innerHTML += `<p style="border-radius: 16px; background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; right: 0px;">${event.data}</p>`;
+                if(event.data.includes("RECOGNIZED:")){
+                    responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-left: 24px; align-self:flex-end;">${event.data.replace("RECOGNIZED: ", "")}</p>`;
+                } else {
+                    responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border: 1px solid gray; background-color: white; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-right: 24px; align-self:flex-start;">${event.data}</p>`;
+                }
+                responseContainer.scrollTop = responseContainer.scrollHeight;
 				return;				
         	}
  
@@ -45,7 +67,6 @@
                 recorder.pauseRecording();
                 isPausedByAI = true;
         		audio.src = "data:audio/x-wav;base64," + b64;
-        		console.log(audio.src);
                 audio.load();
                 audio.play();
                 document.getElementById('startButton').disabled = true;
@@ -55,7 +76,8 @@
                             recorder.resumeRecording();
                             isPausedByAI = false;
                             let responseContainer = document.getElementById('responseContainer');
-                            responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Recording ~~</b><br>`;
+                            responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;
+                            responseContainer.scrollTop = responseContainer.scrollHeight;
                         }
                         if (isPausedByButton) {
                             document.getElementById('startButton').disabled = false;
@@ -108,7 +130,8 @@
                     document.getElementById('startButton').disabled = true;
                     document.getElementById('stopButton').disabled = false;
                     let responseContainer = document.getElementById('responseContainer');
-                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Recording ~~</b><br>`;
+                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;
+                    responseContainer.scrollTop = responseContainer.scrollHeight;
                 });
 
                 document.getElementById('stopButton').addEventListener('click', () => {
@@ -121,7 +144,8 @@
                             document.getElementById('startButton').disabled = false;
                         }
                         let responseContainer = document.getElementById('responseContainer');
-                        responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Stopped Recording ~~</b><br>`;
+                        responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Stopped Recording ~~</b><br>`;
+                        responseContainer.scrollTop = responseContainer.scrollHeight;
                 });
             });
 
