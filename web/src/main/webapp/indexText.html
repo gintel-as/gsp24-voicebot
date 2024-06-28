@@ -5,62 +5,109 @@
     <title>Text To Speech</title>
 </head>
 <body>
-    <div style="width: min-content;">
+    <div style="display: flex; width: 99vw; justify-content: center;">
+        <div style="display:flex; flex-direction: column; align-items: center; justify-content: center; width: 30vw; height: 85vh; border-radius: 16px; border: 1px solid black; padding: 8px;" id="app-container">
+        <div class="welcome-message" style="border-radius: 16px; background-color: #36d9d4; color: black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">Welcome! Type your message and send to chat. </div>
         <br/>
-        <div class="welcome-message" style="border-radius: 16px; background-color: #36d9d4; color: white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">Welcome! Type your message and send to chat. </div>
-        <br/>
-        <div style="margin: 8px;" id="responseContainer"></div>
+        <div style="display: flex; flex-direction: column; height: 100%; overflow-y: scroll; width: 100%; border-bottom: 1px solid black; border-top: 1px solid black;" id="responseContainer"></div>
         <br/>
         <div style="border-radius: 16px;">
-            <input  style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" type="text" id="input" placeholder="Enter text" />
+            <input  style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" type="text" id="input" placeholder="Enter message" />
         </div>
         <br/>
-        <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="sendButton" onclick="sendMessage()">Send Message</button>
-        <button  style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="stopButton" onclick="stopChat()">Stop Chat</button>
+        <div style="display: flex; flex-direction: row; width: fit-content; gap: 24px;">
+        <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="sendButton" disabled onclick="sendMessage()">Send Message</button>
+        <button  style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="stopButton" disabled onclick="stopChat()">End Chat</button>
+        <button style="display:none; border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="startNewChatButton" onclick="startNewChat()">Start New Chat</button>
+        </div>
         <br/>
-        <div style="border-radius: 16px;">
+        <br/>
             <audio id="audio" controls autoplay>
                 <source src="" />
             </audio>
-        </div> 
+    </div>
     </div>
     
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
     <script>
         var protocol = window.location.protocol === "http:" ? "ws" : "wss";
-        let ws = new WebSocket(protocol + "://" + window.location.host + "/web/websocket/text");
+        let ws;
         var audio = document.getElementById("audio");
         var input = document.getElementById("input");
+        var sendButton = document.getElementById("sendButton");
+        var stopButton = document.getElementById("stopButton");
+        var startNewChatButton = document.getElementById("startNewChatButton");
+        var responsePending = false;
+
+        function openWebSocket(){
+            ws = new WebSocket(protocol + "://" + window.location.host + "/web/websocket/text");
+
+                ws.onopen = () => {
+                console.log("WebSocket connection opened");
+            };
+
+            ws.onclose = () => {
+                console.log("WebSocket connection closed");
+                
+            };
+            
+            
+            ws.onmessage = event => {
+            
+            stopButton.disabled = false;
+            let responseContainer = document.getElementById("responseContainer");
+            if (typeof event.data === "string") {
+                responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #cfcfcf ; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; right: 0px;">${event.data}</p>`;
+                
+            } else if (event.data instanceof Blob) {
+                blobToBase64(event.data).then(b64 => {
+                    audio.src = "data:audio/x-wav;base64," + b64;
+                    audio.play();
+                    input.disabled = false;
+                    responsePending = false;
+                   
+                });
+            }
+        };
+        }
+
+        openWebSocket();
 
         function sendMessage() {
-            if (ws && ws.readyState === WebSocket.OPEN) {
+            if (ws && ws.readyState === WebSocket.OPEN && !responsePending && input.value.trim() !== "") {
                 let message = input.value;
                 ws.send(message);
-                document.getElementById("responseContainer").innerHTML += `<p style="border-radius: 16px; background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; left: 0px">${message}</p>`;
+                responsePending = true;
+                sendButton.disabled = true;
+                input.disabled = true;
+                document.getElementById("responseContainer").innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-left: 24px; align-self:flex-end;">${message}</p>`;
                 input.value = ''; 
+                document.getElementById("responseContainer").innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Processing Message ~~</b><br>`;
+                
             }
         }
 
         input.addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
+            if (event.key === "Enter" && !responsePending && input.value.trim() !== "") {
                 event.preventDefault();
                 sendMessage();
             }
         });
 
-        ws.onmessage = event => {
-          
-            let responseContainer = document.getElementById("responseContainer");
-            if (typeof event.data === "string") {
-                responseContainer.innerHTML += `<p style="border-radius: 16px; background-color: #cfcfcf ; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; right: 0px;">${event.data}</p>`;
-
-            } else if (event.data instanceof Blob) {
-                blobToBase64(event.data).then(b64 => {
-                    audio.src = "data:audio/x-wav;base64," + b64;
-                    audio.play();
-                });
+        input.addEventListener("input", (event) => {
+            if (input.value.trim() !== ""){
+                sendButton.disabled = false;
             }
-        };
+            else{
+                sendButton.disabled = true;
+
+            }
+                
+        });
+
+
+
+     
 
         function blobToBase64(blob) {
             return new Promise((resolve, reject) => {
@@ -86,17 +133,32 @@
         function stopChat() {
             if (ws) {
                 ws.close();
+                sendButton.disabled = true;
+                input.disabled = true;
+                stopButton.style.display = 'none';
+                startNewChatButton.style.display = 'inline';
+                audio.pause();
             }
         }
-
-        ws.onopen = () => {
-            console.log("WebSocket connection opened");
-        };
-
-        ws.onclose = () => {
-            console.log("WebSocket connection closed");
+        function startNewChat(){
+            document.getElementById("responseContainer").innerHTML = '';
+            responsePending = false;
+            openWebSocket();
+            input.value = "";
+            input.disabled = false;
+            stopButton.style.display = 'inline';
+            startNewChatButton.style.display = 'none';
+            clearAudio();
             
-        };
+        }
+
+        function clearAudio(){
+            audio.pause();
+            audio.src = "";
+            audio.load();
+        }
+
+       
     </script>
 </body>
 </html>
