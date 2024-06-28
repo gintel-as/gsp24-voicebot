@@ -63,7 +63,6 @@
                 blobToBase64(event.data).then(b64 => {
                     audio.src = "data:audio/x-wav;base64," + b64;
                     audio.play();
-                    sendButton.disabled = false;
                     input.disabled = false;
                     responsePending = false;
                    
