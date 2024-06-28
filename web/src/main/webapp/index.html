@@ -5,6 +5,7 @@
         #responseContainer::-webkit-scrollbar {
             width: 8px;
             background: transparent;
+            padding-left: 2px;
         }
         #responseContainer::-webkit-scrollbar-track {
             background: transparent;
@@ -16,7 +17,11 @@
     </style>
 </head>
 <body>
-    <div style="display: flex; width: 99vw; justify-content: center;">
+    <div style="display: flex; width: 99vw; justify-content: space-between;">
+        <div style="border-radius: 16px; border: 1px solid #b2b2b0; width: 27%; margin-right: 8px; padding: 24px;">
+            <div id="welcome-message" class="welcome-message" style="border-radius: 16px; background-color: white; color: black; border: 1px solid #BFBFBD; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">Speech output:</div>
+            <div style="display: flex; flex-direction: column; border-top: 1px solid black;" id="speechContainer"></div>
+        </div>
         <div style="display:flex; flex-direction: column; align-items: center; justify-content: center; width: 30vw; height: 85vh; border-radius: 16px; border: 1px solid black; padding: 8px;" id="app-container">
             <br/>
             <div id="welcome-message" class="welcome-message" style="border-radius: 16px; background-color: #6879D0; color: white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">Welcome! Press "Start Streaming" to record.</div>
@@ -31,6 +36,11 @@
             <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="interruptButton" disabled>Interrupt AI</button>
             <br/>
             <audio src="data:audio" id="audio" controls autoplay></audio>
+        </div>
+        <div style="display: flex; flex-direction: column; align-items: start; width: 27%; border-radius: 16px; border: 1px solid #b2b2b0; margin-left: 8px; padding: 24px; gap: 12px;">
+            <img style="object-fit: scale-down;" height="100px" src="https://external-content.duckduckgo.com/iu/?u=http%3A%2F%2Fww1.prweb.com%2Fprfiles%2F2014%2F03%2F25%2F11946980%2FGINTEL_logo_with%2520strapline.jpg&f=1&nofb=1&ipt=94d54be1261a226a4bded5432349fc56bf8efbfb1f1e254c2eb049178070a55f&ipo=images" />
+            <img style="object-fit: scale-down;" height="100px" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fynsize.com.br%2Fwp-content%2Fuploads%2F2022%2F09%2FMicrosoft-Azure-Logo-1.png&f=1&nofb=1&ipt=a524a4e0262bc5b0e1dce7301ccf09b636832c240c69477c40c1e4b5bdbb6dd8&ipo=images" />
+            <img style="object-fit: scale-down;" height="100px" src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fwww.freelogovectors.net%2Fwp-content%2Fuploads%2F2023%2F01%2Fopenai-logo-freelogovectors.net_.png&f=1&nofb=1&ipt=bdcbc4ee0e52e930324ec029e2bc0e290247de99abaf9cd0f240d2beb78948f3&ipo=images" />
         </div>
     </div>
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
@@ -56,8 +66,13 @@
                     return;
                 }
                 let responseContainer = document.getElementById('responseContainer');
+                let speechContainer = document.getElementById('speechContainer');
+                console.log(event.data)
                 if(event.data.includes("RECOGNIZED:")){
+                    speechContainer.innerHTML = "";
                     responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-left: 24px; align-self:flex-end;">${event.data.replace("RECOGNIZED: ", "")}</p>`;
+                } else if (event.data.includes("RECOGNIZING:") || event.data.includes("Session started event.")){
+                    speechContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border: 1px solid #BFBFBD; background-color: white; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:flex-start;">${event.data}</p>`;
                 } else {
                     responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border: 1px solid #BFBFBD; background-color: white; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-right: 24px; align-self:flex-start;">${event.data}</p>`;
                 }
