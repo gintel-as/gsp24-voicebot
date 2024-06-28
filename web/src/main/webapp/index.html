@@ -189,6 +189,17 @@
             recorder.stopRecording();
             console.log('WebSocket connection closed');
         };
+
+        function readWelcomeMessage() {
+            const welcomeMessage = document.getElementById('welcome-message').innerText;
+            const speech = new SpeechSynthesisUtterance(welcomeMessage);
+            speechSynthesis.speak(speech);
+        }
+
+        window.onload = () => {
+            readWelcomeMessage();
+        };
+
     </script>
 </body>
 </html>
