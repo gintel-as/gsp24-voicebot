@@ -177,7 +177,8 @@
                     }
 
                     let responseContainer = document.getElementById('responseContainer');
-                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Stopped Recording ~~</b><br>`;                    responseContainer.scrollTop = responseContainer.scrollHeight;
+                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;                    
+                    responseContainer.scrollTop = responseContainer.scrollHeight;
                 });
             });
 
