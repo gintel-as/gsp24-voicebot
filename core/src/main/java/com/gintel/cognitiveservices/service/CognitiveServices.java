@@ -121,7 +121,6 @@ public class CognitiveServices implements CommunicationServiceListener {
             try {
 //                session.getBasicRemote().sendText(e.toString());
                 if (e instanceof TextToSpeechEvent) {
-                    TextToSpeechEvent casted = (TextToSpeechEvent) e;
                     if (!event.toString().isEmpty() && !text[0].equals(event.toString())) {
                         for (Openai ai : getServices(Openai.class)){
                             service.playMedia(event.getSessionId(), e.toString());
