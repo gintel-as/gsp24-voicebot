@@ -21,8 +21,8 @@ public class ChatBotContext {
         this.messageTokens.add(tokens);
     }
 
-    public void removeTokenCost(Integer index) {
-        this.messageTokens.remove(index);
+    public void setTokenCost(List<Integer> tokens) {
+        this.messageTokens = tokens;
     }
 
     public List<Integer> getMessageTokens(){
