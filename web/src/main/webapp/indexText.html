@@ -38,6 +38,7 @@
         var stopButton = document.getElementById("stopButton");
         var startNewChatButton = document.getElementById("startNewChatButton");
         var responsePending = false;
+        var isProcessing = 0;
 
         function openWebSocket(){
             ws = new WebSocket(protocol + "://" + window.location.host + "/web/websocket/text");
@@ -56,15 +57,24 @@
             
             stopButton.disabled = false;
             let responseContainer = document.getElementById("responseContainer");
-            if (typeof event.data === "string") {
+            if (typeof event.data === "string" && event.data.trim() !== "") {
                 responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #cfcfcf ; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; right: 0px;">${event.data}</p>`;
-                
-            } else if (event.data instanceof Blob) {
-                blobToBase64(event.data).then(b64 => {
+                responseContainer.scrollTop = responseContainer.scrollHeight;
+                isProcessing += 1;
+                if (isProcessing === 1) {
+                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Preparing speech ~~</b><br>`; 
+                    isProcessing +=1 ;
+                }
+                      
+            } 
+            
+            else if (event.data instanceof Blob) { 
+                blobToBase64(event.data).then(b64 => {                  
                     audio.src = "data:audio/x-wav;base64," + b64;
                     audio.play();
                     input.disabled = false;
                     responsePending = false;
+                    isProcessing = 0; 
                    
                 });
             }
@@ -76,19 +86,21 @@
         function sendMessage() {
             if (ws && ws.readyState === WebSocket.OPEN && !responsePending && input.value.trim() !== "") {
                 let message = input.value;
+                audio.pause()
                 ws.send(message);
                 responsePending = true;
                 sendButton.disabled = true;
                 input.disabled = true;
                 document.getElementById("responseContainer").innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-left: 24px; align-self:flex-end;">${message}</p>`;
                 input.value = ''; 
-                document.getElementById("responseContainer").innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;">~~ Processing Message ~~</b><br>`;
+                document.getElementById("responseContainer").innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Processing Message ~~</b><br>`;
                 
             }
         }
 
         input.addEventListener("keypress", function(event) {
             if (event.key === "Enter" && !responsePending && input.value.trim() !== "") {
+                
                 event.preventDefault();
                 sendMessage();
             }
