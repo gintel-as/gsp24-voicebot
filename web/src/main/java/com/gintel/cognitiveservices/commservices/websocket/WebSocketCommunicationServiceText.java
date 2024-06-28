@@ -1,6 +1,7 @@
 package com.gintel.cognitiveservices.commservices.websocket;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import com.gintel.cognitiveservices.core.communication.EventHandler;
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEvent;
+import com.gintel.cognitiveservices.core.communication.types.events.IncomingEventText;
 import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
@@ -63,6 +65,7 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
     @OnMessage
     public void onTextInput(Session session, String msg, boolean last) {
         String sessionId = session.getId();
+        
         logger.info("onTextInput: {}", msg);
         try {
             if (!sessions.containsKey(session.getId())) {
@@ -72,14 +75,29 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
             }
 
             String lang = "nb-NO";
-            byte[] bytes = Base64.getDecoder().decode(msg);
-            TextToSpeechResult ttsResult = ttsService.textToSpeech(lang, "en-US-AvaMultilingualNeural", msg, null, null);
-            sessions.get(sessionId).getTextInput(ttsResult);
+            
+            EventHandler<BaseEvent> handler = (s, e) -> {
+                try {
+                    logger.info(e.toString() + "hello");
+                    session.getBasicRemote().sendText(e.toString());
+                } catch (IOException ex) {
+                    logger.error("Exception when sending text to client", ex);
+                }
+            };
+            
+            //TextToSpeechResult ttsResult = ttsService.textToSpeech(lang, "en-US-AvaMultilingualNeural", decodedMsg, null, null);
+           // sessions.get(sessionId).getTextInput(ttsResult);
+            
+            for (CommunicationServiceListener listener : listeners) {
+                listener.onEvent(this, new IncomingEventText(sessionId, handler, msg), contexts.get(sessionId));
+            }
+            
 
         } catch (Exception e) {
             logger.error("Exception in onTextInput", e);
         }
     }
+   
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
@@ -87,18 +105,19 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
         logger.info("onOpen({}, {})", sessionId, config);
         wsSessions.put(session.getId(), session);
         contexts.put(sessionId, new ChatBotContext());
+        logger.info(contexts.toString() + "this is context");
         
-       
 
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
+                logger.info("Sending event data to client: {}", e);
                 session.getBasicRemote().sendText(e.toString());
             } catch (IOException ex) {
                 logger.error("Exception when sending text to client", ex);
             }
         };
 
-        listeners.forEach(c -> c.onEvent(this, new IncomingEvent(session.getId(), handler), contexts.get(sessionId)));
+        listeners.forEach(c -> c.onEvent(this, new IncomingEventText(sessionId, handler,null), contexts.get(sessionId)));
     }
 
     @OnClose
@@ -158,9 +177,13 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
     @Override
     public void playMedia(String sessionId, byte[] data) {
         try {
-            wsSessions.get(sessionId).getBasicRemote().sendText(new String(data));
+            wsSessions.get(sessionId).getBasicRemote().sendBinary(ByteBuffer.wrap(data));
         } catch (IOException e) {
             logger.error("Exception in playMedia with sessionId {}: {}", sessionId, e);
         }
     }
+
+   
+
+ 
 }
