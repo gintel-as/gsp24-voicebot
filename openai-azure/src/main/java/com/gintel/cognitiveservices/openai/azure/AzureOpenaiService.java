@@ -35,9 +35,6 @@ public class AzureOpenaiService implements Openai{
 
     private AzureOpenaiConfig serviceConfig;
 
-    EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
-    Encoding enc = registry.getEncoding(EncodingType.CL100K_BASE);
-
     public AzureOpenaiService(AzureOpenaiConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
 
@@ -50,6 +47,9 @@ public class AzureOpenaiService implements Openai{
             String azureOpenaiKey = serviceConfig.subscriptionKey();
             String endpoint = "https://gintel-openai-resource.openai.azure.com/";
             String deploymentOrModelId = "testDeployment";
+
+            EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
+            Encoding enc = registry.getEncoding(EncodingType.CL100K_BASE);
 
             OpenAIClient client = new OpenAIClientBuilder()
                 .endpoint(endpoint)
@@ -82,6 +82,7 @@ public class AzureOpenaiService implements Openai{
                 logger.info("Prompt tokens used: {}", usage.getPromptTokens());
                 logger.info("Completion tokens used: {}", usage.getCompletionTokens());
                 logger.info("Total tokens used: {}", usage.getTotalTokens());
+                logger.info("" + ctx.getMessageTokens());
 
                 if (usage.getTotalTokens() >= completionsOptions.getMaxTokens()) {
                     Integer messages = 1;
@@ -92,20 +93,23 @@ public class AzureOpenaiService implements Openai{
                             sum += ctx.getMessageTokens().get(i+1);
                         }
                         if (sum > diff) {
-                            for (int j = messages; j > 0; j--){
-                                ctx.removeTokenCost(j);
-                                chatMessages.remove(j);
-                                ctx.addMessages(chatMessages);
+                            List<Integer> tokes = ctx.getMessageTokens();
+                            for (int j =0; j <= messages; j++){
+                                tokes.remove(messages - j);
+                                chatMessages.remove(messages - j);
                             }
+                            ctx.setTokenCost(tokes);
+                            ctx.addMessages(chatMessages);
                             completionsOptions = new ChatCompletionsOptions(chatMessages);
                             chatCompletions = client.getChatCompletions(deploymentOrModelId, completionsOptions);
                             usage = chatCompletions.getUsage();
                             if (usage != null) {
-                                logger.info("Deleted " + messages + 1 + " messages");
+                                logger.info("Deleted " + Math.addExact(messages, 1) + " messages");
                                 logger.info("Prompt tokens used (after deletion): {}", usage.getPromptTokens());
                                 logger.info("Completion tokens used (after deletion): {}", usage.getCompletionTokens());
                                 logger.info("Total tokens used (after deletion): {}", usage.getTotalTokens());
-                                logger.info("" + chatMessages);
+                                logger.info("" + ctx.getMessageTokens());
+                                logger.info("chatMessages lengde = tokens lengde\n" + ctx.getMessages().size() +" = " + ctx.getMessageTokens().size());
                             }
                             String mld = "";
                             for (ChatChoice choice : chatCompletions.getChoices()) {
