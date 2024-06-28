@@ -68,7 +68,7 @@
                 let responseContainer = document.getElementById('responseContainer');
                 let speechContainer = document.getElementById('speechContainer');
                 console.log(event.data)
-                if(event.data.includes("RECOGNIZED:")){
+                if(event.data.includes("RECOGNIZED:") && event.data !== "RECOGNIZED: "){
                     speechContainer.innerHTML = "";
                     responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-left: 24px; align-self:flex-end;">${event.data.replace("RECOGNIZED: ", "")}</p>`;
                 } else if (event.data.includes("RECOGNIZING:") || event.data.includes("Session started event.")){
