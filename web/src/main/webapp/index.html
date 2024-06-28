@@ -191,9 +191,10 @@
         };
 
         function readWelcomeMessage() {
-            const welcomeMessage = document.getElementById('welcome-message').innerText;
-            const speech = new SpeechSynthesisUtterance(welcomeMessage);
-            speechSynthesis.speak(speech);
+            var msg = new SpeechSynthesisUtterance();
+            msg.lang = 'en-US';
+            msg.text = document.getElementById('welcome-message').innerText;
+            speechSynthesis.speak(msg);
         }
 
         window.onload = () => {
