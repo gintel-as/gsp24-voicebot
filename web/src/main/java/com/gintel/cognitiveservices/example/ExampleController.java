@@ -12,6 +12,7 @@ import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 
 public class ExampleController {
+    @SuppressWarnings("unused")
     private WebConfig config;
     private List<TextToSpeech> ttsServices;
     private List<SpeechToText> sttServices;

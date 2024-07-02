@@ -3,7 +3,6 @@ package com.gintel.cognitiveservices.core.tts.types;
 public class TextToSpeechByteResult {
     private TextToSpeechStatus status;
     private byte[] audio;
-    private String srt;
 
     public TextToSpeechByteResult() {
     }

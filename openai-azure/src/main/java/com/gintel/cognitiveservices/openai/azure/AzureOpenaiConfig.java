@@ -13,7 +13,7 @@ import com.gintel.cognitiveservices.config.ConfigTrim;
 @Config.PreprocessorClasses({ConfigTrim.class})
 @Sources("file:${config_file}")
 
-public interface AzureOpenaiConfig extends Config, Reloadable{
+public interface AzureOpenaiConfig extends Reloadable{
     
     @Key("azure.openai.subscription_key")
     String subscriptionKey();

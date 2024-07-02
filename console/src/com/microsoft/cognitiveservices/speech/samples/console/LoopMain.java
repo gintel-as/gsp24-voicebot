@@ -2,7 +2,6 @@ package com.microsoft.cognitiveservices.speech.samples.console;
 
 import java.io.*;
 import java.net.*;
-import java.util.Scanner;
 
 public class LoopMain {
 
@@ -40,7 +39,6 @@ public class LoopMain {
         b = b.replaceAll("\\\\", "");
         System.out.println(b);
 
-        String ubrukeligString = getHTML("http://localhost:8080/web/rest/example/v1?text="+b.replace(" ", "%20"));
         System.out.println(botInput);
     }
    }

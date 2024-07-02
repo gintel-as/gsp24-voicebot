@@ -71,7 +71,6 @@ public class WebApplication extends Application {
     }
 
     private List<SpeechToText> getSpeechToTextServices() {
-        // TODO Auto-generated method stub
         return Arrays.asList(new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
     }
 
