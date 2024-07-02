@@ -1,11 +1,8 @@
 package com.gintel.cognitiveservices.stt.azure;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.Future;
 
-import org.aeonbits.owner.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,7 +58,6 @@ public class AzureSpeechToTextService implements SpeechToText {
         //}
         //AudioConfig audioConfig = AudioConfig.fromWavFileOutput("output/output.mp3");
        // SpeechRecognizer reco = new SpeechRecognizer(config, "nb-NO");
-       List<SpeechRecognizer> recognizeSpeechRecognizers = new ArrayList<>();
 
         try (SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceRegion);
              SpeechRecognizer reco = new SpeechRecognizer(config, lang)) {

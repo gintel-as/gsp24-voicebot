@@ -178,7 +178,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
      public MediaSession startTextToSpeechSession(String sessionId, String text, String language, EventHandler<BaseEvent> eventHandler) {
         logger.info("createSession(sessionId={}, language={})", sessionId, language);
         String serviceRegion = serviceConfig.region();
-        String lang = language != null ? language.replace("\"", "") : "nb-NO";
+        // String lang = language != null ? language.replace("\"", "") : "nb-NO";
 
         try {
             SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceRegion);

@@ -3,7 +3,6 @@ package com.gintel.cognitiveservices.commservices.websocket;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,10 +25,8 @@ import com.gintel.cognitiveservices.core.communication.CommunicationServiceListe
 import com.gintel.cognitiveservices.core.communication.EventHandler;
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
-import com.gintel.cognitiveservices.core.communication.types.events.IncomingEvent;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEventText;
 import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
-import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 import com.gintel.cognitiveservices.service.CognitiveServices;
@@ -43,7 +40,7 @@ import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 public class WebSocketCommunicationServiceText implements CommunicationService {
     private static final Logger logger = LoggerFactory.getLogger(WebSocketCommunicationServiceText.class);
 
-    private AzureTextToSpeechService ttsService;
+    //private AzureTextToSpeechService ttsService;
     private List<CommunicationServiceListener> listeners = new ArrayList<>();
     private Map<String, MediaSession> sessions = new ConcurrentHashMap<>();
     private Map<String, Session> wsSessions = new ConcurrentHashMap<>();
@@ -59,7 +56,7 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
         services.put("azure-openai", new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)));
         services.put("azure-tts", new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class)));
         new CognitiveServices(services);
-        this.ttsService = new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class));
+        //this.ttsService = new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class));
     }
 
     @OnMessage
@@ -74,7 +71,7 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
                 return;
             }
 
-            String lang = "nb-NO";
+            //String lang = "nb-NO";
             
             EventHandler<BaseEvent> handler = (s, e) -> {
                 try {
@@ -163,7 +160,7 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
 
     @Override
     public void answer(MediaSession mediaSession) {
-        String sessionId = mediaSession.getId();
+        //String sessionId = mediaSession.getId();
         logger.info("answer(session={})", mediaSession);
         sessions.put(mediaSession.getId(), mediaSession);
         logger.info("Current sessions after adding: {}", sessions.keySet());

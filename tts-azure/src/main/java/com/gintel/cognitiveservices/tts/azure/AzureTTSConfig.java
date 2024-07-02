@@ -12,7 +12,7 @@ import com.gintel.cognitiveservices.config.ConfigTrim;
 @Config.HotReload(unit = TimeUnit.MINUTES, value = 1, type = HotReloadType.SYNC)
 @Config.PreprocessorClasses({ConfigTrim.class})
 @Sources("file:${config_file}")
-public interface AzureTTSConfig extends Config, Reloadable {
+public interface AzureTTSConfig extends Reloadable {
     @Key("azure.tts.subscription_key")
     String subscriptionKey();
 
