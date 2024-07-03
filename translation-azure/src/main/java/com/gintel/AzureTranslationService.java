@@ -17,7 +17,6 @@ import com.gintel.cognitiveservices.core.translation.types.TranslationStatus;
 
 public class AzureTranslationService implements Translation {
     private static final Logger logger = LoggerFactory.getLogger(AzureTranslationService.class);
-
     private AzureTranslationConfig serviceConfig;
 
     public AzureTranslationService(AzureTranslationConfig serviceConfig) {
@@ -25,9 +24,6 @@ public class AzureTranslationService implements Translation {
 
         logger.info("region is {}", serviceConfig.region());
      }
-
-     
-
 
     @Override
     public TranslationResult translation(String text, String fromLanguage, String toLanguage) {

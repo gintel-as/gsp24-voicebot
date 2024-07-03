@@ -88,7 +88,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                             openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2-t1);
                             service.playMedia(event.getSessionId(), aiResult.getResponse());
                             for (Translation translation : getServices(Translation.class)){
-                                TranslationResult translationResult = translation.translation(aiResult.getResponse().toString(), "en-US", "nb-NO");
+                                TranslationResult translationResult = translation.translation(aiResult.getResponse().toString(), null, "nb-NO");
                                 for (TextToSpeech tts : getServices(TextToSpeech.class)){
                                     long a1 = System.currentTimeMillis();
                                     TextToSpeechByteResult ttsResult = tts.textToStream("en-US", "en-US-AvaMultilingualNeural", translationResult.getOutput(), null, null);
