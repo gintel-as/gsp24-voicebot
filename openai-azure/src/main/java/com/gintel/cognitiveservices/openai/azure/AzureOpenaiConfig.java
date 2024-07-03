@@ -14,10 +14,6 @@ import com.gintel.cognitiveservices.config.ConfigTrim;
 @Sources("file:${config_file}")
 
 public interface AzureOpenaiConfig extends Reloadable{
-    
     @Key("azure.openai.subscription_key")
     String subscriptionKey();
-
-    @Key("azure.openai.region")
-    String region();
 }

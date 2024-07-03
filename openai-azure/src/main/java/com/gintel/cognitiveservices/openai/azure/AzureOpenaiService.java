@@ -37,8 +37,6 @@ public class AzureOpenaiService implements Openai{
 
     public AzureOpenaiService(AzureOpenaiConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
-
-        logger.info("region is {}", serviceConfig.region());
     }
 
     @Override
