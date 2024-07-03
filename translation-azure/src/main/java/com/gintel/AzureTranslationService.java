@@ -44,7 +44,6 @@ public class AzureTranslationService implements Translation {
         translateOptions.addTargetLanguage(toLanguage);
         translateOptions.setSourceLanguage(fromLanguage);
 
-
         List<TranslatedTextItem> translations = client.translate(content, translateOptions);
 
         for (TranslatedTextItem translation : translations) {

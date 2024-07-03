@@ -114,7 +114,7 @@ public class AzureSpeechToTextService implements SpeechToText {
             AudioConfig audioCfg = AudioConfig.fromStreamInput(is);
 
             AutoDetectSourceLanguageConfig autoDetectLanguages =
-            AutoDetectSourceLanguageConfig.fromLanguages(Arrays.asList("en-US", "nb-NO"));
+            AutoDetectSourceLanguageConfig.fromLanguages(Arrays.asList("en-US", "nb-NO", "es-ES"));
 
             if (language != null) {
                 autoDetectLanguages = AutoDetectSourceLanguageConfig.fromLanguages(Arrays.asList(language));
