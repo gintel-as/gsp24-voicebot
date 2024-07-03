@@ -2,14 +2,14 @@ package com.gintel.cognitiveservices.core.translation.types;
 
 public class TranslationResult {
     private TranslationStatus status;
-    private String srt;
+    private String output;
 
     public TranslationResult() {
     }
 
-    public TranslationResult(TranslationStatus status, String srt) {
+    public TranslationResult(TranslationStatus status, String output) {
         this.status = status;
-        this.srt = srt;
+        this.output = output;
     }
 
     public TranslationStatus getStatus() {
@@ -20,11 +20,11 @@ public class TranslationResult {
         this.status = status;
     }
 
-    public String getSrt() {
-        return srt;
+    public String getOutput() {
+        return output;
     }
 
-    public void setSrt(String srt) {
-        this.srt = srt;
+    public void setOutput(String output) {
+        this.output = output;
     }
 }

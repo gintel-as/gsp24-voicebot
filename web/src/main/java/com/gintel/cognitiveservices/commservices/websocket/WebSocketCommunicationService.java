@@ -21,6 +21,8 @@ import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gintel.AzureTranslationConfig;
+import com.gintel.AzureTranslationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationServiceListener;
 import com.gintel.cognitiveservices.core.communication.EventHandler;
@@ -57,6 +59,7 @@ public class WebSocketCommunicationService implements CommunicationService {
         services.put("azure-stt", new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
         services.put("azure-openai", new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)));
         services.put("azure-tts", new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class)));
+        services.put("azure-translation", new AzureTranslationService(ConfigFactory.create(AzureTranslationConfig.class)));
         new CognitiveServices(services);
     }
 

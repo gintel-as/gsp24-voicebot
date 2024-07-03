@@ -54,6 +54,11 @@
 				<artifactId>openai-azure</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.gintel</groupId>
+				<artifactId>translation-azure</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
