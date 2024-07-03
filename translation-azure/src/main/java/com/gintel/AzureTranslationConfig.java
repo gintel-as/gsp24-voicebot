@@ -13,7 +13,7 @@ import com.gintel.cognitiveservices.config.ConfigTrim;
 @Config.PreprocessorClasses({ConfigTrim.class})
 @Sources("file:${config_file}")
 
-public interface AzureTranslationConfig extends Config, Reloadable{
+public interface AzureTranslationConfig extends Reloadable{
     
     @Key("azure.tts.subscription_key")
     String subscriptionKey();
