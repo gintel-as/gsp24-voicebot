@@ -33,10 +33,6 @@ public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
 
     private static CognitiveServices instance;
-
-    long openaiTime;
-    long ttsTime;
-    long translationTime;
     private Map<String, Service> services;
 
     private CognitiveServices(List<Service> services) {
@@ -90,13 +86,24 @@ public class CognitiveServices implements CommunicationServiceListener {
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
                 if (e instanceof SpeechToTextEvent) {
+                    String language = ctx.getLanguage();
                     SpeechToTextEvent se = (SpeechToTextEvent) e;
                     service.playMedia(event.getSessionId(), e.toString());
                     if (se.getResult() == SpeechToTextStatus.RECOGNIZED) {
-                        Openai ai = getService(Openai.class, event.getAiService());
                         service.playMedia(event.getSessionId(), "stop_recording");
+                        String aiInput = se.getData().replaceAll("RECOGNIZED: ", "");
+                        long l1 = System.currentTimeMillis();
+                        if (language != "none" && language != null) {
+                            Translation translation = getService(Translation.class, event.getTranslationService());
+                            TranslationResult translationResult = translation.translation(aiInput, null, language);
+                            service.playMedia(event.getSessionId(), aiInput + " -- WAS TRANSLATED TO --" + translationResult.getOutput());
+                            aiInput = translationResult.getOutput();
+                        }
+                        long l2 = System.currentTimeMillis();
+                        long translationTime = TimeUnit.MILLISECONDS.toSeconds(l2-l1);
+                        Openai ai = getService(Openai.class, event.getAiService());
                         long t1 = System.currentTimeMillis();
-                        OpenaiResult aiResult = ai.openai(se.getData().replaceAll("RECOGNIZED: ", ""), ctx, null, null);
+                        OpenaiResult aiResult = ai.openai(aiInput, ctx, null, null);
                         long t2 = System.currentTimeMillis();
                         long openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2-t1);
                         service.playMedia(event.getSessionId(), aiResult.getResponse());
@@ -110,7 +117,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                                     null, null, null);
                             long a2 = System.currentTimeMillis();
                             long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
-                            service.playMedia(event.getSessionId(), "AI Time: " + openaiTime
+                            service.playMedia(event.getSessionId(), "Translation time: " + translationTime + " seconds. AI Time: " + openaiTime
                                     + " seconds. TTS time: " + ttsTime + " seconds.");
                             service.playMedia(event.getSessionId(), ttsResult.getAudio());
                         } else {
@@ -123,7 +130,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                                     null, null, event.getOutputStream());
                             long a2 = System.currentTimeMillis();
                             long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
-                            service.playMedia(event.getSessionId(), "AI Time: " + openaiTime
+                            service.playMedia(event.getSessionId(), "Translation time: " + translationTime + " seconds. AI Time: " + openaiTime
                                     + " seconds. TTS time: " + ttsTime + " seconds.");
                         }
                     }

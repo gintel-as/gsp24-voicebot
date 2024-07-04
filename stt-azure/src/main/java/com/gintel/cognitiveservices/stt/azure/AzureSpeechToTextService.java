@@ -118,7 +118,7 @@ public class AzureSpeechToTextService implements SpeechToText {
 
             SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(),
                 serviceRegion);
-            config.setProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs,"2000");
+            // config.setProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs,"2000");       Set timout after end of detected speech before finishing segment
             config.setProperty(PropertyId.SpeechServiceConnection_LanguageIdMode, "Continuous");
             SpeechRecognizer recognizer = new SpeechRecognizer(config, autoDetectLanguages, audioCfg);
             

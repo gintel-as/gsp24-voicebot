@@ -1,4 +1,4 @@
-package com.gintel;
+package com.gintel.cognitiveservices.translation.azure;
 
 import java.util.ArrayList;
 import java.util.List;

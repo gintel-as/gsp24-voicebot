@@ -19,8 +19,6 @@ import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.gintel.AzureTranslationConfig;
-import com.gintel.AzureTranslationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationServiceListener;
 import com.gintel.cognitiveservices.core.communication.EventHandler;

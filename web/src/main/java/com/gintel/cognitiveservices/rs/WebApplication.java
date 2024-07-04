@@ -18,20 +18,25 @@ import org.slf4j.LoggerFactory;
 import com.gintel.cognitiveservices.config.WebConfig;
 import com.gintel.cognitiveservices.core.openai.Openai;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
+import com.gintel.cognitiveservices.core.translation.Translation;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.example.ExampleController;
 import com.gintel.cognitiveservices.example.rs.OpenaiExampleResource;
 import com.gintel.cognitiveservices.example.rs.STTExampleResource;
 import com.gintel.cognitiveservices.example.rs.TTSExampleResource;
-import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
-import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
+import com.gintel.cognitiveservices.example.rs.TranslationExampleResource;
 import com.gintel.cognitiveservices.rs.filters.LogRequestFilter;
 import com.gintel.cognitiveservices.service.CognitiveServices;
 import com.gintel.cognitiveservices.service.Service;
+
+import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
+import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
 import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
 import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
 import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
+import com.gintel.cognitiveservices.translation.azure.AzureTranslationConfig;
+import com.gintel.cognitiveservices.translation.azure.AzureTranslationService;
 
 @ApplicationPath("/rest")
 public class WebApplication extends Application {
@@ -62,24 +67,29 @@ public class WebApplication extends Application {
         List<TextToSpeech> ttsServices = getTextToSpeechServices();
         List<SpeechToText> sttServices = getSpeechToTextServices();
         List<Openai> openaiServices = getOpenaiServices();
+        List<Translation> translationServices = getTranslationServices();
 
         services.addAll(ttsServices);
         services.addAll(sttServices);
         services.addAll(openaiServices);
+        services.addAll(translationServices);
 
         CognitiveServices.init(services);
         final TTSExampleResource authResource = new TTSExampleResource(
-                new ExampleController(config, ttsServices, sttServices, openaiServices));
+                new ExampleController(config, ttsServices, sttServices, openaiServices, translationServices));
         final STTExampleResource authSTTResource = new STTExampleResource(
-                new ExampleController(config, ttsServices, sttServices, openaiServices));
+                new ExampleController(config, ttsServices, sttServices, openaiServices, translationServices));
         final OpenaiExampleResource authOpenaiResource = new OpenaiExampleResource(
-                new ExampleController(config, ttsServices, sttServices, openaiServices));
+                new ExampleController(config, ttsServices, sttServices, openaiServices, translationServices));
+        final TranslationExampleResource authTranslationResource = new TranslationExampleResource(
+                new ExampleController(config, ttsServices, sttServices, openaiServices, translationServices));
         final LogRequestFilter logRequestFilter = new LogRequestFilter();
 
         Set<Object> singletons = new HashSet<>();
         singletons.add(authResource);
         singletons.add(authSTTResource);
         singletons.add(authOpenaiResource);
+        singletons.add(authTranslationResource);
         singletons.add(logRequestFilter);
         return singletons;
     }
@@ -94,5 +104,9 @@ public class WebApplication extends Application {
 
     private List<Openai> getOpenaiServices() {
         return Arrays.asList(new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)));
+    }
+
+    private List<Translation> getTranslationServices() {
+        return Arrays.asList(new AzureTranslationService(ConfigFactory.create(AzureTranslationConfig.class)));
     }
 }
