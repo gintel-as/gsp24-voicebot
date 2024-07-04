@@ -63,7 +63,6 @@ public class AzureSpeechToTextService implements SpeechToText {
              SpeechRecognizer reco = new SpeechRecognizer(config, lang)) {
             assert(config != null);
             assert(reco != null);
-            int exitCode = 1;
 
             System.out.println("Say something...");
 
@@ -75,8 +74,7 @@ public class AzureSpeechToTextService implements SpeechToText {
 
             if (result.getReason() == ResultReason.RecognizedSpeech) {
                 System.out.println("We recognized: " + result.getText());
-                exitCode = 0;
-                return new SpeechToTextResult(SpeechToTextStatus.OK, result.getText(), reco.getSpeechRecognitionLanguage());
+                return new SpeechToTextResult(SpeechToTextStatus.RECOGNIZED, result.getText(), reco.getSpeechRecognitionLanguage());
             }
             else if (result.getReason() == ResultReason.NoMatch) {
                 System.out.println("NOMATCH: Speech could not be recognized.");
@@ -93,8 +91,6 @@ public class AzureSpeechToTextService implements SpeechToText {
                 }
                 return new SpeechToTextResult(SpeechToTextStatus.ERROR, null, null);
             }
-            
-            System.exit(exitCode);
         } catch (Exception ex) {
             logger.error("Exception in speechToText", ex);
         }
@@ -127,15 +123,15 @@ public class AzureSpeechToTextService implements SpeechToText {
             SpeechRecognizer recognizer = new SpeechRecognizer(config, autoDetectLanguages, audioCfg);
             
             recognizer.recognizing.addEventListener((s, e) -> {
-                eventHandler.onEvent(s, new SpeechToTextEvent("RECOGNIZING: " + e.getResult().getText()));
+                eventHandler.onEvent(s, new SpeechToTextEvent("RECOGNIZING: " + e.getResult().getText(), SpeechToTextStatus.RECOGNIZING));
             });
 
             recognizer.recognized.addEventListener((s, e) -> {
                 if (e.getResult().getReason() == ResultReason.RecognizedSpeech) {
-                    eventHandler.onEvent(s, new SpeechToTextEvent("RECOGNIZED: " + e.getResult().getText()));
+                    eventHandler.onEvent(s, new SpeechToTextEvent("RECOGNIZED: " + e.getResult().getText(), SpeechToTextStatus.RECOGNIZED));
                 } else if (e.getResult().getReason() == ResultReason.NoMatch) {
                     eventHandler.onEvent(s,
-                            new SpeechToTextEvent("NOMATCH: Speech could not be recognized."));
+                            new SpeechToTextEvent("NOMATCH: Speech could not be recognized.", SpeechToTextStatus.ERROR));
                 }
             });
 
@@ -147,15 +143,17 @@ public class AzureSpeechToTextService implements SpeechToText {
                     result += "CANCELED: ErrorDetails=" + e.getErrorDetails() + "\n";
                     result += "CANCELED: Did you update the subscription info?";
                 }
-                eventHandler.onEvent(s, new SpeechToTextEvent(result));
+                eventHandler.onEvent(s, new SpeechToTextEvent(result, SpeechToTextStatus.ERROR));
             });
 
             recognizer.sessionStarted.addEventListener((s, e) -> {
-                eventHandler.onEvent(s, new SpeechToTextEvent("Session started event."));
+                eventHandler.onEvent(s, new SpeechToTextEvent("Session started event.",
+                        SpeechToTextStatus.STARTED));
             });
 
             recognizer.sessionStopped.addEventListener((s, e) -> {
-                eventHandler.onEvent(s, new SpeechToTextEvent("Session stopped event."));
+                eventHandler.onEvent(s, new SpeechToTextEvent("Session stopped event.",
+                        SpeechToTextStatus.STOPPED));
             });
 
             recognizer.startContinuousRecognitionAsync();

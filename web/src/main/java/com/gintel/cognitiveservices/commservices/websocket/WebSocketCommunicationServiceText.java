@@ -3,7 +3,6 @@ package com.gintel.cognitiveservices.commservices.websocket;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,7 +15,6 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,14 +25,7 @@ import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEventText;
 import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
-import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
-import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 import com.gintel.cognitiveservices.service.CognitiveServices;
-import com.gintel.cognitiveservices.service.Service;
-import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
-import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
-import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
-import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 
 @ServerEndpoint(value = "/websocket/text")
 public class WebSocketCommunicationServiceText implements CommunicationService {
@@ -48,15 +39,7 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
 
     public WebSocketCommunicationServiceText() {
         logger.info("Created");
-       String strPath = System.getProperty("catalina.base");
-        ConfigFactory.setProperty("config_file", strPath + "/conf/web.properties");
-        Map<String, Service> services = new HashMap<>();
-        services.put("ws", this);
-        services.put("azure-stt", new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
-        services.put("azure-openai", new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)));
-        services.put("azure-tts", new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class)));
-        new CognitiveServices(services);
-        //this.ttsService = new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class));
+        addListener(CognitiveServices.getInstance());
     }
 
     @OnMessage
