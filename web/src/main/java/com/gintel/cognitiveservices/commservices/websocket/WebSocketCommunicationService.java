@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -17,7 +16,6 @@ import javax.websocket.PongMessage;
 import javax.websocket.Session;
 import javax.websocket.server.ServerEndpoint;
 
-import org.aeonbits.owner.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,18 +24,12 @@ import com.gintel.AzureTranslationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationServiceListener;
 import com.gintel.cognitiveservices.core.communication.EventHandler;
+import com.gintel.cognitiveservices.core.communication.MediaStream;
 import com.gintel.cognitiveservices.core.communication.types.BaseEvent;
 import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.communication.types.events.IncomingEvent;
 import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
-import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
-import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 import com.gintel.cognitiveservices.service.CognitiveServices;
-import com.gintel.cognitiveservices.service.Service;
-import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
-import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
-import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
-import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 
 @ServerEndpoint(value = "/websocket")
 public class WebSocketCommunicationService implements CommunicationService {
@@ -49,18 +41,13 @@ public class WebSocketCommunicationService implements CommunicationService {
     private Map<String, Session> wsSessions = new ConcurrentHashMap<>();
     private Map<String, ChatBotContext> contexts = new ConcurrentHashMap<>();
 
+    // change to false to test async tts
+    private boolean synchronousTts = true;
+
     public WebSocketCommunicationService() {
         logger.info("Created");
 
-        String strPath = System.getProperty("catalina.base");
-        ConfigFactory.setProperty("config_file", strPath + "/conf/web.properties");
-        Map<String, Service> services = new HashMap<>();
-        services.put("ws", this);
-        services.put("azure-stt", new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
-        services.put("azure-openai", new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)));
-        services.put("azure-tts", new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class)));
-        services.put("azure-translation", new AzureTranslationService(ConfigFactory.create(AzureTranslationConfig.class)));
-        new CognitiveServices(services);
+        addListener(CognitiveServices.getInstance());
     }
 
     @OnMessage
@@ -104,22 +91,63 @@ public class WebSocketCommunicationService implements CommunicationService {
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
-        String sessionId = session.getId();
+        try {
+            String sessionId = session.getId();
 
-        logger.info("onOpen({}, {})", sessionId, config);
+            logger.info("onOpen({}, {})", sessionId, config);
 
-        wsSessions.put(session.getId(), session);
-        contexts.put(sessionId, new ChatBotContext());
+            wsSessions.put(session.getId(), session);
+            contexts.put(sessionId, new ChatBotContext());
 
-        EventHandler<BaseEvent> handler = (s, e) -> {
-            try {
-                session.getBasicRemote().sendText(e.toString());
-            } catch (IOException ex) {
-                logger.error("Exception when sending text to client", ex);
-            }    
-        };
+            EventHandler<BaseEvent> handler = (s, e) -> {
+                try {
+                    session.getBasicRemote().sendText(e.toString());
+                } catch (IOException ex) {
+                    logger.error("Exception when sending text to client", ex);
+                }    
+            };
 
-        listeners.forEach(c -> c.onEvent(this, new IncomingEvent(session.getId(), handler), contexts.get(sessionId)));
+            MediaStream outputStream;
+            if (synchronousTts) {
+                outputStream = null;
+            } else {
+                outputStream = new MediaStream() {
+                    @Override
+                    public void write(byte[] data) {
+                        logger.info("write(data={} bytes)", data.length);
+
+                        try {
+                            wsSessions.get(sessionId).getBasicRemote().sendBinary(ByteBuffer.wrap(data));
+                        } catch (Exception e) {
+                            logger.error("Exception writing output mediaStream for session {}",
+                                    session.getId(), e);
+                        }
+                    }
+
+                    @Override
+                    public void close() {
+
+                    }
+                };
+            }
+
+            String translationService = session.getPathParameters().get("translationService");
+            String translationLanguage = session.getPathParameters().get("translationLanguage");
+            String ttsService = session.getPathParameters().get("ttsService");
+            String sttService = session.getPathParameters().get("sttService");
+            String aiService = session.getPathParameters().get("aiService");
+
+            listeners.forEach(
+                    c -> c.onEvent(this, new IncomingEvent(session.getId(), handler, outputStream,
+                            translationService,
+                            translationLanguage,
+                            ttsService,
+                            sttService,
+                            aiService),
+                            contexts.get(sessionId)));
+        } catch (Exception ex) {
+            logger.error("Exception in onOpen", ex);
+        }
     }
 
     @OnClose
