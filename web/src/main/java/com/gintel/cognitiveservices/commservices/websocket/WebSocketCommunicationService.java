@@ -19,6 +19,8 @@ import javax.websocket.server.ServerEndpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.gintel.AzureTranslationConfig;
+import com.gintel.AzureTranslationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationService;
 import com.gintel.cognitiveservices.core.communication.CommunicationServiceListener;
 import com.gintel.cognitiveservices.core.communication.EventHandler;
@@ -59,8 +61,12 @@ public class WebSocketCommunicationService implements CommunicationService {
                 return;
             }
 
-            byte[] bytes = Base64.getDecoder().decode(msg);
-            sessions.get(session.getId()).getInputStream().write(bytes);
+            if (msg.contains("Language:")){
+                contexts.get(session.getId()).setLanguage(msg.replace("Language:", ""));
+            } else {
+                byte[] bytes = Base64.getDecoder().decode(msg);
+                sessions.get(session.getId()).getInputStream().write(bytes);
+            }
         } catch (Exception ex) {
             logger.error("Exception in onVoiceInput", ex);
 

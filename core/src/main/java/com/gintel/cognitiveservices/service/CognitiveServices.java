@@ -22,6 +22,8 @@ import com.gintel.cognitiveservices.core.openai.types.ChatBotContext;
 import com.gintel.cognitiveservices.core.openai.types.OpenaiResult;
 import com.gintel.cognitiveservices.core.stt.SpeechToText;
 import com.gintel.cognitiveservices.core.stt.SpeechToTextEvent;
+import com.gintel.cognitiveservices.core.translation.Translation;
+import com.gintel.cognitiveservices.core.translation.types.TranslationResult;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.core.tts.TextToSpeechEvent;
@@ -32,6 +34,9 @@ public class CognitiveServices implements CommunicationServiceListener {
 
     private static CognitiveServices instance;
 
+    long openaiTime;
+    long ttsTime;
+    long translationTime;
     private Map<String, Service> services;
 
     private CognitiveServices(List<Service> services) {
@@ -50,7 +55,6 @@ public class CognitiveServices implements CommunicationServiceListener {
     @Override
     public void onEvent(CommunicationService service, BaseEvent event, ChatBotContext ctx) {
         logger.info("onEvent(service={}, event={})", service, event);
-      
 
         try {
             if (event instanceof IncomingEvent ) {
@@ -85,7 +89,6 @@ public class CognitiveServices implements CommunicationServiceListener {
 
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
-//                session.getBasicRemote().sendText(e.toString());
                 if (e instanceof SpeechToTextEvent) {
                     SpeechToTextEvent se = (SpeechToTextEvent) e;
                     service.playMedia(event.getSessionId(), e.toString());
@@ -148,7 +151,6 @@ public class CognitiveServices implements CommunicationServiceListener {
         String[] text = {""};
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
-//                session.getBasicRemote().sendText(e.toString());
                 if (e instanceof TextToSpeechEvent) {
                     if (!event.toString().isEmpty() && !text[0].equals(event.toString())) {
                         for (Openai ai : getServices(Openai.class)){

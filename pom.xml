@@ -13,6 +13,7 @@
 		<module>tts-azure</module>
 		<module>stt-azure</module>
 		<module>openai-azure</module>
+		<module>translation-azure</module>
 	</modules>
 
 	<properties>
@@ -51,6 +52,11 @@
 			<dependency>
 				<groupId>com.gintel</groupId>
 				<artifactId>openai-azure</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.gintel</groupId>
+				<artifactId>translation-azure</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
