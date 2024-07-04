@@ -74,8 +74,12 @@ public class WebSocketCommunicationService implements CommunicationService {
                 return;
             }
 
-            byte[] bytes = Base64.getDecoder().decode(msg);
-            sessions.get(session.getId()).getInputStream().write(bytes);
+            if (msg.contains("Language:")){
+                contexts.get(session.getId()).setLanguage(msg.replace("Language:", ""));
+            } else {
+                byte[] bytes = Base64.getDecoder().decode(msg);
+                sessions.get(session.getId()).getInputStream().write(bytes);
+            }
         } catch (Exception ex) {
             logger.error("Exception in onVoiceInput", ex);
 

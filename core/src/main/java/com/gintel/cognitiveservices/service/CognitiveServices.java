@@ -35,6 +35,8 @@ public class CognitiveServices implements CommunicationServiceListener {
 
     long openaiTime;
     long ttsTime;
+    long translationTime;
+
 
     public CognitiveServices(Map<String, Service> services) {
         this.services = services;
@@ -45,7 +47,6 @@ public class CognitiveServices implements CommunicationServiceListener {
     @Override
     public void onEvent(CommunicationService service, BaseEvent event, ChatBotContext ctx) {
         logger.info("onEvent(service={}, event={})", service, event);
-      
 
         try {
             if (event instanceof IncomingEvent ) {
@@ -79,23 +80,34 @@ public class CognitiveServices implements CommunicationServiceListener {
                 if (e instanceof SpeechToTextEvent) {
                     service.playMedia(event.getSessionId(), e.toString());
                     if (e.toString().charAt(9) == 'D' && e.toString().length() > 12) {
-                        for (Openai ai : getServices(Openai.class)){
+                        for (Translation translation : getServices(Translation.class)){
                             service.playMedia(event.getSessionId(), "stop_recording");
-                            long t1 = System.currentTimeMillis();
-                            OpenaiResult aiResult = ai.openai(e.toString().replaceAll("RECOGNIZED: ", ""), ctx, null, null);
-                            long t2 = System.currentTimeMillis();
-                            openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2-t1);
-                            
-                            for (Translation translation : getServices(Translation.class)){
-                                TranslationResult translationResult = translation.translation(aiResult.getResponse().toString(), null, "nb-NO");
-                                service.playMedia(event.getSessionId(), translationResult.getOutput());
-                                
+                            String input = e.toString().replaceAll("RECOGNIZED: ", "");
+
+                            String language = ctx.getLanguage();
+
+                            long l1 = System.currentTimeMillis();
+                            if (language != "none" && language != null){
+                                TranslationResult translationResult = translation.translation(input, null, language);
+                                service.playMedia(event.getSessionId(), input + " -- WAS TRANSLATED TO: -- " + translationResult.getOutput());
+                                input = translationResult.getOutput();
+                            }
+                            long l2 = System.currentTimeMillis();
+                            translationTime = TimeUnit.MILLISECONDS.toSeconds(l2-l1);
+
+                            for (Openai ai : getServices(Openai.class)){
+                                long t1 = System.currentTimeMillis();
+                                OpenaiResult aiResult = ai.openai(input, ctx, null, null);
+                                long t2 = System.currentTimeMillis();
+                                openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2-t1);
+                                service.playMedia(event.getSessionId(), aiResult.getResponse().toString());
+
                                 for (TextToSpeech tts : getServices(TextToSpeech.class)){
                                     long a1 = System.currentTimeMillis();
-                                    TextToSpeechByteResult ttsResult = tts.textToStream("nb-NO", "en-US-AvaMultilingualNeural", translationResult.getOutput(), null, null);
+                                    TextToSpeechByteResult ttsResult = tts.textToStream("nb-NO", "en-US-AvaMultilingualNeural", aiResult.getResponse().toString(), null, null);
                                     long a2 = System.currentTimeMillis();
                                     ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2-a1);
-                                    service.playMedia(event.getSessionId(), "AI Time: " + openaiTime + " seconds. TTS time: " + ttsTime + " seconds.");
+                                    service.playMedia(event.getSessionId(),"Translation time: " + translationTime + " seconds. " + "AI Time: " + openaiTime + " seconds. TTS time: " + ttsTime + " seconds.");
                                     service.playMedia(event.getSessionId(), ttsResult.getAudio());
                                 }
                             }
