@@ -15,6 +15,7 @@
 		<module>openai-azure</module>
 		<module>translation-azure</module>
 		<module>stt-google</module>
+		<module>tts-google</module>
 	</modules>
 
 	<properties>
