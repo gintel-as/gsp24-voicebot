@@ -61,9 +61,6 @@ public class WebSocketCommunicationService implements CommunicationService {
 
             if (msg.contains("Language:")) {
                 contexts.get(session.getId()).setLanguage(msg.replace("Language:", ""));
-            } else if (msg.contains("sttProvider:")) {
-                String newProvider = msg.replace("sttProvider:", "");
-                contexts.get(session.getId()).setSttProvider(newProvider);
             } else {
                 byte[] bytes = Base64.getDecoder().decode(msg);
                 sessions.get(session.getId()).getInputStream().write(bytes);

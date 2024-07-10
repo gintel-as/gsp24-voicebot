@@ -9,7 +9,6 @@ public class ChatBotContext {
     private List<ChatRequestMessage> conversation;
     private List<Integer> messageTokens = new ArrayList<>();
     private String language;
-    private String sttProvider = "azure";
 
     public void addMessages(List<ChatRequestMessage> chatMessages) {
         if (chatMessages != null) {
@@ -39,13 +38,5 @@ public class ChatBotContext {
 
     public String getLanguage() {
         return this.language;
-    }
-
-    public void setSttProvider(String sttProvider) {
-        this.sttProvider = sttProvider;
-    }
-
-    public String getSttProvider() {
-        return this.sttProvider;
     }
 }

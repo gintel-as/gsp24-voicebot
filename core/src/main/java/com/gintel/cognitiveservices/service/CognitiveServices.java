@@ -1,5 +1,6 @@
 package com.gintel.cognitiveservices.service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,6 +32,11 @@ import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
 
 public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
+
+    private List<String> sttProviders = Arrays.asList("azure", "google");
+    private int sttChosenProvider = 1;
+    // 0 = azure
+    // 1 = google
 
     private static CognitiveServices instance;
     private Map<String, Service> services;
@@ -148,11 +154,10 @@ public class CognitiveServices implements CommunicationServiceListener {
 
         try {
             for (SpeechToText stt : getServices(SpeechToText.class)) {
-                if (stt.getProvider() == ctx.getSttProvider()) {
+                if (stt.getProvider() == sttProviders.get(sttChosenProvider)) {
                     MediaSession session = stt.startSpeechToTextSession(event.getSessionId(), null, handler);
                     service.answer(session);
                 }
-
             }
         } catch (Exception ex) {
             logger.error("Failed to start STT session for session ID: {}", event.getSessionId(), ex);

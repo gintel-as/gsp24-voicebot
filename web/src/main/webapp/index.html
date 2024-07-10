@@ -21,8 +21,6 @@
         padding-bottom: 8px;
         padding-left: 24px;
         padding-right: 24px;
-        height: fit-content;
-        width: fit-content;
       }
     </style>
   </head>
@@ -172,37 +170,7 @@
           gap: 18px;
         "
       >
-        <div
-          style="
-            display: flex;
-            flex-direction: row;
-            gap: 16px;
-            align-items: center;
-          "
-        >
-          <button id="hrefButton">Text-To-Speech</button>
-          <label for="sttDd">STT provider:</label>
-          <select
-            onchange="changeSttProvider()"
-            name="sttDd"
-            id="sttDd"
-            style="
-              border-radius: 16px;
-              background-color: white;
-              color: black;
-              border: 1px solid #bfbfbd;
-              padding-top: 8px;
-              padding-bottom: 8px;
-              padding-left: 24px;
-              padding-right: 24px;
-              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-                0 2px 4px -2px rgb(0 0 0 / 0.1);
-            "
-          >
-            <option value="azure">Azure</option>
-            <option value="google">Google</option>
-          </select>
-        </div>
+        <button id="hrefButton">Text-To-Speech</button>
         <div
           style="
             display: flex;
@@ -239,13 +207,6 @@
         language = document.getElementById("language").value;
         if (document.getElementById("startButton").disabled !== true) {
           ws.send("Language:" + language);
-        }
-      }
-
-      function changeSttProvider() {
-        sttProvider = document.getElementById("sttDd").value;
-        if (document.getElementById("startButton").disabled !== true) {
-          ws.send("sttProvider:" + sttProvider);
         }
       }
 
@@ -292,7 +253,6 @@
           audio.play();
           document.getElementById("startButton").disabled = true;
           document.getElementById("language").disabled = true;
-          document.getElementById("sttDd").disabled = true;
           document.getElementById("interruptButton").disabled = false;
           audio.onloadedmetadata = function () {
             timeout = setTimeout(() => {
@@ -307,7 +267,6 @@
               if (isPausedByButton) {
                 document.getElementById("startButton").disabled = false;
                 document.getElementById("language").disabled = false;
-                document.getElementById("sttDd").disabled = false;
               }
               document.getElementById("interruptButton").disabled = true;
             }, audio.duration * 1000 + 1500);
@@ -356,7 +315,6 @@
           isPausedByButton = false;
           document.getElementById("startButton").disabled = true;
           document.getElementById("language").disabled = true;
-          document.getElementById("sttDd").disabled = true;
           document.getElementById("stopButton").disabled = false;
           let responseContainer = document.getElementById("responseContainer");
           responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;
@@ -375,11 +333,9 @@
           if (isPausedByAI) {
             document.getElementById("startButton").disabled = true;
             document.getElementById("language").disabled = true;
-            document.getElementById("sttDd").disabled = true;
           } else {
             document.getElementById("startButton").disabled = false;
             document.getElementById("language").disabled = false;
-            document.getElementById("sttDd").disabled = false;
           }
           isPausedByAI = false;
           let responseContainer = document.getElementById("responseContainer");
@@ -401,7 +357,6 @@
             }
             document.getElementById("startButton").disabled = true;
             document.getElementById("language").disabled = true;
-            document.getElementById("sttDd").disabled = true;
             if (isPausedByButton) {
               document.getElementById("stopButton").disabled = true;
             } else {
