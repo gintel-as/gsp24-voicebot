@@ -1,258 +1,439 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <style>
-        #responseContainer::-webkit-scrollbar {
-            width: 8px;
-            background: transparent;
-            padding-left: 2px;
-        }
-        #responseContainer::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        #responseContainer::-webkit-scrollbar-thumb {
-            background: #d3d3d3;
-            border-radius: 8px;
-        }
-        button {
-            cursor: pointer; /* This will change the cursor to a pointer (clicker style) */
+      #responseContainer::-webkit-scrollbar {
+        width: 8px;
+        background: transparent;
+        padding-left: 2px;
+      }
+      #responseContainer::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #responseContainer::-webkit-scrollbar-thumb {
+        background: #d3d3d3;
+        border-radius: 8px;
+      }
+      button {
+        cursor: pointer; /* This will change the cursor to a pointer (clicker style) */
+        border-radius: 16px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        padding-left: 24px;
+        padding-right: 24px;
+        height: fit-content;
+        width: fit-content;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="display: flex; width: 99vw; justify-content: space-between">
+      <div
+        style="
+          border-radius: 16px;
+          border: 1px solid #b2b2b0;
+          width: 27%;
+          margin-right: 8px;
+          padding: 24px;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+          "
+        >
+          <div
+            id="speech-output"
+            class="speech-output"
+            style="
+              border-radius: 16px;
+              background-color: white;
+              color: black;
+              border: 1px solid #bfbfbd;
+              width: fit-content;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+              margin-bottom: 18px;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+            "
+          >
+            Speech input:
+          </div>
+          <select
+            onchange="changeLanguage()"
+            name="language"
+            id="language"
+            style="
+              border-radius: 16px;
+              background-color: white;
+              color: black;
+              border: 1px solid #bfbfbd;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+              margin-bottom: 18px;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+            "
+          >
+            <option value="none">-- Select output language --</option>
+            <option value="nb-NO">Norsk</option>
+            <option value="en-US">English</option>
+          </select>
+        </div>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid black;
+          "
+          id="speechContainer"
+        ></div>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 30vw;
+          height: 85vh;
+          border-radius: 16px;
+          border: 1px solid black;
+          padding: 8px;
+        "
+        id="app-container"
+      >
+        <br />
+        <div
+          id="welcome-message"
+          class="welcome-message"
+          style="
             border-radius: 16px;
+            background-color: #6879d0;
+            color: white;
+            width: fit-content;
             padding-top: 8px;
             padding-bottom: 8px;
             padding-left: 24px;
             padding-right: 24px;
-        }
-    </style>
-</head>
-<body>
-    <div style="display: flex; width: 99vw; justify-content: space-between;">
-        <div style="border-radius: 16px; border: 1px solid #b2b2b0; width: 27%; margin-right: 8px; padding: 24px;">
-            <div style="display: flex; flex-direction: row; justify-content: space-between;">
-                <div id="speech-output" class="speech-output" style="border-radius: 16px; background-color: white; color: black; border: 1px solid #BFBFBD; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-bottom: 18px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">Speech input:</div>
-                <select onchange="changeLanguage()" name="language" id="language" style="border-radius: 16px; background-color: white; color: black; border: 1px solid #BFBFBD; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-bottom: 18px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">
-                    <option value="none">-- Select output language --</option>
-                    <option value="nb-NO">Norsk</option>
-                    <option value="en-US">English</option>
-                </select>
-            </div>
-            <div style="display: flex; flex-direction: column; border-top: 1px solid black;" id="speechContainer"></div>
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+              0 2px 4px -2px rgb(0 0 0 / 0.1);
+          "
+        >
+          Welcome! Press "Start Streaming" to record.
         </div>
-        <div style="display:flex; flex-direction: column; align-items: center; justify-content: center; width: 30vw; height: 85vh; border-radius: 16px; border: 1px solid black; padding: 8px;" id="app-container">
-            <br/>
-            <div id="welcome-message" class="welcome-message" style="border-radius: 16px; background-color: #6879D0; color: white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">Welcome! Press "Start Streaming" to record.</div>
-            <br/>
-            <div style="display: flex; flex-direction: column; height: 100%; overflow-y: scroll; width: 100%; border-bottom: 1px solid black; border-top: 1px solid black;" id="responseContainer"></div>
-            <br/>
-            <div style="display: flex; flex-direction: row; width: fit-content; gap: 24px;">
-                <button id="startButton">Start Streaming</button>
-                <button id="stopButton" disabled>Stop Streaming</button>
-            </div>
-            <br/>
-            <button id="interruptButton" disabled>Interrupt AI</button>
-            <br/>
-            <audio src="data:audio" id="audio" controls autoplay></audio>
+        <br />
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: scroll;
+            width: 100%;
+            border-bottom: 1px solid black;
+            border-top: 1px solid black;
+          "
+          id="responseContainer"
+        ></div>
+        <br />
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            width: fit-content;
+            gap: 24px;
+          "
+        >
+          <button id="startButton">Start Streaming</button>
+          <button id="stopButton" disabled>Stop Streaming</button>
         </div>
-        <div style="display: flex; flex-direction: column; align-items: start; width: 27%; border-radius: 16px; border: 1px solid #b2b2b0; margin-left: 8px; padding: 24px; gap: 18px;">
-            <button id="hrefButton">Text-To-Speech</button>
-            <div style="display: flex; flex-direction: column; border-top: 1px solid black; width: 100%; height: 100%;"></div>
+        <br />
+        <button id="interruptButton" disabled>Interrupt AI</button>
+        <br />
+        <audio src="data:audio" id="audio" controls autoplay></audio>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: start;
+          width: 27%;
+          border-radius: 16px;
+          border: 1px solid #b2b2b0;
+          margin-left: 8px;
+          padding: 24px;
+          gap: 18px;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            gap: 16px;
+            align-items: center;
+          "
+        >
+          <button id="hrefButton">Text-To-Speech</button>
+          <label for="sttDd">STT provider:</label>
+          <select
+            onchange="changeSttProvider()"
+            name="sttDd"
+            id="sttDd"
+            style="
+              border-radius: 16px;
+              background-color: white;
+              color: black;
+              border: 1px solid #bfbfbd;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+            "
+          >
+            <option value="azure">Azure</option>
+            <option value="google">Google</option>
+          </select>
         </div>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid black;
+            width: 100%;
+            height: 100%;
+          "
+        ></div>
+      </div>
     </div>
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
     <script>
-        var protocol = window.location.protocol === 'http:' ? 'ws' : 'wss';
-        let ws = new WebSocket(protocol + '://' + window.location.host + '/web/websocket');
-        let mediaRecorder;
-        let recorder;
-        var isPausedByButton = false;
-        var isPausedByAI = false;
-        var isAudioPlaying = false;
-        var timeout;
-        var audio = document.getElementById("audio");
-        var language = "none";
+      var protocol = window.location.protocol === "http:" ? "ws" : "wss";
+      let ws = new WebSocket(
+        protocol + "://" + window.location.host + "/web/websocket"
+      );
+      let mediaRecorder;
+      let recorder;
+      var isPausedByButton = false;
+      var isPausedByAI = false;
+      var isAudioPlaying = false;
+      var timeout;
+      var audio = document.getElementById("audio");
+      var language = "none";
 
-        var hrefButton = document.getElementById("hrefButton");
+      var hrefButton = document.getElementById("hrefButton");
 
-        hrefButton.onclick = () => {
-            location.href = "/web/indexText.html"
+      hrefButton.onclick = () => {
+        location.href = "/web/indexText.html";
+      };
+
+      function changeLanguage() {
+        language = document.getElementById("language").value;
+        if (document.getElementById("startButton").disabled !== true) {
+          ws.send("Language:" + language);
+        }
+      }
+
+      function changeSttProvider() {
+        sttProvider = document.getElementById("sttDd").value;
+        if (document.getElementById("startButton").disabled !== true) {
+          ws.send("sttProvider:" + sttProvider);
+        }
+      }
+
+      ws.onmessage = (event) => {
+        if (!(event.data instanceof Blob)) {
+          if (event.data == "stop_recording") {
+            recorder.pauseRecording();
+            isPausedByAI = true;
+            let responseContainer =
+              document.getElementById("responseContainer");
+            responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Paused recording ~~</b><br>`;
+            responseContainer.scrollTop = responseContainer.scrollHeight;
+            return;
+          }
+          let responseContainer = document.getElementById("responseContainer");
+          let speechContainer = document.getElementById("speechContainer");
+          console.log(event.data);
+          if (event.data.includes("RECOGNIZED:")) {
+            if (event.data !== "RECOGNIZED: ") {
+              speechContainer.innerHTML = "";
+              responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-left: 24px; align-self:flex-end;">${event.data.replace(
+                "RECOGNIZED: ",
+                ""
+              )}</p>`;
+            }
+          } else if (
+            event.data.includes("RECOGNIZING:") ||
+            event.data.includes("Session started event.")
+          ) {
+            speechContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border: 1px solid #BFBFBD; background-color: white; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:flex-start;">${event.data}</p>`;
+          } else {
+            responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border: 1px solid #BFBFBD; background-color: white; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-right: 24px; align-self:flex-start;">${event.data}</p>`;
+          }
+          responseContainer.scrollTop = responseContainer.scrollHeight;
+          return;
         }
 
-        function changeLanguage() {
-            language = document.getElementById("language").value;
-            if (document.getElementById('startButton').disabled !== true){
-                ws.send("Language:"+language)
-            }
-        };
-
-        ws.onmessage = event => {
-            if (!(event.data instanceof Blob)) {
-                if (event.data == "stop_recording"){
-                    recorder.pauseRecording();
-                    isPausedByAI = true;
-                    let responseContainer = document.getElementById('responseContainer');
-                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Paused recording ~~</b><br>`;
-                    responseContainer.scrollTop = responseContainer.scrollHeight;
-                    return;
-                }
-                let responseContainer = document.getElementById('responseContainer');
-                let speechContainer = document.getElementById('speechContainer');
-                console.log(event.data)
-                if(event.data.includes("RECOGNIZED:")){
-                    if (event.data !== "RECOGNIZED: ") {
-                        speechContainer.innerHTML = "";
-                        responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-left: 24px; align-self:flex-end;">${event.data.replace("RECOGNIZED: ", "")}</p>`;
-                    }
-                } else if (event.data.includes("RECOGNIZING:") || event.data.includes("Session started event.")){
-                    speechContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border: 1px solid #BFBFBD; background-color: white; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:flex-start;">${event.data}</p>`;
-                } else {
-                    responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); border: 1px solid #BFBFBD; background-color: white; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-right: 24px; align-self:flex-start;">${event.data}</p>`;
-                }
+        console.log("blob received: " + event.data.size);
+        blobToBase64(event.data).then((b64) => {
+          recorder.pauseRecording();
+          isPausedByAI = true;
+          audio.src = "data:audio/x-wav;base64," + b64;
+          audio.load();
+          audio.play();
+          document.getElementById("startButton").disabled = true;
+          document.getElementById("language").disabled = true;
+          document.getElementById("sttDd").disabled = true;
+          document.getElementById("interruptButton").disabled = false;
+          audio.onloadedmetadata = function () {
+            timeout = setTimeout(() => {
+              if (!isPausedByButton) {
+                recorder.resumeRecording();
+                isPausedByAI = false;
+                let responseContainer =
+                  document.getElementById("responseContainer");
+                responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;
                 responseContainer.scrollTop = responseContainer.scrollHeight;
-				return;				
-        	}
- 
-        	console.log('blob received: ' + event.data.size);
-        	blobToBase64(event.data).then(b64 => {
-                recorder.pauseRecording();
-                isPausedByAI = true;
-        		audio.src = "data:audio/x-wav;base64," + b64;
-                audio.load();
-                audio.play();
-                document.getElementById('startButton').disabled = true;
-                document.getElementById("language").disabled = true;
-                document.getElementById('interruptButton').disabled = false;
-                audio.onloadedmetadata = function() {
-                    timeout = setTimeout (() => {
-                        if (!isPausedByButton) {
-                            recorder.resumeRecording();
-                            isPausedByAI = false;
-                            let responseContainer = document.getElementById('responseContainer');
-                            responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;
-                            responseContainer.scrollTop = responseContainer.scrollHeight;
-                        }
-                        if (isPausedByButton) {
-                            document.getElementById('startButton').disabled = false;
-                            document.getElementById("language").disabled = false;
-                        }
-                        document.getElementById('interruptButton').disabled = true;
-                    }, audio.duration*1000 + 1500);
-                };
-        	});
-        };
+              }
+              if (isPausedByButton) {
+                document.getElementById("startButton").disabled = false;
+                document.getElementById("language").disabled = false;
+                document.getElementById("sttDd").disabled = false;
+              }
+              document.getElementById("interruptButton").disabled = true;
+            }, audio.duration * 1000 + 1500);
+          };
+        });
+      };
 
-        let handleDataAvailable = (event) => {
-            if (event.size > 0) {
-                console.log('blob', event)
-                blobToBase64(event).then(b64 => {
-                    ws.send(b64)
-                })
+      let handleDataAvailable = (event) => {
+        if (event.size > 0) {
+          console.log("blob", event);
+          blobToBase64(event).then((b64) => {
+            ws.send(b64);
+          });
+        }
+      };
+
+      function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onload = () => {
+            const base64String = reader.result.split(",")[1];
+            resolve(base64String);
+          };
+          reader.onerror = (error) => reject(error);
+        });
+      }
+
+      navigator.mediaDevices.getUserMedia({ audio: true }).then((stream) => {
+        recorder = RecordRTC(stream, {
+          type: "audio",
+          recorderType: StereoAudioRecorder,
+          mimeType: "audio/wav",
+          timeSlice: 500,
+          desiredSampRate: 16000,
+          numberOfAudioChannels: 1,
+          ondataavailable: handleDataAvailable,
+        });
+
+        document.getElementById("startButton").addEventListener("click", () => {
+          if (recorder.state == "paused") {
+            recorder.resumeRecording();
+          } else {
+            recorder.startRecording();
+          }
+          isPausedByButton = false;
+          document.getElementById("startButton").disabled = true;
+          document.getElementById("language").disabled = true;
+          document.getElementById("sttDd").disabled = true;
+          document.getElementById("stopButton").disabled = false;
+          let responseContainer = document.getElementById("responseContainer");
+          responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;
+          responseContainer.scrollTop = responseContainer.scrollHeight;
+        });
+
+        document.getElementById("stopButton").addEventListener("click", () => {
+          recorder.pauseRecording();
+          isPausedByButton = true;
+          document.getElementById("stopButton").disabled = true;
+          if (!audio.paused) {
+            document.getElementById("interruptButton").disabled = false;
+          } else {
+            document.getElementById("interruptButton").disabled = true;
+          }
+          if (isPausedByAI) {
+            document.getElementById("startButton").disabled = true;
+            document.getElementById("language").disabled = true;
+            document.getElementById("sttDd").disabled = true;
+          } else {
+            document.getElementById("startButton").disabled = false;
+            document.getElementById("language").disabled = false;
+            document.getElementById("sttDd").disabled = false;
+          }
+          isPausedByAI = false;
+          let responseContainer = document.getElementById("responseContainer");
+          responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Stopped Recording ~~</b><br>`;
+          responseContainer.scrollTop = responseContainer.scrollHeight;
+        });
+
+        document
+          .getElementById("interruptButton")
+          .addEventListener("click", () => {
+            audio.pause();
+            document.getElementById("interruptButton").disabled = true;
+            clearTimeout(timeout);
+
+            if (recorder.state === "paused") {
+              recorder.resumeRecording();
+            } else {
+              recorder.startRecording();
             }
-        };
+            document.getElementById("startButton").disabled = true;
+            document.getElementById("language").disabled = true;
+            document.getElementById("sttDd").disabled = true;
+            if (isPausedByButton) {
+              document.getElementById("stopButton").disabled = true;
+            } else {
+              document.getElementById("stopButton").disabled = false;
+            }
 
-        function blobToBase64(blob) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onload = () => {
-                    const base64String = reader.result.split(',')[1];
-                    resolve(base64String);
-                };
-                reader.onerror = (error) => reject(error);
-            });
-        }
+            let responseContainer =
+              document.getElementById("responseContainer");
+            responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;
+            responseContainer.scrollTop = responseContainer.scrollHeight;
+          });
+      });
 
-        navigator.mediaDevices.getUserMedia({ audio: true })
-            .then(stream => {
-                recorder = RecordRTC(stream, {
-                    type: 'audio',
-                    recorderType: StereoAudioRecorder,
-                    mimeType: 'audio/wav',
-                    timeSlice: 500,
-                    desiredSampRate: 16000,
-                    numberOfAudioChannels: 1,
-                    ondataavailable: handleDataAvailable
-                });
+      ws.onopen = () => {
+        console.log("WebSocket connection opened");
+      };
 
-                document.getElementById('startButton').addEventListener('click', () => {
-                    if (recorder.state == 'paused') {
-                    recorder.resumeRecording();
-                    } else {
-                        recorder.startRecording();
-                    }
-                    isPausedByButton = false;
-                    document.getElementById('startButton').disabled = true;
-                    document.getElementById("language").disabled = true;
-                    document.getElementById('stopButton').disabled = false;
-                    let responseContainer = document.getElementById('responseContainer');
-                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;
-                    responseContainer.scrollTop = responseContainer.scrollHeight;
-                });
+      ws.onclose = () => {
+        recorder.stopRecording();
+        console.log("WebSocket connection closed");
+      };
 
-                document.getElementById('stopButton').addEventListener('click', () => {
-                        recorder.pauseRecording();
-                        isPausedByButton = true;
-                        document.getElementById('stopButton').disabled = true;
-                        if (!audio.paused) {
-                            document.getElementById('interruptButton').disabled = false;
-                        } else {
-                            document.getElementById('interruptButton').disabled = true;
-                        }
-                        if (isPausedByAI) {
-                            document.getElementById('startButton').disabled = true;
-                            document.getElementById("language").disabled = true;
-                        } else {
-                            document.getElementById('startButton').disabled = false;
-                            document.getElementById("language").disabled = false;
-                        }
-                        isPausedByAI = false;
-                        let responseContainer = document.getElementById('responseContainer');
-                        responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Stopped Recording ~~</b><br>`;
-                        responseContainer.scrollTop = responseContainer.scrollHeight;
-                });
+      function readWelcomeMessage() {
+        var msg = new SpeechSynthesisUtterance();
+        msg.lang = "en-US";
+        msg.text = document.getElementById("welcome-message").innerText;
+        speechSynthesis.speak(msg);
+      }
 
-                document.getElementById('interruptButton').addEventListener('click', () => {
-                    audio.pause();
-                    document.getElementById('interruptButton').disabled = true;
-                    clearTimeout(timeout);
-
-                    if (recorder.state === 'paused') {
-                        recorder.resumeRecording();
-                    } else {
-                        recorder.startRecording();
-                    }
-                    document.getElementById('startButton').disabled = true;
-                    document.getElementById("language").disabled = true;
-                    if (isPausedByButton) {
-                        document.getElementById('stopButton').disabled = true;
-                    } else {
-                        document.getElementById('stopButton').disabled = false;
-                    }
-
-                    let responseContainer = document.getElementById('responseContainer');
-                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;                    
-                    responseContainer.scrollTop = responseContainer.scrollHeight;
-                });
-            });
-
-        ws.onopen = () => {
-            console.log('WebSocket connection opened');
-        };
-
-        ws.onclose = () => {
-            recorder.stopRecording();
-            console.log('WebSocket connection closed');
-        };
-
-        function readWelcomeMessage() {
-            var msg = new SpeechSynthesisUtterance();
-            msg.lang = 'en-US';
-            msg.text = document.getElementById('welcome-message').innerText;
-            speechSynthesis.speak(msg);
-        }
-
-        window.onload = () => {
-            readWelcomeMessage();
-        };
-
+      window.onload = () => {
+        readWelcomeMessage();
+      };
     </script>
-</body>
+  </body>
 </html>

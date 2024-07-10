@@ -9,12 +9,15 @@ public class ChatBotContext {
     private List<ChatRequestMessage> conversation;
     private List<Integer> messageTokens = new ArrayList<>();
     private String language;
+    private String sttProvider = "azure";
 
     public void addMessages(List<ChatRequestMessage> chatMessages) {
-        if (chatMessages != null) {this.conversation = chatMessages;}
+        if (chatMessages != null) {
+            this.conversation = chatMessages;
+        }
     }
 
-    public List<ChatRequestMessage> getMessages(){
+    public List<ChatRequestMessage> getMessages() {
         return this.conversation;
     }
 
@@ -26,15 +29,23 @@ public class ChatBotContext {
         this.messageTokens = tokens;
     }
 
-    public List<Integer> getMessageTokens(){
+    public List<Integer> getMessageTokens() {
         return this.messageTokens;
     }
 
-    public void setLanguage(String language){
+    public void setLanguage(String language) {
         this.language = language;
     }
 
-    public String getLanguage(){
+    public String getLanguage() {
         return this.language;
+    }
+
+    public void setSttProvider(String sttProvider) {
+        this.sttProvider = sttProvider;
+    }
+
+    public String getSttProvider() {
+        return this.sttProvider;
     }
 }

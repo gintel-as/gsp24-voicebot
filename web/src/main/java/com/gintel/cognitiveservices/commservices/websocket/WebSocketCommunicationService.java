@@ -59,8 +59,12 @@ public class WebSocketCommunicationService implements CommunicationService {
                 return;
             }
 
-            if (msg.contains("Language:")){
+            if (msg.contains("Language:")) {
                 contexts.get(session.getId()).setLanguage(msg.replace("Language:", ""));
+            } else if (msg.contains("sttProvider:")) {
+                String newProvider = msg.replace("sttProvider:", "");
+                contexts.get(session.getId()).setSttProvider(newProvider);
+                restartSession(session.getId(), newProvider);
             } else {
                 byte[] bytes = Base64.getDecoder().decode(msg);
                 sessions.get(session.getId()).getInputStream().write(bytes);
@@ -73,6 +77,20 @@ public class WebSocketCommunicationService implements CommunicationService {
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
+        }
+    }
+
+    private void restartSession(String sessionId, String sttProvider) {
+        try {
+            // Close the existing session
+            MediaSession oldSession = sessions.remove(sessionId);
+            if (oldSession != null) {
+                oldSession.getInputStream().close();
+            }
+
+            // Create a new session with the updated provider
+        } catch (Exception ex) {
+            logger.error("Exception in restartSession", ex);
         }
     }
 
@@ -94,7 +112,7 @@ public class WebSocketCommunicationService implements CommunicationService {
 
             logger.info("onOpen({}, {})", sessionId, config);
 
-            wsSessions.put(session.getId(), session);
+            wsSessions.put(sessionId, session);
             contexts.put(sessionId, new ChatBotContext());
 
             EventHandler<BaseEvent> handler = (s, e) -> {
@@ -102,7 +120,7 @@ public class WebSocketCommunicationService implements CommunicationService {
                     session.getBasicRemote().sendText(e.toString());
                 } catch (IOException ex) {
                     logger.error("Exception when sending text to client", ex);
-                }    
+                }
             };
 
             MediaStream outputStream;
@@ -187,21 +205,21 @@ public class WebSocketCommunicationService implements CommunicationService {
     public void answer(MediaSession mediaSession) {
         logger.info("answer(session={})", mediaSession);
 
-//        if (!(mediaSession instanceof WebSocketMediaSession)) {
-//            logger.warn("answer({}): Unsupported session type", mediaSession);
-//            return;
-//        }
+        // if (!(mediaSession instanceof WebSocketMediaSession)) {
+        // logger.warn("answer({}): Unsupported session type", mediaSession);
+        // return;
+        // }
         sessions.put(mediaSession.getId(), mediaSession);
     }
 
     @Override
     public void reject() {
-        
+
     }
 
     @Override
     public void disconnect() {
-        
+
     }
 
     @Override
