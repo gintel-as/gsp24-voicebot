@@ -39,6 +39,10 @@
 			<artifactId>stt-google</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>com.gintel</groupId>
+			<artifactId>tts-google</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
 		</dependency>
