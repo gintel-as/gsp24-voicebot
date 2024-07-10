@@ -31,17 +31,10 @@ public class GoogleTextToSpeechService implements TextToSpeech {
     private static final Logger logger = LoggerFactory.getLogger(GoogleTextToSpeechService.class);
     
     private TextToSpeechClient client;
-    private String credentialsPath;
 
     public GoogleTextToSpeechService() {
         try {
-            GoogleCredentials credentials = GoogleCredentials.fromStream(new FileInputStream(credentialsPath))
-                .createScoped("https://www.googleapis.com/auth/cloud-platform");
-
-            TextToSpeechSettings settings = TextToSpeechSettings.newBuilder()
-                .setCredentialsProvider(FixedCredentialsProvider.create(credentials))
-                .build();
-            client = TextToSpeechClient.create(settings);
+            client = TextToSpeechClient.create();
         } catch (IOException e) {
             logger.error("Failed to initialize GoogleTextToSpeechService", e);
             throw new RuntimeException("Failed to initialize GoogleTextToSpeechService", e);
