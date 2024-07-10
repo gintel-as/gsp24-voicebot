@@ -64,7 +64,6 @@ public class WebSocketCommunicationService implements CommunicationService {
             } else if (msg.contains("sttProvider:")) {
                 String newProvider = msg.replace("sttProvider:", "");
                 contexts.get(session.getId()).setSttProvider(newProvider);
-                restartSession(session.getId(), newProvider);
             } else {
                 byte[] bytes = Base64.getDecoder().decode(msg);
                 sessions.get(session.getId()).getInputStream().write(bytes);
@@ -77,20 +76,6 @@ public class WebSocketCommunicationService implements CommunicationService {
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
-        }
-    }
-
-    private void restartSession(String sessionId, String sttProvider) {
-        try {
-            // Close the existing session
-            MediaSession oldSession = sessions.remove(sessionId);
-            if (oldSession != null) {
-                oldSession.getInputStream().close();
-            }
-
-            // Create a new session with the updated provider
-        } catch (Exception ex) {
-            logger.error("Exception in restartSession", ex);
         }
     }
 
