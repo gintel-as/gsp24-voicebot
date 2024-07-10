@@ -1,8 +1,8 @@
 package com.gintel.cognitiveservices.stt.google;
 
-import java.util.Arrays;
-
-import javax.sound.sampled.AudioInputStream;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +17,6 @@ import com.gintel.cognitiveservices.core.stt.types.InputFormat;
 import com.gintel.cognitiveservices.core.stt.types.OutputFormat;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextResult;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;
-
 import com.google.api.gax.rpc.ClientStream;
 import com.google.api.gax.rpc.ResponseObserver;
 import com.google.api.gax.rpc.StreamController;
@@ -29,135 +28,134 @@ import com.google.cloud.speech.v1p1beta1.StreamingRecognitionResult;
 import com.google.cloud.speech.v1p1beta1.StreamingRecognizeRequest;
 import com.google.cloud.speech.v1p1beta1.StreamingRecognizeResponse;
 import com.google.protobuf.ByteString;
-import com.google.protobuf.Duration;
-import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.TimeUnit;
-import javax.sound.sampled.AudioFormat;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.DataLine;
-import javax.sound.sampled.DataLine.Info;
-import javax.sound.sampled.TargetDataLine;
 
-public class GoogleSpeechToTextService implements SpeechToText{
+public class GoogleSpeechToTextService implements SpeechToText {
     private static final Logger logger = LoggerFactory.getLogger(GoogleSpeechToTextService.class);
-    
 
     @Override
     public SpeechToTextResult speechToText(String language, InputFormat input, OutputFormat output) {
-        // TODO Auto-generated method stub
+        // Implementation for one-time speech recognition (not continuous)
         throw new UnsupportedOperationException("Unimplemented method 'speechToText'");
     }
 
     @Override
     public MediaSession startSpeechToTextSession(String sessionId, String language, EventHandler<BaseEvent> eventHandler) {
-
         logger.info("createSession(sessionId={}, language={})", sessionId, language);
 
         try {
-            ResponseObserver<StreamingRecognizeResponse> responseObserver = null;
-            try (SpeechClient client = SpeechClient.create()) {
+            SpeechClient client = SpeechClient.create();
 
-                responseObserver =
-                    new ResponseObserver<StreamingRecognizeResponse>() {
-                    ArrayList<StreamingRecognizeResponse> responses = new ArrayList<>();
+            // Configure recognition settings
+            RecognitionConfig recognitionConfig = RecognitionConfig.newBuilder()
+                    .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
+                    .setLanguageCode("en-US")
+                    .setSampleRateHertz(16000)
+                    .setEnableAutomaticPunctuation(true)
+                    .setProfanityFilter(true)
+                    .build();
 
-                    public void onStart(StreamController controller) {}
+            StreamingRecognitionConfig streamingRecognitionConfig = StreamingRecognitionConfig.newBuilder()
+                    .setConfig(recognitionConfig)
+                    .build();
 
-                    public void onResponse(StreamingRecognizeResponse response) {
-                        responses.add(response);
-                    }
+            // Create a queue to handle audio data
+            BlockingQueue<byte[]> audioQueue = new LinkedBlockingQueue<>();
 
-                    public void onComplete() {
-                        for (StreamingRecognizeResponse response : responses) {
+            // Response observer to handle server responses
+            ResponseObserver<StreamingRecognizeResponse> responseObserver = new ResponseObserver<StreamingRecognizeResponse>() {
+                @Override
+                public void onStart(StreamController controller) {
+                    logger.info("Stream started");
+                }
+
+                @Override
+                public void onResponse(StreamingRecognizeResponse response) {
+                    try {
                         StreamingRecognitionResult result = response.getResultsList().get(0);
                         SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
-                        System.out.printf("Transcript : %s\n", alternative.getTranscript());
+                        String transcript = alternative.getTranscript();
+                        if (result.getIsFinal()) {
+                            eventHandler.onEvent(this, new SpeechToTextEvent("RECOGNIZED: " + transcript, SpeechToTextStatus.RECOGNIZED));
+                        } else {
+                            eventHandler.onEvent(this, new SpeechToTextEvent("RECOGNIZED: " + transcript, SpeechToTextStatus.RECOGNIZING));
                         }
+                    } catch (Exception e) {
+                        logger.error("Error processing response", e);
                     }
-
-                    public void onError(Throwable t) {
-                        System.out.println(t);
-                    }
-                    };
-
-                ClientStream<StreamingRecognizeRequest> clientStream =
-                    client.streamingRecognizeCallable().splitCall(responseObserver);
-
-                RecognitionConfig recognitionConfig =
-                    RecognitionConfig.newBuilder()
-                        .setEncoding(RecognitionConfig.AudioEncoding.LINEAR16)
-                        .setLanguageCode("en-US")
-                        .setSampleRateHertz(16000)
-                        .build();
-                StreamingRecognitionConfig streamingRecognitionConfig =
-                    StreamingRecognitionConfig.newBuilder().setConfig(recognitionConfig).build();
-
-                StreamingRecognizeRequest request =
-                    StreamingRecognizeRequest.newBuilder()
-                        .setStreamingConfig(streamingRecognitionConfig)
-                        .build(); // The first request in a streaming call has to be a config
-
-                clientStream.send(request);
-                // SampleRate:16000Hz, SampleSizeInBits: 16, Number of channels: 1, Signed: true,
-                // bigEndian: false
-                AudioFormat audioFormat = new AudioFormat(16000, 16, 1, true, false);
-                DataLine.Info targetInfo =
-                    new Info(
-                        TargetDataLine.class,
-                        audioFormat); // Set the system information to read from the microphone audio stream
-
-                if (!AudioSystem.isLineSupported(targetInfo)) {
-                System.out.println("Microphone not supported");
-                System.exit(0);
                 }
-                // Target data line captures the audio stream the microphone produces.
-                TargetDataLine targetDataLine = (TargetDataLine) AudioSystem.getLine(targetInfo);
-                targetDataLine.open(audioFormat);
-                targetDataLine.start();
-                System.out.println("Start speaking");
-                long startTime = System.currentTimeMillis();
-                // Audio Input Stream
-                AudioInputStream audio = new AudioInputStream(targetDataLine);
-                while (true) {
-                long estimatedTime = System.currentTimeMillis() - startTime;
-                byte[] data = new byte[6400];
-                audio.read(data);
-                if (estimatedTime > 60000) { // 60 seconds
-                    System.out.println("Stop speaking.");
-                    targetDataLine.stop();
-                    targetDataLine.close();
-                    break;
-                }
-                request =
-                    StreamingRecognizeRequest.newBuilder()
-                        .setAudioContent(ByteString.copyFrom(data))
-                        .build();
-                clientStream.send(request);
-                }
-            } catch (Exception e) {
-                System.out.println(e);
-            }
-            responseObserver.onComplete();
 
-            return new MediaSession(sessionId, eventHandler, new MediaStream() {
+                @Override
+                public void onComplete() {
+                    logger.info("Stream completed");
+                    eventHandler.onEvent(this, new SpeechToTextEvent("Session stopped event.", SpeechToTextStatus.STOPPED));
+                }
+
+                @Override
+                public void onError(Throwable t) {
+                    logger.error("Stream error", t);
+                    eventHandler.onEvent(this, new SpeechToTextEvent("ERROR: " + t.getMessage(), SpeechToTextStatus.ERROR));
+                }
+            };
+
+            // Create a client stream for sending requests
+            ClientStream<StreamingRecognizeRequest> clientStream = client.streamingRecognizeCallable().splitCall(responseObserver);
+
+            // Send the initial configuration request
+            StreamingRecognizeRequest initialRequest = StreamingRecognizeRequest.newBuilder()
+                    .setStreamingConfig(streamingRecognitionConfig)
+                    .build();
+            clientStream.send(initialRequest);
+
+            // MediaStream to handle input audio data
+            MediaStream mediaStream = new MediaStream() {
                 @Override
                 public void write(byte[] data) {
-                    is.write(data);
+                    try {
+                        audioQueue.put(data);
+                    } catch (InterruptedException e) {
+                        logger.error("Error writing to audio queue", e);
+                        Thread.currentThread().interrupt();
+                    }
                 }
 
                 @Override
                 public void close() {
-                    is.close();
-                    recognizer.close();
-                    config.close();
+                    clientStream.closeSend();
                 }
-            });
-        } catch (Exception ex) {
-            throw new RuntimeException("Exception in speechToTextSession", ex);
+            };
+
+            // Thread to continuously send audio data to the Google API
+            new Thread(() -> {
+                try {
+                    while (true) {
+                        byte[] audioData = audioQueue.poll(50, TimeUnit.MILLISECONDS);
+                        if (audioData != null) {
+                            StreamingRecognizeRequest request = StreamingRecognizeRequest.newBuilder()
+                                    .setAudioContent(ByteString.copyFrom(audioData))
+                                    .build();
+                            clientStream.send(request);
+                        } else {
+                            // Send silence if no audio data is available
+                            byte[] silence = new byte[320]; // 320 bytes of silence (20ms of audio at 16kHz, 16-bit PCM)
+                            StreamingRecognizeRequest request = StreamingRecognizeRequest.newBuilder()
+                                    .setAudioContent(ByteString.copyFrom(silence))
+                                    .build();
+                            clientStream.send(request);
+                        }
+                    }
+                } catch (InterruptedException e) {
+                    logger.error("Audio sending interrupted", e);
+                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                    logger.error("Error in audio sending thread", e);
+                }
+            }).start();
+
+            return new MediaSession(sessionId, eventHandler, mediaStream);
+
+        } catch (Exception e) {
+            logger.error("Exception in speechToTextSession", e);
+            throw new RuntimeException("Exception in speechToTextSession", e);
         }
     }
-    
 }
