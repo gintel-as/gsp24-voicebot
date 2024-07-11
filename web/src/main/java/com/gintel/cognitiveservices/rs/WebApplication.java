@@ -33,7 +33,6 @@ import com.gintel.cognitiveservices.openai.azure.AzureOpenaiConfig;
 import com.gintel.cognitiveservices.openai.azure.AzureOpenaiService;
 import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
 import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
-import com.gintel.cognitiveservices.stt.google.GoogleSpeechToTextService;
 import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
 import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 import com.gintel.cognitiveservices.tts.google.GoogleTextToSpeechService;
@@ -97,11 +96,12 @@ public class WebApplication extends Application {
     }
 
     private List<SpeechToText> getSpeechToTextServices() {
-        return Arrays.asList(new GoogleSpeechToTextService());
+        return Arrays.asList(new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
     }
 
     private List<TextToSpeech> getTextToSpeechServices() {
-        return Arrays.asList(new GoogleTextToSpeechService());
+        return Arrays.asList(new AzureTextToSpeechService(ConfigFactory.create(AzureTTSConfig.class)),
+                new GoogleTextToSpeechService());
     }
 
     private List<Openai> getOpenaiServices() {

@@ -63,12 +63,12 @@
 			</dependency>
 			<dependency>
 				<groupId>com.gintel</groupId>
-				<artifactId>stt-google</artifactId>
+				<artifactId>tts-google</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.gintel</groupId>
-				<artifactId>tts-google</artifactId>
+				<artifactId>stt-google</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>

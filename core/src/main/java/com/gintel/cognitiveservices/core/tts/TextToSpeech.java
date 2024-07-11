@@ -12,11 +12,15 @@ import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 import com.gintel.cognitiveservices.service.Service;
 
 public interface TextToSpeech extends Service {
-    TextToSpeechResult textToSpeech(String language, String voiceName, String text, InputFormat input, OutputFormat output);
-    
+    TextToSpeechResult textToSpeech(String language, String voiceName, String text, InputFormat input,
+            OutputFormat output);
+
+    String getProvider();
+
     TextToSpeechByteResult textToStream(String language, String voiceName, String text,
             InputFormat input, OutputFormat output, MediaStream outputStream);
 
-    MediaSession startTextToSpeechSession(String sessionId, String text, String language, EventHandler<BaseEvent> handler);
+    MediaSession startTextToSpeechSession(String sessionId, String text, String language,
+            EventHandler<BaseEvent> handler);
 
 }
