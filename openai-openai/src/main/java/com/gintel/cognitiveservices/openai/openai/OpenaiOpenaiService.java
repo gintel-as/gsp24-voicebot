@@ -30,10 +30,14 @@ import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingType;
 
-public class OpenaiOpenaiService implements Openai{
+public class OpenaiOpenaiService implements Openai {
     private static final Logger logger = LoggerFactory.getLogger(OpenaiOpenaiService.class);
 
     private OpenaiOpenaiConfig serviceConfig;
+
+    public String getProvider() {
+        return "openai";
+    }
 
     public OpenaiOpenaiService(OpenaiOpenaiConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
@@ -54,17 +58,17 @@ public class OpenaiOpenaiService implements Openai{
             Encoding enc = registry.getEncoding(EncodingType.CL100K_BASE);
 
             OpenAIClient client = new OpenAIClientBuilder()
-                .credential(new KeyCredential(openaiOpenaiKey))
-                .buildClient();
-            
-
+                    .credential(new KeyCredential(openaiOpenaiKey))
+                    .buildClient();
 
             List<ChatRequestMessage> chatMessages = new ArrayList<>();
-            if (ctx.getMessages() != null){
+            if (ctx.getMessages() != null) {
                 chatMessages = ctx.getMessages();
             } else {
-                chatMessages.add(new ChatRequestSystemMessage("You are a helpful assistant, speaking in a conversational language."));
-                ctx.addTokenCost(enc.encode("You are a helpful assistant, speaking in a conversational language.").size());
+                chatMessages.add(new ChatRequestSystemMessage(
+                        "You are a helpful assistant, speaking in a conversational language."));
+                ctx.addTokenCost(
+                        enc.encode("You are a helpful assistant, speaking in a conversational language.").size());
             }
 
             chatMessages.add(new ChatRequestUserMessage(text));
@@ -73,10 +77,9 @@ public class OpenaiOpenaiService implements Openai{
                 ctx.addTokenCost(enc.encode(text).size());
             }
 
-
             ChatCompletionsOptions completionsOptions = new ChatCompletionsOptions(chatMessages);
             completionsOptions.setMaxTokens(1000);
-            
+
             ChatCompletions chatCompletions = client.getChatCompletions(deploymentOrModelId, completionsOptions);
             CompletionsUsage usage = chatCompletions.getUsage();
             if (usage != null) {
@@ -88,14 +91,14 @@ public class OpenaiOpenaiService implements Openai{
                 if (usage.getTotalTokens() >= completionsOptions.getMaxTokens()) {
                     Integer messages = 1;
                     Integer diff = usage.getTotalTokens() - completionsOptions.getMaxTokens();
-                    while(messages < ctx.getMessageTokens().size()-1){
+                    while (messages < ctx.getMessageTokens().size() - 1) {
                         Integer sum = 0;
                         for (int i = 0; i < messages; i++) {
-                            sum += ctx.getMessageTokens().get(i+1);
+                            sum += ctx.getMessageTokens().get(i + 1);
                         }
                         if (sum > diff) {
                             List<Integer> tokes = ctx.getMessageTokens();
-                            for (int j =0; j <= messages; j++){
+                            for (int j = 0; j <= messages; j++) {
                                 tokes.remove(messages - j);
                                 chatMessages.remove(messages - j);
                             }
@@ -110,7 +113,8 @@ public class OpenaiOpenaiService implements Openai{
                                 logger.info("Completion tokens used (after deletion): {}", usage.getCompletionTokens());
                                 logger.info("Total tokens used (after deletion): {}", usage.getTotalTokens());
                                 logger.info("" + ctx.getMessageTokens());
-                                logger.info("chatMessages lengde = tokens lengde\n" + ctx.getMessages().size() +" = " + ctx.getMessageTokens().size());
+                                logger.info("chatMessages lengde = tokens lengde\n" + ctx.getMessages().size() + " = "
+                                        + ctx.getMessageTokens().size());
                             }
                             String mld = "";
                             for (ChatChoice choice : chatCompletions.getChoices()) {
@@ -126,12 +130,15 @@ public class OpenaiOpenaiService implements Openai{
                                 }
                             }
 
-                            return new OpenaiResult(OpenaiStatus.OK, "NB! Token management deleted older messages\n\n" + mld, text);
+                            return new OpenaiResult(OpenaiStatus.OK,
+                                    "NB! Token management deleted older messages\n\n" + mld, text);
                         }
                         messages += 2;
-                    };
+                    }
+                    ;
                     logger.warn("Maximum token limit reached with previous prompt.");
-                    return new OpenaiResult(OpenaiStatus.ERROR, "Maximum token limit reached with previous prompt", text);
+                    return new OpenaiResult(OpenaiStatus.ERROR, "Maximum token limit reached with previous prompt",
+                            text);
                 }
             }
 

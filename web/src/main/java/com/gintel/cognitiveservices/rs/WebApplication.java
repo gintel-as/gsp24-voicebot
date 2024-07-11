@@ -105,7 +105,8 @@ public class WebApplication extends Application {
     }
 
     private List<Openai> getOpenaiServices() {
-        return Arrays.asList(new OpenaiOpenaiService(ConfigFactory.create(OpenaiOpenaiConfig.class)));
+        return Arrays.asList(new AzureOpenaiService(ConfigFactory.create(AzureOpenaiConfig.class)),
+                new OpenaiOpenaiService(ConfigFactory.create(OpenaiOpenaiConfig.class)));
     }
 
     private List<Translation> getTranslationServices() {
