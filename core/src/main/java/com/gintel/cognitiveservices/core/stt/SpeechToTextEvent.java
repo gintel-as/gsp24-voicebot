@@ -7,7 +7,7 @@ public class SpeechToTextEvent extends BaseEvent {
     private final String data;
     private final SpeechToTextStatus result;
 
-    public SpeechToTextEvent (String data, SpeechToTextStatus result) {
+    public SpeechToTextEvent(String data, SpeechToTextStatus result) {
         this.data = data;
         this.result = result;
     }
