@@ -1,4 +1,4 @@
-package com.gintel.cognitiveservices.openai.azure;
+package com.gintel.cognitiveservices.openai.openai;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,38 +24,41 @@ import com.azure.ai.openai.models.ChatRequestSystemMessage;
 import com.azure.ai.openai.models.ChatRequestUserMessage;
 import com.azure.ai.openai.models.ChatResponseMessage;
 import com.azure.ai.openai.models.CompletionsUsage;
-import com.azure.core.credential.AzureKeyCredential;
+import com.azure.core.credential.KeyCredential;
 import com.knuddels.jtokkit.api.EncodingRegistry;
 import com.knuddels.jtokkit.Encodings;
 import com.knuddels.jtokkit.api.Encoding;
 import com.knuddels.jtokkit.api.EncodingType;
 
-public class AzureOpenaiService implements Openai {
-    private static final Logger logger = LoggerFactory.getLogger(AzureOpenaiService.class);
+public class OpenaiOpenaiService implements Openai {
+    private static final Logger logger = LoggerFactory.getLogger(OpenaiOpenaiService.class);
 
-    private AzureOpenaiConfig serviceConfig;
-
-    public AzureOpenaiService(AzureOpenaiConfig serviceConfig) {
-        this.serviceConfig = serviceConfig;
-    }
+    private OpenaiOpenaiConfig serviceConfig;
 
     public String getProvider() {
-        return "azure";
+        return "openai";
+    }
+
+    public OpenaiOpenaiService(OpenaiOpenaiConfig serviceConfig) {
+        this.serviceConfig = serviceConfig;
     }
 
     @Override
     public OpenaiResult openai(String text, ChatBotContext ctx, InputFormat input, OutputFormat output) {
         try {
-            String azureOpenaiKey = serviceConfig.subscriptionKey();
-            String endpoint = "https://gintel-openai-resource.openai.azure.com/";
-            String deploymentOrModelId = "testDeployment";
+            String openaiOpenaiKey = serviceConfig.subscriptionKey();
+            if (openaiOpenaiKey == null || openaiOpenaiKey.isEmpty()) {
+                logger.error("OpenAI subscription key is null or empty.");
+                return new OpenaiResult(OpenaiStatus.ERROR, "OpenAI subscription key is missing.", text);
+            }
+            logger.info("Retrieved OpenAI subscription key successfully.");
+            String deploymentOrModelId = "gpt-4";
 
             EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
             Encoding enc = registry.getEncoding(EncodingType.CL100K_BASE);
 
             OpenAIClient client = new OpenAIClientBuilder()
-                    .endpoint(endpoint)
-                    .credential(new AzureKeyCredential(azureOpenaiKey))
+                    .credential(new KeyCredential(openaiOpenaiKey))
                     .buildClient();
 
             List<ChatRequestMessage> chatMessages = new ArrayList<>();

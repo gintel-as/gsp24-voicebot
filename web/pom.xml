@@ -36,6 +36,9 @@
 		</dependency>
 		<dependency>
 			<groupId>com.gintel</groupId>
+			<artifactId>openai-openai</artifactId>
+    </dependency>
+      <groupId>com.gintel</groupId>
 			<artifactId>stt-google</artifactId>
 		</dependency>
 		<dependency>

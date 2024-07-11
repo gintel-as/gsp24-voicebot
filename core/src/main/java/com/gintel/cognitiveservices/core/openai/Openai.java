@@ -6,6 +6,8 @@ import com.gintel.cognitiveservices.core.openai.types.InputFormat;
 import com.gintel.cognitiveservices.core.openai.types.OutputFormat;
 import com.gintel.cognitiveservices.service.Service;
 
-public interface Openai extends Service{
+public interface Openai extends Service {
     OpenaiResult openai(String text, ChatBotContext ctx, InputFormat input, OutputFormat output);
+
+    String getProvider();
 }
