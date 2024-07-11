@@ -58,6 +58,6 @@ public class ExampleController {
             // for now, just pick the first one
             return impl.translation(text, fromLanguage, toLanguage); 
         }
-        throw new RuntimeException("No openai implementations found");
+        throw new RuntimeException("No translation implementations found");
     }
 }

@@ -1,6 +1,5 @@
 package com.gintel.cognitiveservices.tts.azure;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Future;
@@ -39,6 +38,10 @@ public class AzureTextToSpeechService implements TextToSpeech {
     private static final Logger logger = LoggerFactory.getLogger(AzureTextToSpeechService.class);
 
     private AzureTTSConfig serviceConfig;
+
+    public String getProvider() {
+        return "azure";
+    }
 
     public AzureTextToSpeechService(AzureTTSConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
@@ -97,7 +100,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
     @Override
     public TextToSpeechByteResult textToStream(String language, String voiceName, String text,
             InputFormat input, OutputFormat output, MediaStream outputStream) {
-
+        ;
         SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(),
                 serviceConfig.region());
         if (voiceName != null) {
@@ -161,10 +164,12 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
             SpeechSynthesisResult result = synth.StartSpeakingText(text);
             try (AudioDataStream audioDataStream = AudioDataStream.fromResult(result)
-//                    FileOutputStream for testing - uncomment to listen to audio via the referenced file
-//                    (also uncomment fos.write below)
-//                    ;FileOutputStream fos = new FileOutputStream(new File("c:\\temp\\voicegw\\test2.wav"))  
-                    ) {
+            // FileOutputStream for testing - uncomment to listen to audio via the
+            // referenced file
+            // (also uncomment fos.write below)
+            // ;FileOutputStream fos = new FileOutputStream(new
+            // File("c:\\temp\\voicegw\\test2.wav"))
+            ) {
                 byte[] buffer = new byte[1600];
 
                 while (true) {
@@ -175,7 +180,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
                     byte[] chunk = new byte[(int) len];
                     System.arraycopy(buffer, 0, chunk, 0, (int) len);
-//                    fos.write(buffer, 0, (int) len);
+                    // fos.write(buffer, 0, (int) len);
 
                     outputStream.write(chunk);
                 }
@@ -203,13 +208,14 @@ public class AzureTextToSpeechService implements TextToSpeech {
             endTime = boundary.getAudioOffset() / 10000; // Convert from 100-nanoseconds to milliseconds
 
             srt.append(counter)
-            .append("\n")
-            .append(formatTime(startTime))
-            .append(" --> ")
-            .append(formatTime(endTime))
-            .append("\n")
-            .append(text.substring((int) boundary.getTextOffset(), (int) (boundary.getTextOffset() + boundary.getWordLength())))
-            .append("\n\n");
+                    .append("\n")
+                    .append(formatTime(startTime))
+                    .append(" --> ")
+                    .append(formatTime(endTime))
+                    .append("\n")
+                    .append(text.substring((int) boundary.getTextOffset(),
+                            (int) (boundary.getTextOffset() + boundary.getWordLength())))
+                    .append("\n\n");
 
             startTime = endTime;
             counter++;
@@ -226,7 +232,9 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
         return String.format("%02d:%02d:%02d,%03d", hours, minutes, seconds, milliseconds);
     }
-    public MediaSession startTextToSpeechSession(String sessionId, String text, String language, EventHandler<BaseEvent> eventHandler) {
+
+    public MediaSession startTextToSpeechSession(String sessionId, String text, String language,
+            EventHandler<BaseEvent> eventHandler) {
         logger.info("createSession(sessionId={}, language={})", sessionId, language);
         String serviceRegion = serviceConfig.region();
         // String lang = language != null ? language.replace("\"", "") : "nb-NO";
@@ -238,7 +246,8 @@ public class AzureTextToSpeechService implements TextToSpeech {
             SpeechSynthesizer synthesizer = new SpeechSynthesizer(config, audioConfig);
 
             synthesizer.SynthesisStarted.addEventListener((s, e) -> eventHandler.onEvent(s, new TextToSpeechEvent("")));
-            synthesizer.SynthesisCompleted.addEventListener((s, e) -> eventHandler.onEvent(s, new TextToSpeechEvent("")));
+            synthesizer.SynthesisCompleted
+                    .addEventListener((s, e) -> eventHandler.onEvent(s, new TextToSpeechEvent("")));
             synthesizer.SynthesisCanceled.addEventListener((s, e) -> {
                 String result = "CANCELED";
                 eventHandler.onEvent(s, new TextToSpeechEvent(result));
@@ -247,7 +256,8 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
             return new MediaSession(sessionId, eventHandler, new MediaStream() {
                 @Override
-                public void write(byte[] data) {}
+                public void write(byte[] data) {
+                }
 
                 @Override
                 public void close() {
@@ -261,8 +271,5 @@ public class AzureTextToSpeechService implements TextToSpeech {
             throw new RuntimeException("Exception in textToSpeechSession", e);
         }
     }
-
-
-
 
 }

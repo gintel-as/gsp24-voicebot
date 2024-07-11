@@ -15,6 +15,8 @@
 		<module>openai-azure</module>
 		<module>translation-azure</module>
 		<module>openai-openai</module>
+		<module>stt-google</module>
+		<module>tts-google</module>
 	</modules>
 
 	<properties>
@@ -65,7 +67,14 @@
 				<artifactId>openai-openai</artifactId>
 				<version>${project.version}</version>
 			</dependency>
-
+				<artifactId>tts-google</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.gintel</groupId>
+				<artifactId>stt-google</artifactId>
+				<version>${project.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>ch.qos.logback</groupId>
 				<artifactId>logback-classic</artifactId>
@@ -119,11 +128,18 @@
 				<version>1.0.0</version>
 			</dependency>
 
-    <dependency>
-      <groupId>com.microsoft.cognitiveservices.speech</groupId>
-      <artifactId>client-sdk</artifactId>
-      <version>1.34.0</version>
-    </dependency>
+			<dependency>
+				<groupId>com.microsoft.cognitiveservices.speech</groupId>
+				<artifactId>client-sdk</artifactId>
+				<version>1.34.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.google.cloud</groupId>
+				<artifactId>google-cloud-speech</artifactId>
+				<version>4.41.0</version>
+			</dependency>
+
+	
     <!--<dependency>
       <groupId>jakarta.json</groupId>
       <artifactId>jakarta.json-api</artifactId>

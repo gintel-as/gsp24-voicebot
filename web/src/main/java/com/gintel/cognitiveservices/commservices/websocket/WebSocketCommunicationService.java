@@ -59,7 +59,7 @@ public class WebSocketCommunicationService implements CommunicationService {
                 return;
             }
 
-            if (msg.contains("Language:")){
+            if (msg.contains("Language:")) {
                 contexts.get(session.getId()).setLanguage(msg.replace("Language:", ""));
             } else {
                 byte[] bytes = Base64.getDecoder().decode(msg);
@@ -94,7 +94,7 @@ public class WebSocketCommunicationService implements CommunicationService {
 
             logger.info("onOpen({}, {})", sessionId, config);
 
-            wsSessions.put(session.getId(), session);
+            wsSessions.put(sessionId, session);
             contexts.put(sessionId, new ChatBotContext());
 
             EventHandler<BaseEvent> handler = (s, e) -> {
@@ -102,7 +102,7 @@ public class WebSocketCommunicationService implements CommunicationService {
                     session.getBasicRemote().sendText(e.toString());
                 } catch (IOException ex) {
                     logger.error("Exception when sending text to client", ex);
-                }    
+                }
             };
 
             MediaStream outputStream;
@@ -187,21 +187,21 @@ public class WebSocketCommunicationService implements CommunicationService {
     public void answer(MediaSession mediaSession) {
         logger.info("answer(session={})", mediaSession);
 
-//        if (!(mediaSession instanceof WebSocketMediaSession)) {
-//            logger.warn("answer({}): Unsupported session type", mediaSession);
-//            return;
-//        }
+        // if (!(mediaSession instanceof WebSocketMediaSession)) {
+        // logger.warn("answer({}): Unsupported session type", mediaSession);
+        // return;
+        // }
         sessions.put(mediaSession.getId(), mediaSession);
     }
 
     @Override
     public void reject() {
-        
+
     }
 
     @Override
     public void disconnect() {
-        
+
     }
 
     @Override
