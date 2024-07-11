@@ -96,7 +96,8 @@ public class WebApplication extends Application {
     }
 
     private List<SpeechToText> getSpeechToTextServices() {
-        return Arrays.asList(new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)));
+        return Arrays.asList(new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)),
+                new GoogleSpeechToTextService());
     }
 
     private List<TextToSpeech> getTextToSpeechServices() {

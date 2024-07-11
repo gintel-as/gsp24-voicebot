@@ -31,6 +31,14 @@ import com.google.protobuf.ByteString;
 
 public class GoogleSpeechToTextService implements SpeechToText {
     private static final Logger logger = LoggerFactory.getLogger(GoogleSpeechToTextService.class);
+    private volatile boolean running = true;
+    private Thread audioSendingThread;
+    private SpeechClient client;
+
+    @Override
+    public String getProvider() {
+        return "google";
+    }
 
     @Override
     public SpeechToTextResult speechToText(String language, InputFormat input, OutputFormat output) {
@@ -39,11 +47,12 @@ public class GoogleSpeechToTextService implements SpeechToText {
     }
 
     @Override
-    public MediaSession startSpeechToTextSession(String sessionId, String language, EventHandler<BaseEvent> eventHandler) {
+    public MediaSession startSpeechToTextSession(String sessionId, String language,
+            EventHandler<BaseEvent> eventHandler) {
         logger.info("createSession(sessionId={}, language={})", sessionId, language);
 
         try {
-            SpeechClient client = SpeechClient.create();
+            client = SpeechClient.create();
 
             // Configure recognition settings
             RecognitionConfig recognitionConfig = RecognitionConfig.newBuilder()
@@ -75,9 +84,12 @@ public class GoogleSpeechToTextService implements SpeechToText {
                         SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
                         String transcript = alternative.getTranscript();
                         if (result.getIsFinal()) {
-                            eventHandler.onEvent(this, new SpeechToTextEvent("RECOGNIZED: " + transcript, SpeechToTextStatus.RECOGNIZED));
+                            eventHandler.onEvent(this,
+                                    new SpeechToTextEvent("RECOGNIZED: " + transcript + " (google)",
+                                            SpeechToTextStatus.RECOGNIZED));
                         } else {
-                            eventHandler.onEvent(this, new SpeechToTextEvent("RECOGNIZED: " + transcript, SpeechToTextStatus.RECOGNIZING));
+                            eventHandler.onEvent(this,
+                                    new SpeechToTextEvent("RECOGNIZED: " + transcript, SpeechToTextStatus.RECOGNIZING));
                         }
                     } catch (Exception e) {
                         logger.error("Error processing response", e);
@@ -87,18 +99,21 @@ public class GoogleSpeechToTextService implements SpeechToText {
                 @Override
                 public void onComplete() {
                     logger.info("Stream completed");
-                    eventHandler.onEvent(this, new SpeechToTextEvent("Session stopped event.", SpeechToTextStatus.STOPPED));
+                    eventHandler.onEvent(this,
+                            new SpeechToTextEvent("Session stopped event.", SpeechToTextStatus.STOPPED));
                 }
 
                 @Override
                 public void onError(Throwable t) {
                     logger.error("Stream error", t);
-                    eventHandler.onEvent(this, new SpeechToTextEvent("ERROR: " + t.getMessage(), SpeechToTextStatus.ERROR));
+                    eventHandler.onEvent(this,
+                            new SpeechToTextEvent("ERROR: " + t.getMessage(), SpeechToTextStatus.ERROR));
                 }
             };
 
             // Create a client stream for sending requests
-            ClientStream<StreamingRecognizeRequest> clientStream = client.streamingRecognizeCallable().splitCall(responseObserver);
+            ClientStream<StreamingRecognizeRequest> clientStream = client.streamingRecognizeCallable()
+                    .splitCall(responseObserver);
 
             // Send the initial configuration request
             StreamingRecognizeRequest initialRequest = StreamingRecognizeRequest.newBuilder()
@@ -120,14 +135,31 @@ public class GoogleSpeechToTextService implements SpeechToText {
 
                 @Override
                 public void close() {
+                    // Stop the audio sending thread
+                    running = false;
+                    try {
+                        if (audioSendingThread != null) {
+                            audioSendingThread.join();
+                        }
+                    } catch (InterruptedException e) {
+                        logger.error("Audio sending thread interrupted while joining", e);
+                        Thread.currentThread().interrupt();
+                    }
+
+                    // Close the client stream
                     clientStream.closeSend();
+
+                    // Close the SpeechClient
+                    if (client != null) {
+                        client.close();
+                    }
                 }
             };
 
             // Thread to continuously send audio data to the Google API
-            new Thread(() -> {
+            audioSendingThread = new Thread(() -> {
                 try {
-                    while (true) {
+                    while (running) {
                         byte[] audioData = audioQueue.poll(50, TimeUnit.MILLISECONDS);
                         if (audioData != null) {
                             StreamingRecognizeRequest request = StreamingRecognizeRequest.newBuilder()
@@ -149,7 +181,8 @@ public class GoogleSpeechToTextService implements SpeechToText {
                 } catch (Exception e) {
                     logger.error("Error in audio sending thread", e);
                 }
-            }).start();
+            });
+            audioSendingThread.start();
 
             return new MediaSession(sessionId, eventHandler, mediaStream);
 

@@ -38,6 +38,11 @@ public class CognitiveServices implements CommunicationServiceListener {
     private int ttsChosenProvider = 0;
     // 0 = azure
     // 1 = google
+  
+    private List<String> sttProviders = Arrays.asList("azure", "google");
+    private int sttChosenProvider = 1;
+    // 0 = azure
+    // 1 = google
 
     private static CognitiveServices instance;
     private Map<String, Service> services;
@@ -95,7 +100,8 @@ public class CognitiveServices implements CommunicationServiceListener {
                     service.playMedia(event.getSessionId(), e.toString());
                     if (se.getResult() == SpeechToTextStatus.RECOGNIZED) {
                         service.playMedia(event.getSessionId(), "stop_recording");
-                        String aiInput = se.getData().replaceAll("RECOGNIZED: ", "");
+                        String aiInput = se.getData().replaceAll("RECOGNIZED: ", "").replaceAll("(google)", "")
+                                .replaceAll("(azure)", "");
                         long l1 = System.currentTimeMillis();
                         if (language != "none" && language != null) {
                             Translation translation = getService(Translation.class, event.getTranslationService());
@@ -156,9 +162,12 @@ public class CognitiveServices implements CommunicationServiceListener {
         };
 
         try {
-            SpeechToText stt = getService(SpeechToText.class, event.getSttService());
-            MediaSession session = stt.startSpeechToTextSession(event.getSessionId(), null, handler);
-            service.answer(session);
+            for (SpeechToText stt : getServices(SpeechToText.class)) {
+                if (stt.getProvider() == sttProviders.get(sttChosenProvider)) {
+                    MediaSession session = stt.startSpeechToTextSession(event.getSessionId(), null, handler);
+                    service.answer(session);
+                }
+            }
         } catch (Exception ex) {
             logger.error("Failed to start STT session for session ID: {}", event.getSessionId(), ex);
         }

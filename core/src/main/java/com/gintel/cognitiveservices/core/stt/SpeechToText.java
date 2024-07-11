@@ -11,6 +11,8 @@ import com.gintel.cognitiveservices.service.Service;
 public interface SpeechToText extends Service {
     SpeechToTextResult speechToText(String language, InputFormat input, OutputFormat output);
 
+    String getProvider();
+
     MediaSession startSpeechToTextSession(String sessionId, String language,
             EventHandler<BaseEvent> eventHandler);
 }

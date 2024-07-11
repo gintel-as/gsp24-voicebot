@@ -11,10 +11,12 @@ public class ChatBotContext {
     private String language;
 
     public void addMessages(List<ChatRequestMessage> chatMessages) {
-        if (chatMessages != null) {this.conversation = chatMessages;}
+        if (chatMessages != null) {
+            this.conversation = chatMessages;
+        }
     }
 
-    public List<ChatRequestMessage> getMessages(){
+    public List<ChatRequestMessage> getMessages() {
         return this.conversation;
     }
 
@@ -26,15 +28,15 @@ public class ChatBotContext {
         this.messageTokens = tokens;
     }
 
-    public List<Integer> getMessageTokens(){
+    public List<Integer> getMessageTokens() {
         return this.messageTokens;
     }
 
-    public void setLanguage(String language){
+    public void setLanguage(String language) {
         this.language = language;
     }
 
-    public String getLanguage(){
+    public String getLanguage() {
         return this.language;
     }
 }
