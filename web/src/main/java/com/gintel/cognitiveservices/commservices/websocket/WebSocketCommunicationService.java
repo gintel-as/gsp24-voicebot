@@ -61,6 +61,10 @@ public class WebSocketCommunicationService implements CommunicationService {
 
             if (msg.contains("Language:")) {
                 contexts.get(session.getId()).setLanguage(msg.replace("Language:", ""));
+            } else if (msg.contains("newTTS:")) {
+                contexts.get(session.getId()).setChosenTts(msg.replace("newTTS:", ""));
+            } else if (msg.contains("newAI:")) {
+                contexts.get(session.getId()).setChosenAi(msg.replace("newAI:", ""));
             } else {
                 byte[] bytes = Base64.getDecoder().decode(msg);
                 sessions.get(session.getId()).getInputStream().write(bytes);
