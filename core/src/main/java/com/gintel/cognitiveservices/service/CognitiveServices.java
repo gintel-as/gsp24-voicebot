@@ -102,11 +102,11 @@ public class CognitiveServices implements CommunicationServiceListener {
                 if (e instanceof SpeechToTextEvent) {
                     String language = ctx.getLanguage();
                     SpeechToTextEvent se = (SpeechToTextEvent) e;
-                    service.playMedia(event.getSessionId(), e.toString());
+                    service.playMedia(event.getSessionId(), se.getData());
                     if (se.getResult() == SpeechToTextStatus.RECOGNIZED) {
                         service.playMedia(event.getSessionId(), "stop_recording");
                         String aiInput = se.getData().replaceAll("RECOGNIZED: ", "").replaceAll("(google)", "")
-                                .replaceAll("(azure)", "");
+                                .replaceAll("(azure)", "").replace("()", "");
                         long l1 = System.currentTimeMillis();
                         if (language != "none" && language != null) {
                             Translation translation = getService(Translation.class, event.getTranslationService());
