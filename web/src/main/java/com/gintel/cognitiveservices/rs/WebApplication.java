@@ -35,6 +35,7 @@ import com.gintel.cognitiveservices.openai.openai.OpenaiOpenaiService;
 import com.gintel.cognitiveservices.openai.openai.OpenaiOpenaiConfig;
 import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
 import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
+import com.gintel.cognitiveservices.stt.google.GoogleSpeechToTextService;
 import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
 import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
 import com.gintel.cognitiveservices.tts.google.GoogleTextToSpeechService;

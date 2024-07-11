@@ -34,12 +34,12 @@
 		<dependencies>
 			<dependency>
 				<groupId>com.gintel</groupId>
-				<artifactId>web</artifactId>
+				<artifactId>core</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
 				<groupId>com.gintel</groupId>
-				<artifactId>core</artifactId>
+				<artifactId>web</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -67,6 +67,8 @@
 				<artifactId>openai-openai</artifactId>
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.gintel</groupId>
 				<artifactId>tts-google</artifactId>
 				<version>${project.version}</version>
 			</dependency>

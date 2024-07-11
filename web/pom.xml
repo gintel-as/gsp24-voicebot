@@ -20,6 +20,10 @@
 		</dependency>
 		<dependency>
 			<groupId>com.gintel</groupId>
+			<artifactId>core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.gintel</groupId>
 			<artifactId>tts-azure</artifactId>
 		</dependency>
 		<dependency>
@@ -37,8 +41,9 @@
 		<dependency>
 			<groupId>com.gintel</groupId>
 			<artifactId>openai-openai</artifactId>
-    </dependency>
-      <groupId>com.gintel</groupId>
+		</dependency>
+		<dependency>
+			<groupId>com.gintel</groupId>
 			<artifactId>stt-google</artifactId>
 		</dependency>
 		<dependency>
