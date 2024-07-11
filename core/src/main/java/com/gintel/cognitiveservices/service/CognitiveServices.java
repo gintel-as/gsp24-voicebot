@@ -35,6 +35,7 @@ public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
 
     private Map<String, String> ttsVoices = new ConcurrentHashMap<>();
+    private Map<String, String> ttsLanguages = new ConcurrentHashMap<>();
 
     private List<String> sttProviders = Arrays.asList("azure", "google");
     private int sttChosenProvider = 0;
@@ -47,8 +48,16 @@ public class CognitiveServices implements CommunicationServiceListener {
     private CognitiveServices(List<Service> services) {
         this.services = services.stream()
                 .collect(Collectors.toMap(Service::getServiceName, s -> s));
+
         ttsVoices.put("azure", "en-US-AvaMultilingualNeural");
         ttsVoices.put("google", "en-US-Standard-A");
+
+        ttsLanguages.put("none", "en-US-Standard-A");
+        ttsLanguages.put("en-US", "en-US-Standard-A");
+        ttsLanguages.put("nb-NO", "nb-NO-Standard-A");
+        ttsLanguages.put("sv-SE", "sv-SE-Standard-A");
+        ttsLanguages.put("da-DK", "da-DK-Standard-A");
+        ttsLanguages.put("fa-IR", "fa-IR-Standard-A");
     }
 
     public static synchronized void init(List<Service> services) {
@@ -126,10 +135,19 @@ public class CognitiveServices implements CommunicationServiceListener {
                                         logger.info(ctx.getChosenTts() + " : " + tts.getProvider());
                                         if (ctx.getChosenTts().contains(tts.getProvider())) {
                                             long a1 = System.currentTimeMillis();
-                                            TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
-                                                    ttsVoices.get(ctx.getChosenTts()),
-                                                    aiResult.getResponse().toString(),
-                                                    null, null, null);
+                                            TextToSpeechByteResult ttsResult = ctx.getChosenTts().contains("google")
+                                                    ? tts.textToStream(
+                                                            ctx.getLanguage() != null && ctx.getLanguage() != "none"
+                                                                    ? "en-US"
+                                                                    : ctx.getLanguage(),
+                                                            ttsLanguages.get(ctx.getLanguage()),
+                                                            aiResult.getResponse().toString(),
+                                                            null, null, null)
+                                                    : tts.textToStream(
+                                                            "en-US",
+                                                            "en-US-AvaMultilingualNeural",
+                                                            aiResult.getResponse().toString(),
+                                                            null, null, null);
                                             long a2 = System.currentTimeMillis();
                                             long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
                                             service.playMedia(event.getSessionId(),

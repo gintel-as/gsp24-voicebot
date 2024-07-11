@@ -8,7 +8,7 @@ import java.util.List;
 public class ChatBotContext {
     private List<ChatRequestMessage> conversation;
     private List<Integer> messageTokens = new ArrayList<>();
-    private String language;
+    private String language = "none";
     private String chosenTts = "azure";
     private String chosenAi = "azure";
 
