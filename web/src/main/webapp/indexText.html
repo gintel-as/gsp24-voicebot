@@ -1,176 +1,394 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      #responseContainer::-webkit-scrollbar {
+        width: 8px;
+        background: transparent;
+        padding-left: 2px;
+      }
+      #responseContainer::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      #responseContainer::-webkit-scrollbar-thumb {
+        background: #d3d3d3;
+        border-radius: 8px;
+      }
+      button {
+        cursor: pointer; /* This will change the cursor to a pointer (clicker style) */
+        border-radius: 16px;
+        padding-top: 8px;
+        padding-bottom: 8px;
+        padding-left: 24px;
+        padding-right: 24px;
+      }
+    </style>
     <title>Text To Speech</title>
-</head>
-<body>
-    <div style="display: flex; width: 99vw; justify-content: center;">
-        <div style="display:flex; flex-direction: column; align-items: center; justify-content: center; width: 30vw; height: 85vh; border-radius: 16px; border: 1px solid black; padding: 8px;" id="app-container">
-        <div class="welcome-message" style="border-radius: 16px; background-color: #36d9d4; color: black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);">Welcome! Type your message and send to chat. </div>
-        <br/>
-        <div style="display: flex; flex-direction: column; height: 100%; overflow-y: scroll; width: 100%; border-bottom: 1px solid black; border-top: 1px solid black;" id="responseContainer"></div>
-        <br/>
-        <div style="border-radius: 16px;">
-            <input  style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" type="text" id="input" placeholder="Enter message" />
+  </head>
+  <body>
+    <div style="display: flex; width: 99vw; justify-content: space-between">
+      <div
+        style="
+          border-radius: 16px;
+          border: 1px solid #b2b2b0;
+          width: 27%;
+          margin-right: 8px;
+          padding: 24px;
+        "
+      >
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+          "
+        >
+          <div
+            id="speech-output"
+            class="speech-output"
+            style="
+              border-radius: 16px;
+              background-color: white;
+              color: black;
+              border: 1px solid #bfbfbd;
+              width: fit-content;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+              margin-bottom: 18px;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+            "
+          >
+            Text input:
+          </div>
+          <select
+            onchange="changeLanguage()"
+            name="language"
+            id="language"
+            style="
+              border-radius: 16px;
+              background-color: white;
+              color: black;
+              border: 1px solid #bfbfbd;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+              margin-bottom: 18px;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+            "
+          >
+            <option value="none">-- Select output language --</option>
+            <option value="nb-NO">Norsk</option>
+            <option value="en-US">English</option>
+          </select>
         </div>
-        <br/>
-        <div style="display: flex; flex-direction: row; width: fit-content; gap: 24px;">
-        <button style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="sendButton" disabled onclick="sendMessage()">Send Message</button>
-        <button  style="border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="stopButton" disabled onclick="stopChat()">End Chat</button>
-        <button style="display:none; border-radius: 16px; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px;" id="startNewChatButton" onclick="startNewChat()">Start New Chat</button>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid black;
+          "
+          id="speechContainer"
+        ></div>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          width: 30vw;
+          height: 85vh;
+          border-radius: 16px;
+          border: 1px solid black;
+          padding: 8px;
+        "
+        id="app-container"
+      >
+        <br />
+        <div
+          id="welcome-message"
+          class="welcome-message"
+          style="
+            border-radius: 16px;
+            background-color: #36d9d4;
+            color: white;
+            width: fit-content;
+            padding-top: 8px;
+            padding-bottom: 8px;
+            padding-left: 24px;
+            padding-right: 24px;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+              0 2px 4px -2px rgb(0 0 0 / 0.1);
+          "
+        >
+          Welcome! Type your message and send to chat.
         </div>
-        <br/>
-        <br/>
-            <audio id="audio" controls autoplay>
-                <source src="" />
-            </audio>
+        <br />
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            overflow-y: scroll;
+            width: 100%;
+            border-bottom: 1px solid black;
+            border-top: 1px solid black;
+          "
+          id="responseContainer"
+        ></div>
+        <br />
+        <div style="border-radius: 16px">
+          <input
+            style="
+              border-radius: 16px;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+            "
+            type="text"
+            id="input"
+            placeholder="Enter message"
+          />
+        </div>
+        <br />
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            width: fit-content;
+            gap: 24px;
+          "
+        >
+          <button
+            style="
+              border-radius: 16px;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+            "
+            id="sendButton"
+            disabled
+            onclick="sendMessage()"
+          >
+            Send Message
+          </button>
+          <button
+            style="
+              border-radius: 16px;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+            "
+            id="stopButton"
+            disabled
+            onclick="stopChat()"
+          >
+            End Chat
+          </button>
+          <button
+            style="
+              display: none;
+              border-radius: 16px;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+            "
+            id="startNewChatButton"
+            onclick="startNewChat()"
+          >
+            Start New Chat
+          </button>
+        </div>
+        <br />
+        <audio id="audio" controls autoplay>
+          <source src="" />
+        </audio>
+      </div>
+      <div
+        style="
+          display: flex;
+          flex-direction: column;
+          align-items: start;
+          width: 27%;
+          border-radius: 16px;
+          border: 1px solid #b2b2b0;
+          margin-left: 8px;
+          padding: 24px;
+          gap: 18px;
+        "
+      >
+        <button id="hrefButton">Speech-To-Text</button>
+        <div
+          style="
+            display: flex;
+            flex-direction: column;
+            border-top: 1px solid black;
+            width: 100%;
+            height: 100%;
+          "
+        ></div>
+      </div>
     </div>
-    </div>
-    
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
     <script>
-        var protocol = window.location.protocol === "http:" ? "ws" : "wss";
-        let ws;
-        var audio = document.getElementById("audio");
-        var input = document.getElementById("input");
-        var sendButton = document.getElementById("sendButton");
-        var stopButton = document.getElementById("stopButton");
-        var startNewChatButton = document.getElementById("startNewChatButton");
-        var responsePending = false;
-        var isProcessing = 0;
+      var protocol = window.location.protocol === "http:" ? "ws" : "wss";
+      let ws;
+      var audio = document.getElementById("audio");
+      var input = document.getElementById("input");
+      var sendButton = document.getElementById("sendButton");
+      var stopButton = document.getElementById("stopButton");
+      var startNewChatButton = document.getElementById("startNewChatButton");
+      var responsePending = false;
+      var isProcessing = 0;
+      var hrefButton = document.getElementById("hrefButton");
 
-        function openWebSocket(){
-            ws = new WebSocket(protocol + "://" + window.location.host + "/web/websocket/text");
+      hrefButton.onclick = () => {
+        location.href = "/web/";
+      };
 
-                ws.onopen = () => {
-                console.log("WebSocket connection opened");
-            };
+      function openWebSocket() {
+        ws = new WebSocket(
+          protocol + "://" + window.location.host + "/web/websocket/text"
+        );
 
-            ws.onclose = () => {
-                console.log("WebSocket connection closed");
-                
-            };
-            
-            
-            ws.onmessage = event => {
-            
-            stopButton.disabled = false;
-            let responseContainer = document.getElementById("responseContainer");
-            if (typeof event.data === "string" && event.data.trim() !== "") {
-                responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #cfcfcf ; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; right: 0px;">${event.data}</p>`;
-                responseContainer.scrollTop = responseContainer.scrollHeight;
-                isProcessing += 1;
-                if (isProcessing === 1) {
-                    responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Preparing speech ~~</b><br>`; 
-                    isProcessing +=1 ;
-                }
-                      
-            } 
-            
-            else if (event.data instanceof Blob) { 
-                blobToBase64(event.data).then(b64 => {                  
-                    audio.src = "data:audio/x-wav;base64," + b64;
-                    audio.play();
-                    input.disabled = false;
-                    responsePending = false;
-                    isProcessing = 0; 
-                   
-                });
-            }
+        ws.onopen = () => {
+          console.log("WebSocket connection opened");
         };
-        }
 
-        openWebSocket();
+        ws.onclose = () => {
+          console.log("WebSocket connection closed");
+        };
 
-        function sendMessage() {
-            if (ws && ws.readyState === WebSocket.OPEN && !responsePending && input.value.trim() !== "") {
-                let message = input.value;
-                audio.pause()
-                ws.send(message);
-                responsePending = true;
-                sendButton.disabled = true;
-                input.disabled = true;
-                document.getElementById("responseContainer").innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-left: 24px; align-self:flex-end;">${message}</p>`;
-                input.value = ''; 
-                document.getElementById("responseContainer").innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Processing Message ~~</b><br>`;
-                
+        ws.onmessage = (event) => {
+          stopButton.disabled = false;
+          let responseContainer = document.getElementById("responseContainer");
+          if (typeof event.data === "string" && event.data.trim() !== "") {
+            responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #cfcfcf ; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; right: 0px;">${event.data}</p>`;
+            responseContainer.scrollTop = responseContainer.scrollHeight;
+            isProcessing += 1;
+            if (isProcessing === 1) {
+              responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Preparing speech ~~</b><br>`;
+              isProcessing += 1;
             }
-        }
-
-        input.addEventListener("keypress", function(event) {
-            if (event.key === "Enter" && !responsePending && input.value.trim() !== "") {
-                
-                event.preventDefault();
-                sendMessage();
-            }
-        });
-
-        input.addEventListener("input", (event) => {
-            if (input.value.trim() !== ""){
-                sendButton.disabled = false;
-            }
-            else{
-                sendButton.disabled = true;
-
-            }
-                
-        });
-
-
-
-     
-
-        function blobToBase64(blob) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onload = () => {
-                    const base64String = reader.result.split(",")[1];
-                    resolve(base64String);
-                };
-                reader.onerror = error => reject(error);
+          } else if (event.data instanceof Blob) {
+            blobToBase64(event.data).then((b64) => {
+              audio.src = "data:audio/x-wav;base64," + b64;
+              audio.play();
+              input.disabled = false;
+              responsePending = false;
+              isProcessing = 0;
             });
-        }
+          }
+        };
+      }
 
-        function handleDataAvailable(event) {
-            if (event.size > 0) {
-                blobToBase64(event).then(b64 => {
-                    ws.send(b64);
-                });
-            }
-        }
+      openWebSocket();
 
-
-        function stopChat() {
-            if (ws) {
-                ws.close();
-                sendButton.disabled = true;
-                input.disabled = true;
-                stopButton.style.display = 'none';
-                startNewChatButton.style.display = 'inline';
-                audio.pause();
-            }
+      function changeLanguage() {
+        language = document.getElementById("language").value;
+        if (document.getElementById("startButton").disabled !== true) {
+          ws.send("Language:" + language);
         }
-        function startNewChat(){
-            document.getElementById("responseContainer").innerHTML = '';
-            responsePending = false;
-            openWebSocket();
-            input.value = "";
-            input.disabled = false;
-            stopButton.style.display = 'inline';
-            startNewChatButton.style.display = 'none';
-            clearAudio();
-            
-        }
+      }
 
-        function clearAudio(){
-            audio.pause();
-            audio.src = "";
-            audio.load();
+      function sendMessage() {
+        if (
+          ws &&
+          ws.readyState === WebSocket.OPEN &&
+          !responsePending &&
+          input.value.trim() !== ""
+        ) {
+          let message = input.value;
+          audio.pause();
+          ws.send(message);
+          responsePending = true;
+          sendButton.disabled = true;
+          input.disabled = true;
+          document.getElementById(
+            "responseContainer"
+          ).innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #6879D0; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; margin-left: 24px; align-self:flex-end;">${message}</p>`;
+          input.value = "";
+          document.getElementById(
+            "responseContainer"
+          ).innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Processing Message ~~</b><br>`;
         }
+      }
 
-       
+      input.addEventListener("keypress", function (event) {
+        if (
+          event.key === "Enter" &&
+          !responsePending &&
+          input.value.trim() !== ""
+        ) {
+          event.preventDefault();
+          sendMessage();
+        }
+      });
+
+      input.addEventListener("input", (event) => {
+        if (input.value.trim() !== "") {
+          sendButton.disabled = false;
+        } else {
+          sendButton.disabled = true;
+        }
+      });
+
+      function blobToBase64(blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(blob);
+          reader.onload = () => {
+            const base64String = reader.result.split(",")[1];
+            resolve(base64String);
+          };
+          reader.onerror = (error) => reject(error);
+        });
+      }
+
+      function handleDataAvailable(event) {
+        if (event.size > 0) {
+          blobToBase64(event).then((b64) => {
+            ws.send(b64);
+          });
+        }
+      }
+
+      function stopChat() {
+        if (ws) {
+          ws.close();
+          sendButton.disabled = true;
+          input.disabled = true;
+          stopButton.style.display = "none";
+          startNewChatButton.style.display = "inline";
+          audio.pause();
+        }
+      }
+      function startNewChat() {
+        document.getElementById("responseContainer").innerHTML = "";
+        responsePending = false;
+        openWebSocket();
+        input.value = "";
+        input.disabled = false;
+        stopButton.style.display = "inline";
+        startNewChatButton.style.display = "none";
+        clearAudio();
+      }
+
+      function clearAudio() {
+        audio.pause();
+        audio.src = "";
+        audio.load();
+      }
     </script>
-</body>
+  </body>
 </html>

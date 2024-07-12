@@ -126,6 +126,12 @@ public class WebSocketCommunicationService implements CommunicationService {
                     public void close() {
 
                     }
+
+                    @Override
+                    public void write(String data) {
+                        // TODO Auto-generated method stub
+                        throw new UnsupportedOperationException("Unimplemented method 'write'");
+                    }
                 };
             }
 

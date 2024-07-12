@@ -29,6 +29,7 @@ import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.core.tts.TextToSpeechEvent;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
+import com.gintel.cognitiveservices.core.tts.types.TextToSpeechStatus;
 
 public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
@@ -40,12 +41,12 @@ public class CognitiveServices implements CommunicationServiceListener {
 
     private List<String> ttsProviders = Arrays.asList("azure", "google");
     private List<String> ttsVoices = Arrays.asList("en-US-AvaMultilingualNeural", "en-US-Standard-A");
-    private int ttsChosenProvider = 1;
+    private int ttsChosenProvider = 0;
     // 0 = Azure
     // 1 = Google
 
     private List<String> sttProviders = Arrays.asList("azure", "google");
-    private int sttChosenProvider = 1;
+    private int sttChosenProvider = 0;
     // 0 = Azure
     // 1 = Google
 
@@ -102,11 +103,12 @@ public class CognitiveServices implements CommunicationServiceListener {
                 if (e instanceof SpeechToTextEvent) {
                     String language = ctx.getLanguage();
                     SpeechToTextEvent se = (SpeechToTextEvent) e;
-                    service.playMedia(event.getSessionId(), e.toString());
+
                     if (se.getResult() == SpeechToTextStatus.RECOGNIZED) {
                         service.playMedia(event.getSessionId(), "stop_recording");
                         String aiInput = se.getData().replaceAll("RECOGNIZED: ", "").replaceAll("(google)", "")
                                 .replaceAll("(azure)", "");
+                        service.playMedia(event.getSessionId(), e.toString());
                         long l1 = System.currentTimeMillis();
                         if (language != "none" && language != null) {
                             Translation translation = getService(Translation.class, event.getTranslationService());
@@ -193,28 +195,77 @@ public class CognitiveServices implements CommunicationServiceListener {
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
                 if (e instanceof TextToSpeechEvent) {
+                    String language = ctx.getLanguage();
+
                     if (!event.toString().isEmpty() && !text[0].equals(event.toString())) {
-                        for (Openai ai : getServices(Openai.class)) {
-                            service.playMedia(event.getSessionId(), e.toString());
-                            long t1 = System.currentTimeMillis();
-                            OpenaiResult aiResult = ai.openai(event.toString(), ctx, null, null);
-                            long t2 = System.currentTimeMillis();
-                            long openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2 - t1);
-                            service.playMedia(event.getSessionId(), aiResult.getResponse());
-                            for (TextToSpeech tts : getServices(TextToSpeech.class)) {
-                                long a1 = System.currentTimeMillis();
-                                TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
-                                        "en-US-AvaMultilingualNeural",
-                                        aiResult.getResponse().toString(), null, null, null);
-                                long a2 = System.currentTimeMillis();
-                                long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
-                                service.playMedia(event.getSessionId(),
-                                        "AI Time: " + openaiTime + " seconds. TTS time: " + ttsTime + " seconds.");
-                                service.playMedia(event.getSessionId(), ttsResult.getAudio());
+                        String aiInput = event.toString().replaceAll("RECOGNIZED: ", "").replaceAll("(google)", "")
+                                .replaceAll("(azure)", "");
+                        service.playMedia(event.getSessionId(), e.toString());
+                        long l1 = System.currentTimeMillis();
+                        if (language != "none" && language != null) {
+                            Translation translation = getService(Translation.class, event.getTranslationService());
+                            TranslationResult translationResult = translation.translation(aiInput, null, language);
+                            service.playMedia(event.getSessionId(),
+                                    aiInput + " -- WAS TRANSLATED TO --" + translationResult.getOutput());
+                            aiInput = translationResult.getOutput();
+                        }
+                        long l2 = System.currentTimeMillis();
+                        long translationTime = TimeUnit.MILLISECONDS.toSeconds(l2 - l1);
+                        if (!event.toString().isEmpty() && !text[0].equals(event.toString())) {
+                            for (Openai ai : getServices(Openai.class)) {
+                                if (ai.getProvider() == aiProviders.get(aiChosenProvider)) {
+                                    long t1 = System.currentTimeMillis();
+                                    OpenaiResult aiResult = ai.openai(aiInput, ctx, null, null);
+                                    long t2 = System.currentTimeMillis();
+                                    long openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2 - t1);
+                                    service.playMedia(event.getSessionId(), aiResult.getResponse());
+
+                                    service.playMedia(event.getSessionId(), e.toString());
+                                    if (event.getOutputStream() == null) {
+                                        // executes text-to-speech synchronously, and outputs the result as 1 big
+                                        // byte-array
+                                        for (TextToSpeech tts : getServices(TextToSpeech.class)) {
+                                            if (tts.getProvider() == ttsProviders.get(ttsChosenProvider)) {
+                                                long a1 = System.currentTimeMillis();
+                                                TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
+                                                        ttsVoices.get(ttsChosenProvider),
+                                                        aiResult.getResponse().toString(),
+                                                        null, null, null);
+                                                long a2 = System.currentTimeMillis();
+                                                long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
+                                                service.playMedia(event.getSessionId(),
+                                                        "Translation time: " + translationTime + " seconds. AI Time: "
+                                                                + openaiTime
+                                                                + " seconds. TTS time: " + ttsTime + " seconds.");
+                                                service.playMedia(event.getSessionId(), ttsResult.getAudio());
+                                            }
+                                        }
+                                        text[0] = event.toString();
+                                    } else {
+                                        // executes text-to-speech synchronously, and outputs the result as 1 big
+                                        // byte-array
+                                        for (TextToSpeech tts : getServices(TextToSpeech.class)) {
+                                            if (tts.getProvider() == ttsProviders.get(ttsChosenProvider)) {
+                                                long a1 = System.currentTimeMillis();
+                                                TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
+                                                        ttsVoices.get(ttsChosenProvider),
+                                                        aiResult.getResponse().toString(),
+                                                        null, null, event.getOutputStream());
+                                                long a2 = System.currentTimeMillis();
+                                                long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
+                                                service.playMedia(event.getSessionId(),
+                                                        "Translation time: " + translationTime + " seconds. AI Time: "
+                                                                + openaiTime
+                                                                + " seconds. TTS time: " + ttsTime + " seconds.");
+                                                service.playMedia(event.getSessionId(), ttsResult.getAudio());
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
-                        text[0] = event.toString();
                     }
+
                 }
 
                 else {
@@ -227,9 +278,12 @@ public class CognitiveServices implements CommunicationServiceListener {
 
         try {
             for (TextToSpeech tts : getServices(TextToSpeech.class)) {
-                MediaSession session = tts.startTextToSpeechSession(event.getSessionId(), event.toString(), null,
-                        handler);
-                service.answer(session);
+                if (tts.getProvider() == ttsProviders.get(ttsChosenProvider)) {
+                    MediaSession session = tts.startTextToSpeechSession(event.getSessionId(), event.toString(), null,
+                            handler);
+                    service.answer(session);
+                }
+
             }
         } catch (Exception ex) {
             logger.error("Failed to start TTS session for session ID: {}", event.getSessionId(), ex);
