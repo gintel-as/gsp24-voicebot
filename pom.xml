@@ -17,6 +17,7 @@
 		<module>openai-openai</module>
 		<module>stt-google</module>
 		<module>tts-google</module>
+		<module>stt-aws</module>
 	</modules>
 
 	<properties>
@@ -139,6 +140,16 @@
 				<groupId>com.google.cloud</groupId>
 				<artifactId>google-cloud-speech</artifactId>
 				<version>4.41.0</version>
+			</dependency>
+			<dependency>
+				<groupId>com.amazonaws</groupId>
+				<artifactId>aws-java-sdk-transcribe</artifactId>
+				<version>1.12.760</version>
+			</dependency>
+			<dependency>
+				<groupId>software.amazon.awssdk</groupId>
+				<artifactId>transcribestreaming</artifactId>
+				<version>2.26.19</version>
 			</dependency>
 
 	
