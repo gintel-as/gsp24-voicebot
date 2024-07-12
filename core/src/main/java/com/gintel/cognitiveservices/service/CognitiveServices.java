@@ -30,6 +30,7 @@ import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.core.tts.TextToSpeechEvent;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
+import com.gintel.cognitiveservices.core.tts.types.TextToSpeechStatus;
 
 public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
@@ -38,7 +39,9 @@ public class CognitiveServices implements CommunicationServiceListener {
     private Map<String, String> ttsLanguages = new ConcurrentHashMap<>();
 
     private List<String> sttProviders = Arrays.asList("azure", "google");
+    private List<String> ttsProviders = Arrays.asList("azure", "google");
     private int sttChosenProvider = 0;
+    private int ttsChosenProvider = 0;
     // 0 = Azure
     // 1 = Google
 
@@ -208,28 +211,86 @@ public class CognitiveServices implements CommunicationServiceListener {
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
                 if (e instanceof TextToSpeechEvent) {
+                    String language = ctx.getLanguage();
+
                     if (!event.toString().isEmpty() && !text[0].equals(event.toString())) {
-                        for (Openai ai : getServices(Openai.class)) {
-                            service.playMedia(event.getSessionId(), e.toString());
-                            long t1 = System.currentTimeMillis();
-                            OpenaiResult aiResult = ai.openai(event.toString(), ctx, null, null);
-                            long t2 = System.currentTimeMillis();
-                            long openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2 - t1);
-                            service.playMedia(event.getSessionId(), aiResult.getResponse());
-                            for (TextToSpeech tts : getServices(TextToSpeech.class)) {
-                                long a1 = System.currentTimeMillis();
-                                TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
-                                        "en-US-AvaMultilingualNeural",
-                                        aiResult.getResponse().toString(), null, null, null);
-                                long a2 = System.currentTimeMillis();
-                                long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
-                                service.playMedia(event.getSessionId(),
-                                        "AI Time: " + openaiTime + " seconds. TTS time: " + ttsTime + " seconds.");
-                                service.playMedia(event.getSessionId(), ttsResult.getAudio());
+                        String aiInput = event.toString().replaceAll("RECOGNIZED: ", "").replaceAll("(google)", "")
+                                .replaceAll("(azure)", "");
+                        service.playMedia(event.getSessionId(), e.toString());
+                        long l1 = System.currentTimeMillis();
+                        if (language != "none" && language != null) {
+                            Translation translation = getService(Translation.class, event.getTranslationService());
+                            TranslationResult translationResult = translation.translation(aiInput, null, language);
+                            service.playMedia(event.getSessionId(),
+                                    aiInput + " -- WAS TRANSLATED TO --" + translationResult.getOutput());
+                            aiInput = translationResult.getOutput();
+                        }
+                        long l2 = System.currentTimeMillis();
+                        long translationTime = TimeUnit.MILLISECONDS.toSeconds(l2 - l1);
+                        if (!event.toString().isEmpty() && !text[0].equals(event.toString())) {
+                            for (Openai ai : getServices(Openai.class)) {
+                                if (ctx.getChosenAi().contains(ai.getProvider())) {
+                                    long t1 = System.currentTimeMillis();
+                                    OpenaiResult aiResult = ai.openai(aiInput, ctx, null, null);
+                                    long t2 = System.currentTimeMillis();
+                                    long openaiTime = TimeUnit.MILLISECONDS.toSeconds(t2 - t1);
+                                    service.playMedia(event.getSessionId(), aiResult.getResponse());
+
+                                    service.playMedia(event.getSessionId(), e.toString());
+                                    if (event.getOutputStream() == null) {
+                                        // executes text-to-speech synchronously, and outputs the result as 1 big
+                                        // byte-array
+                                        for (TextToSpeech tts : getServices(TextToSpeech.class)) {
+                                            if (ctx.getChosenTts().contains(tts.getProvider())) {
+                                                long a1 = System.currentTimeMillis();
+                                                TextToSpeechByteResult ttsResult = ctx.getChosenTts().contains("google")
+                                                        ? tts.textToStream(
+                                                                ctx.getLanguage() != null && ctx.getLanguage() != "none"
+                                                                        ? "en-US"
+                                                                        : ctx.getLanguage(),
+                                                                ttsLanguages.get(ctx.getLanguage()),
+                                                                aiResult.getResponse().toString(),
+                                                                null, null, null)
+                                                        : tts.textToStream(
+                                                                "en-US",
+                                                                "en-US-AvaMultilingualNeural",
+                                                                aiResult.getResponse().toString(),
+                                                                null, null, null);
+                                                long a2 = System.currentTimeMillis();
+                                                long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
+                                                service.playMedia(event.getSessionId(),
+                                                        "Translation time: " + translationTime + " seconds. AI Time: "
+                                                                + openaiTime
+                                                                + " seconds. TTS time: " + ttsTime + " seconds.");
+                                                service.playMedia(event.getSessionId(), ttsResult.getAudio());
+                                            }
+                                        }
+                                        text[0] = event.toString();
+                                    } else {
+                                        // executes text-to-speech synchronously, and outputs the result as 1 big
+                                        // byte-array
+                                        for (TextToSpeech tts : getServices(TextToSpeech.class)) {
+                                            if (tts.getProvider() == ctx.getChosenTts()) {
+                                                long a1 = System.currentTimeMillis();
+                                                TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
+                                                        ttsVoices.get(ctx.getChosenTts()),
+                                                        aiResult.getResponse().toString(),
+                                                        null, null, event.getOutputStream());
+                                                long a2 = System.currentTimeMillis();
+                                                long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
+                                                service.playMedia(event.getSessionId(),
+                                                        "Translation time: " + translationTime + " seconds. AI Time: "
+                                                                + openaiTime
+                                                                + " seconds. TTS time: " + ttsTime + " seconds.");
+                                                service.playMedia(event.getSessionId(), ttsResult.getAudio());
+                                            }
+                                        }
+                                    }
+                                }
                             }
                         }
-                        text[0] = event.toString();
                     }
+
                 }
 
                 else {
@@ -242,9 +303,12 @@ public class CognitiveServices implements CommunicationServiceListener {
 
         try {
             for (TextToSpeech tts : getServices(TextToSpeech.class)) {
-                MediaSession session = tts.startTextToSpeechSession(event.getSessionId(), event.toString(), null,
-                        handler);
-                service.answer(session);
+                if (tts.getProvider() == ttsProviders.get(ttsChosenProvider)) {
+                    MediaSession session = tts.startTextToSpeechSession(event.getSessionId(), event.toString(), null,
+                            handler);
+                    service.answer(session);
+                }
+
             }
         } catch (Exception ex) {
             logger.error("Failed to start TTS session for session ID: {}", event.getSessionId(), ex);
