@@ -1,6 +1,5 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.gintel</groupId>
 	<artifactId>cognitive-services</artifactId>
@@ -17,6 +16,8 @@
 		<module>openai-openai</module>
 		<module>stt-google</module>
 		<module>tts-google</module>
+		<module>tts-aws</module>
+		<module>stt-aws</module>
 	</modules>
 
 	<properties>
@@ -41,6 +42,16 @@
 				<groupId>com.gintel</groupId>
 				<artifactId>web</artifactId>
 				<version>${project.version}</version>
+				<dependency>
+					<groupId>com.gintel</groupId>
+					<artifactId>tts-aws</artifactId>
+					<version>${project.version}</version>
+				</dependency>
+				<dependency>
+					<groupId>com.gintel</groupId>
+					<artifactId>stt-aws</artifactId>
+					<version>${project.version}</version>
+				</dependency>
 			</dependency>
 			<dependency>
 				<groupId>com.gintel</groupId>
@@ -141,8 +152,8 @@
 				<version>4.41.0</version>
 			</dependency>
 
-	
-    <!--<dependency>
+
+			<!--<dependency>
       <groupId>jakarta.json</groupId>
       <artifactId>jakarta.json-api</artifactId>
       <version>2.0.1</version>
