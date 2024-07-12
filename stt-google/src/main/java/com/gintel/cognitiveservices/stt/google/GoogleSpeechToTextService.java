@@ -165,20 +165,29 @@ public class GoogleSpeechToTextService implements SpeechToText {
             // Thread to continuously send audio data to the Google API
             audioSendingThread = new Thread(() -> {
                 try {
+                    int time = 0;
                     while (running) {
                         byte[] audioData = audioQueue.poll(50, TimeUnit.MILLISECONDS);
                         if (audioData != null) {
+                            time = 0;
                             StreamingRecognizeRequest request = StreamingRecognizeRequest.newBuilder()
                                     .setAudioContent(ByteString.copyFrom(audioData))
                                     .build();
                             clientStream.send(request);
                         } else {
+                            if (time >= 120000) {
+                                logger.info("STT Session closed due to inactivity.");
+                                mediaStream.close();
+                                Thread.currentThread().interrupt();
+                                break;
+                            }
                             // Send silence if no audio data is available
                             byte[] silence = new byte[320]; // 320 bytes of silence (20ms of audio at 16kHz, 16-bit PCM)
                             StreamingRecognizeRequest request = StreamingRecognizeRequest.newBuilder()
                                     .setAudioContent(ByteString.copyFrom(silence))
                                     .build();
                             clientStream.send(request);
+                            time += 50;
                         }
                     }
                 } catch (InterruptedException e) {

@@ -128,7 +128,6 @@ public class WebSocketCommunicationService implements CommunicationService {
 
                     @Override
                     public void close() {
-
                     }
 
                     @Override
