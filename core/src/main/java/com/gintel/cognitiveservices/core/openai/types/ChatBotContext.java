@@ -8,7 +8,9 @@ import java.util.List;
 public class ChatBotContext {
     private List<ChatRequestMessage> conversation;
     private List<Integer> messageTokens = new ArrayList<>();
-    private String language;
+    private String language = "none";
+    private String chosenTts = "azure";
+    private String chosenAi = "azure";
 
     public void addMessages(List<ChatRequestMessage> chatMessages) {
         if (chatMessages != null) {
@@ -38,5 +40,21 @@ public class ChatBotContext {
 
     public String getLanguage() {
         return this.language;
+    }
+
+    public void setChosenTts(String chosenTts) {
+        this.chosenTts = chosenTts;
+    }
+
+    public String getChosenTts() {
+        return this.chosenTts;
+    }
+
+    public void setChosenAi(String chosenAi) {
+        this.chosenAi = chosenAi;
+    }
+
+    public String getChosenAi() {
+        return this.chosenAi;
     }
 }

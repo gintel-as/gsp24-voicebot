@@ -52,7 +52,7 @@ public class OpenaiOpenaiService implements Openai {
                 return new OpenaiResult(OpenaiStatus.ERROR, "OpenAI subscription key is missing.", text);
             }
             logger.info("Retrieved OpenAI subscription key successfully.");
-            String deploymentOrModelId = "gpt-4";
+            String deploymentOrModelId = "gpt-3.5-turbo";
 
             EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
             Encoding enc = registry.getEncoding(EncodingType.CL100K_BASE);

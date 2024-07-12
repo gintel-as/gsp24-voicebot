@@ -81,8 +81,11 @@
             "
           >
             <option value="none">-- Select output language --</option>
-            <option value="nb-NO">Norsk</option>
             <option value="en-US">English</option>
+            <option value="nb-NO">Norsk</option>
+            <option value="sv-SE">Swedish</option>
+            <option value="da-DK">Danish</option>
+            <option value="fa-IR">Persian</option>
           </select>
         </div>
         <div
@@ -179,7 +182,54 @@
             width: 100%;
             height: 100%;
           "
-        ></div>
+        >
+          <label for="ttsDd">Choose TTS provider: </label>
+          <select
+            onchange="changeTts()"
+            name="ttsDd"
+            id="ttsDd"
+            style="
+              border-radius: 16px;
+              background-color: white;
+              color: black;
+              border: 1px solid #bfbfbd;
+              width: fit-content;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+              margin-bottom: 18px;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+            "
+          >
+            <option value="azure">Azure</option>
+            <option value="google">Google</option>
+          </select>
+          <label for="aiDd">Choose AI-engine: </label>
+          <select
+            onchange="changeAi()"
+            name="aiDd"
+            id="aiDd"
+            style="
+              border-radius: 16px;
+              background-color: white;
+              color: black;
+              border: 1px solid #bfbfbd;
+              width: fit-content;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+              margin-bottom: 18px;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+            "
+          >
+            <option value="azure">Azure</option>
+            <option value="openai">OpenAI</option>
+          </select>
+        </div>
       </div>
     </div>
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
@@ -196,6 +246,8 @@
       var timeout;
       var audio = document.getElementById("audio");
       var language = "none";
+      var chosenTts = "azure";
+      var chosenAi = "azure";
 
       var hrefButton = document.getElementById("hrefButton");
 
@@ -207,6 +259,20 @@
         language = document.getElementById("language").value;
         if (document.getElementById("startButton").disabled !== true) {
           ws.send("Language:" + language);
+        }
+      }
+
+      function changeTts() {
+        chosenTts = document.getElementById("ttsDd").value;
+        if (document.getElementById("startButton").disabled !== true) {
+          ws.send("newTTS:" + chosenTts);
+        }
+      }
+
+      function changeAi() {
+        chosenAi = document.getElementById("aiDd").value;
+        if (document.getElementById("startButton").disabled !== true) {
+          ws.send("newAI:" + chosenAi);
         }
       }
 
@@ -253,6 +319,8 @@
           audio.play();
           document.getElementById("startButton").disabled = true;
           document.getElementById("language").disabled = true;
+          document.getElementById("ttsDd").disabled = true;
+          document.getElementById("aiDd").disabled = true;
           document.getElementById("interruptButton").disabled = false;
           audio.onloadedmetadata = function () {
             timeout = setTimeout(() => {
@@ -267,6 +335,8 @@
               if (isPausedByButton) {
                 document.getElementById("startButton").disabled = false;
                 document.getElementById("language").disabled = false;
+                document.getElementById("ttsDd").disabled = false;
+                document.getElementById("aiDd").disabled = false;
               }
               document.getElementById("interruptButton").disabled = true;
             }, audio.duration * 1000 + 1500);
@@ -315,6 +385,8 @@
           isPausedByButton = false;
           document.getElementById("startButton").disabled = true;
           document.getElementById("language").disabled = true;
+          document.getElementById("ttsDd").disabled = true;
+          document.getElementById("aiDd").disabled = true;
           document.getElementById("stopButton").disabled = false;
           let responseContainer = document.getElementById("responseContainer");
           responseContainer.innerHTML += `<br><b style="font-size: 12px; border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #afcdd6; color:white; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; align-self:center;">~~ Recording ~~</b><br>`;
@@ -333,9 +405,13 @@
           if (isPausedByAI) {
             document.getElementById("startButton").disabled = true;
             document.getElementById("language").disabled = true;
+            document.getElementById("ttsDd").disabled = true;
+            document.getElementById("aiDd").disabled = true;
           } else {
             document.getElementById("startButton").disabled = false;
             document.getElementById("language").disabled = false;
+            document.getElementById("ttsDd").disabled = false;
+            document.getElementById("aiDd").disabled = false;
           }
           isPausedByAI = false;
           let responseContainer = document.getElementById("responseContainer");
@@ -357,6 +433,8 @@
             }
             document.getElementById("startButton").disabled = true;
             document.getElementById("language").disabled = true;
+            document.getElementById("ttsDd").disabled = true;
+            document.getElementById("aiDd").disabled = true;
             if (isPausedByButton) {
               document.getElementById("stopButton").disabled = true;
             } else {

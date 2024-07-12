@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -34,19 +35,13 @@ import com.gintel.cognitiveservices.core.tts.types.TextToSpeechStatus;
 public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
 
-    private List<String> aiProviders = Arrays.asList("azure", "openai");
-    private int aiChosenProvider = 0;
-    // 0 = Azure
-    // 1 = OpenAI
-
-    private List<String> ttsProviders = Arrays.asList("azure", "google");
-    private List<String> ttsVoices = Arrays.asList("en-US-AvaMultilingualNeural", "en-US-Standard-A");
-    private int ttsChosenProvider = 0;
-    // 0 = Azure
-    // 1 = Google
+    private Map<String, String> ttsVoices = new ConcurrentHashMap<>();
+    private Map<String, String> ttsLanguages = new ConcurrentHashMap<>();
 
     private List<String> sttProviders = Arrays.asList("azure", "google");
+    private List<String> ttsProviders = Arrays.asList("azure", "google");
     private int sttChosenProvider = 0;
+    private int ttsChosenProvider = 0;
     // 0 = Azure
     // 1 = Google
 
@@ -56,6 +51,16 @@ public class CognitiveServices implements CommunicationServiceListener {
     private CognitiveServices(List<Service> services) {
         this.services = services.stream()
                 .collect(Collectors.toMap(Service::getServiceName, s -> s));
+
+        ttsVoices.put("azure", "en-US-AvaMultilingualNeural");
+        ttsVoices.put("google", "en-US-Standard-A");
+
+        ttsLanguages.put("none", "en-US-Standard-A");
+        ttsLanguages.put("en-US", "en-US-Standard-A");
+        ttsLanguages.put("nb-NO", "nb-NO-Standard-A");
+        ttsLanguages.put("sv-SE", "sv-SE-Standard-A");
+        ttsLanguages.put("da-DK", "da-DK-Standard-A");
+        ttsLanguages.put("fa-IR", "fa-IR-Standard-A");
     }
 
     public static synchronized void init(List<Service> services) {
@@ -103,12 +108,11 @@ public class CognitiveServices implements CommunicationServiceListener {
                 if (e instanceof SpeechToTextEvent) {
                     String language = ctx.getLanguage();
                     SpeechToTextEvent se = (SpeechToTextEvent) e;
-
+                    service.playMedia(event.getSessionId(), se.getData());
                     if (se.getResult() == SpeechToTextStatus.RECOGNIZED) {
                         service.playMedia(event.getSessionId(), "stop_recording");
                         String aiInput = se.getData().replaceAll("RECOGNIZED: ", "").replaceAll("(google)", "")
-                                .replaceAll("(azure)", "");
-                        service.playMedia(event.getSessionId(), e.toString());
+                                .replaceAll("(azure)", "").replace("()", "");
                         long l1 = System.currentTimeMillis();
                         if (language != "none" && language != null) {
                             Translation translation = getService(Translation.class, event.getTranslationService());
@@ -120,7 +124,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                         long l2 = System.currentTimeMillis();
                         long translationTime = TimeUnit.MILLISECONDS.toSeconds(l2 - l1);
                         for (Openai ai : getServices(Openai.class)) {
-                            if (ai.getProvider() == aiProviders.get(aiChosenProvider)) {
+                            if (ctx.getChosenAi().contains(ai.getProvider())) {
                                 long t1 = System.currentTimeMillis();
                                 OpenaiResult aiResult = ai.openai(aiInput, ctx, null, null);
                                 long t2 = System.currentTimeMillis();
@@ -131,11 +135,22 @@ public class CognitiveServices implements CommunicationServiceListener {
                                     // executes text-to-speech synchronously, and outputs the result as 1 big
                                     // byte-array
                                     for (TextToSpeech tts : getServices(TextToSpeech.class)) {
-                                        if (tts.getProvider() == ttsProviders.get(ttsChosenProvider)) {
+                                        logger.info(ctx.getChosenTts() + " : " + tts.getProvider());
+                                        if (ctx.getChosenTts().contains(tts.getProvider())) {
                                             long a1 = System.currentTimeMillis();
-                                            TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
-                                                    ttsVoices.get(ttsChosenProvider), aiResult.getResponse().toString(),
-                                                    null, null, null);
+                                            TextToSpeechByteResult ttsResult = ctx.getChosenTts().contains("google")
+                                                    ? tts.textToStream(
+                                                            ctx.getLanguage() != null && ctx.getLanguage() != "none"
+                                                                    ? "en-US"
+                                                                    : ctx.getLanguage(),
+                                                            ttsLanguages.get(ctx.getLanguage()),
+                                                            aiResult.getResponse().toString(),
+                                                            null, null, null)
+                                                    : tts.textToStream(
+                                                            "en-US",
+                                                            "en-US-AvaMultilingualNeural",
+                                                            aiResult.getResponse().toString(),
+                                                            null, null, null);
                                             long a2 = System.currentTimeMillis();
                                             long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
                                             service.playMedia(event.getSessionId(),
@@ -149,10 +164,11 @@ public class CognitiveServices implements CommunicationServiceListener {
                                     // executes text-to-speech synchronously, and outputs the result as 1 big
                                     // byte-array
                                     for (TextToSpeech tts : getServices(TextToSpeech.class)) {
-                                        if (tts.getProvider() == ttsProviders.get(ttsChosenProvider)) {
+                                        if (tts.getProvider() == ctx.getChosenTts()) {
                                             long a1 = System.currentTimeMillis();
                                             TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
-                                                    ttsVoices.get(ttsChosenProvider), aiResult.getResponse().toString(),
+                                                    ttsVoices.get(ctx.getChosenTts()),
+                                                    aiResult.getResponse().toString(),
                                                     null, null, event.getOutputStream());
                                             long a2 = System.currentTimeMillis();
                                             long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
@@ -213,7 +229,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                         long translationTime = TimeUnit.MILLISECONDS.toSeconds(l2 - l1);
                         if (!event.toString().isEmpty() && !text[0].equals(event.toString())) {
                             for (Openai ai : getServices(Openai.class)) {
-                                if (ai.getProvider() == aiProviders.get(aiChosenProvider)) {
+                                if (ctx.getChosenAi().contains(ai.getProvider())) {
                                     long t1 = System.currentTimeMillis();
                                     OpenaiResult aiResult = ai.openai(aiInput, ctx, null, null);
                                     long t2 = System.currentTimeMillis();
@@ -225,12 +241,21 @@ public class CognitiveServices implements CommunicationServiceListener {
                                         // executes text-to-speech synchronously, and outputs the result as 1 big
                                         // byte-array
                                         for (TextToSpeech tts : getServices(TextToSpeech.class)) {
-                                            if (tts.getProvider() == ttsProviders.get(ttsChosenProvider)) {
+                                            if (ctx.getChosenTts().contains(tts.getProvider())) {
                                                 long a1 = System.currentTimeMillis();
-                                                TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
-                                                        ttsVoices.get(ttsChosenProvider),
-                                                        aiResult.getResponse().toString(),
-                                                        null, null, null);
+                                                TextToSpeechByteResult ttsResult = ctx.getChosenTts().contains("google")
+                                                        ? tts.textToStream(
+                                                                ctx.getLanguage() != null && ctx.getLanguage() != "none"
+                                                                        ? "en-US"
+                                                                        : ctx.getLanguage(),
+                                                                ttsLanguages.get(ctx.getLanguage()),
+                                                                aiResult.getResponse().toString(),
+                                                                null, null, null)
+                                                        : tts.textToStream(
+                                                                "en-US",
+                                                                "en-US-AvaMultilingualNeural",
+                                                                aiResult.getResponse().toString(),
+                                                                null, null, null);
                                                 long a2 = System.currentTimeMillis();
                                                 long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
                                                 service.playMedia(event.getSessionId(),
@@ -245,10 +270,10 @@ public class CognitiveServices implements CommunicationServiceListener {
                                         // executes text-to-speech synchronously, and outputs the result as 1 big
                                         // byte-array
                                         for (TextToSpeech tts : getServices(TextToSpeech.class)) {
-                                            if (tts.getProvider() == ttsProviders.get(ttsChosenProvider)) {
+                                            if (tts.getProvider() == ctx.getChosenTts()) {
                                                 long a1 = System.currentTimeMillis();
                                                 TextToSpeechByteResult ttsResult = tts.textToStream("en-US",
-                                                        ttsVoices.get(ttsChosenProvider),
+                                                        ttsVoices.get(ctx.getChosenTts()),
                                                         aiResult.getResponse().toString(),
                                                         null, null, event.getOutputStream());
                                                 long a2 = System.currentTimeMillis();
