@@ -59,7 +59,6 @@ public class CognitiveServices implements CommunicationServiceListener {
         ttsLanguages.put("nb-NO", "nb-NO-Standard-A");
         ttsLanguages.put("sv-SE", "sv-SE-Standard-A");
         ttsLanguages.put("da-DK", "da-DK-Standard-A");
-        ttsLanguages.put("fa-IR", "fa-IR-Standard-A");
     }
 
     public static synchronized void init(List<Service> services) {
