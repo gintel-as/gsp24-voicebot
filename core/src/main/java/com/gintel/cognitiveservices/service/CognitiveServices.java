@@ -30,7 +30,6 @@ import com.gintel.cognitiveservices.core.stt.types.SpeechToTextStatus;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.core.tts.TextToSpeechEvent;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
-import com.gintel.cognitiveservices.core.tts.types.TextToSpeechStatus;
 
 public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
@@ -60,7 +59,6 @@ public class CognitiveServices implements CommunicationServiceListener {
         ttsLanguages.put("nb-NO", "nb-NO-Standard-A");
         ttsLanguages.put("sv-SE", "sv-SE-Standard-A");
         ttsLanguages.put("da-DK", "da-DK-Standard-A");
-        ttsLanguages.put("fa-IR", "fa-IR-Standard-A");
     }
 
     public static synchronized void init(List<Service> services) {
@@ -135,7 +133,6 @@ public class CognitiveServices implements CommunicationServiceListener {
                                     // executes text-to-speech synchronously, and outputs the result as 1 big
                                     // byte-array
                                     for (TextToSpeech tts : getServices(TextToSpeech.class)) {
-                                        logger.info(ctx.getChosenTts() + " : " + tts.getProvider());
                                         if (ctx.getChosenTts().contains(tts.getProvider())) {
                                             long a1 = System.currentTimeMillis();
                                             TextToSpeechByteResult ttsResult = ctx.getChosenTts().contains("google")
