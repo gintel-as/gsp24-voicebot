@@ -158,8 +158,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                                         }
                                     }
                                 } else {
-                                    // executes text-to-speech synchronously, and outputs the result as 1 big
-                                    // byte-array
+                                    // executes text-to-speech asynchronously
                                     for (TextToSpeech tts : getServices(TextToSpeech.class)) {
                                         if (tts.getProvider() == ctx.getChosenTts()) {
                                             long a1 = System.currentTimeMillis();
