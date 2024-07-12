@@ -55,7 +55,7 @@ public class GoogleTextToSpeechService implements TextToSpeech {
         SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
         VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
                 .setLanguageCode(languageCode)
-                .setName(voiceName)
+                .setName(voiceName) // Nerual2 + others give neural voices
                 .build();
         AudioConfig audioConfig = AudioConfig.newBuilder()
                 .setAudioEncoding(audioEncoding)
@@ -79,7 +79,7 @@ public class GoogleTextToSpeechService implements TextToSpeech {
             SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
             VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
                     .setLanguageCode(languageCode)
-                    .setName(voiceName)
+                    .setName(voiceName) // Nerual2 + others give neural voices
                     .build();
             AudioConfig audioConfig = AudioConfig.newBuilder()
                     .setAudioEncoding(AudioEncoding.MP3)
