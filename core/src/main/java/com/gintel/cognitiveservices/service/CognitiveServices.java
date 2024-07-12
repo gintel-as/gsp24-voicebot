@@ -256,7 +256,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                                                 long a2 = System.currentTimeMillis();
                                                 long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
                                                 service.playMedia(event.getSessionId(),
-                                                        "Translation time: " + translationTime + " seconds. AI Time: "
+                                                        " AI Time: "
                                                                 + openaiTime
                                                                 + " seconds. TTS time: " + ttsTime + " seconds.");
                                                 service.playMedia(event.getSessionId(), ttsResult.getAudio());
