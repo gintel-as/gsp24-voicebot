@@ -154,6 +154,12 @@ public class GoogleSpeechToTextService implements SpeechToText {
                         client.close();
                     }
                 }
+
+                @Override
+                public void write(String data) {
+                    // TODO Auto-generated method stub
+                    throw new UnsupportedOperationException("Unimplemented method 'write'");
+                }
             };
 
             // Thread to continuously send audio data to the Google API

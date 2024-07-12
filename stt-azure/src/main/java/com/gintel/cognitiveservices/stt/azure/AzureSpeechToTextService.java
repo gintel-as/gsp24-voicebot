@@ -179,6 +179,12 @@ public class AzureSpeechToTextService implements SpeechToText {
                     recognizer.close();
                     config.close();
                 }
+
+                @Override
+                public void write(String data) {
+                    // TODO Auto-generated method stub
+                    throw new UnsupportedOperationException("Unimplemented method 'write'");
+                }
             });
         } catch (Exception ex) {
             throw new RuntimeException("Exception in speechToTextSession", ex);

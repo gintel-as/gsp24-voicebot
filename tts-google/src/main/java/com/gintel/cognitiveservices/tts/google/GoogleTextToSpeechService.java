@@ -140,6 +140,12 @@ public class GoogleTextToSpeechService implements TextToSpeech {
                 @Override
                 public void close() {
                 }
+
+                @Override
+                public void write(String data) {
+                    // TODO Auto-generated method stub
+                    throw new UnsupportedOperationException("Unimplemented method 'write'");
+                }
             });
         } catch (Exception e) {
             throw new RuntimeException("Exception in startTextToSpeechSession", e);
