@@ -173,7 +173,21 @@
           gap: 18px;
         "
       >
-        <button id="hrefButton">Text-To-Speech</button>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            height: min-content;
+            justify-content: space-between;
+          "
+        >
+          <button id="hrefButton">Text-To-Speech</button>
+          <img
+            src="https://www.gintel.com/images/gintel-logo-main.svg"
+            style="height: 100%; padding-right: 8px"
+          />
+        </div>
         <div
           style="
             display: flex;
@@ -181,6 +195,7 @@
             border-top: 1px solid black;
             width: 100%;
             height: 100%;
+            padding-top: 16px;
           "
         >
           <label for="ttsDd">Choose TTS provider: </label>
