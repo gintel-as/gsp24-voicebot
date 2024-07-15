@@ -1,1 +1,0 @@
-package com.gintel.cognitiveservices.tts.aws;

@@ -15,7 +15,7 @@ import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.core.tts.TextToSpeechEvent;
 import com.gintel.cognitiveservices.core.tts.types.InputFormat;
-import com.gintel.cognitiveservices.core.tts.types.OutputFormat;
+import com.gintel.cognitiveservices.core.tts.types.OutputFormatCore;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechStatus;
@@ -51,7 +51,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
     @Override
     public TextToSpeechResult textToSpeech(String language, String voiceName, String text,
-            InputFormat input, OutputFormat output) {
+            InputFormat input, OutputFormatCore output) {
 
         SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceConfig.region());
         if (voiceName != null) {
@@ -99,7 +99,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
     @Override
     public TextToSpeechByteResult textToStream(String language, String voiceName, String text,
-            InputFormat input, OutputFormat output, MediaStream outputStream) {
+            InputFormat input, OutputFormatCore output, MediaStream outputStream) {
         ;
         SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(),
                 serviceConfig.region());

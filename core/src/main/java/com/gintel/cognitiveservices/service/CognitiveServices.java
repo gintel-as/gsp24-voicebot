@@ -37,9 +37,9 @@ public class CognitiveServices implements CommunicationServiceListener {
     private Map<String, String> ttsVoices = new ConcurrentHashMap<>();
     private Map<String, String> ttsLanguages = new ConcurrentHashMap<>();
 
-    private List<String> sttProviders = Arrays.asList("azure", "google");
-    private List<String> ttsProviders = Arrays.asList("azure", "google");
-    private int sttChosenProvider = 0;
+    private List<String> sttProviders = Arrays.asList("azure", "google", "aws");
+    private List<String> ttsProviders = Arrays.asList("azure", "google", "aws");
+    private int sttChosenProvider = 2;
     private int ttsChosenProvider = 0;
     // 0 = Azure
     // 1 = Google
@@ -53,6 +53,7 @@ public class CognitiveServices implements CommunicationServiceListener {
 
         ttsVoices.put("azure", "en-US-AvaMultilingualNeural");
         ttsVoices.put("google", "en-US-Standard-A");
+        ttsVoices.put("aws", "Amy");
 
         ttsLanguages.put("none", "en-US-Standard-A");
         ttsLanguages.put("en-US", "en-US-Standard-A");
@@ -110,7 +111,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                     if (se.getResult() == SpeechToTextStatus.RECOGNIZED) {
                         service.playMedia(event.getSessionId(), "stop_recording");
                         String aiInput = se.getData().replaceAll("RECOGNIZED: ", "").replaceAll("(google)", "")
-                                .replaceAll("(azure)", "").replace("()", "");
+                                .replaceAll("(azure)", "").replaceAll("(aws)", "").replace("()", "");
                         long l1 = System.currentTimeMillis();
                         if (language != "none" && language != null) {
                             Translation translation = getService(Translation.class, event.getTranslationService());
