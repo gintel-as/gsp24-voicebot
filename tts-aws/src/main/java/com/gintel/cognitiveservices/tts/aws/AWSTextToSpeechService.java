@@ -44,7 +44,7 @@ public class AWSTextToSpeechService implements TextToSpeech {
         // Region region
         try {
             polly = AmazonPollyClientBuilder.standard()
-                    .withRegion(Regions.DEFAULT_REGION)
+                    .withRegion(Regions.EU_WEST_3)
                     .withCredentials(new DefaultAWSCredentialsProviderChain())
                     .build();
 
@@ -138,7 +138,9 @@ public class AWSTextToSpeechService implements TextToSpeech {
                 .withOutputFormat(OutputFormat.Mp3).withEngine("neural");
         SynthesizeSpeechResult synthRes = polly.synthesizeSpeech(synthReq);
         InputStream audioStream = synthRes.getAudioStream();
+
         try {
+
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             byte[] buffer = new byte[2048];
             int read;
