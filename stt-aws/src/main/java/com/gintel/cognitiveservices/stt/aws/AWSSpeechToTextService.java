@@ -3,6 +3,7 @@ package com.gintel.cognitiveservices.stt.aws;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
@@ -25,6 +26,7 @@ import com.gintel.cognitiveservices.core.stt.types.OutputFormat;
 import com.gintel.cognitiveservices.core.stt.types.SpeechToTextResult;
 
 import software.amazon.awssdk.auth.credentials.EnvironmentVariableCredentialsProvider;
+import software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider;
 import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.transcribestreaming.TranscribeStreamingAsyncClient;
@@ -46,8 +48,11 @@ public class AWSSpeechToTextService implements SpeechToText {
 
     private static final int SAMPLE_RATE = 16000;
 
+    private TranscribeStreamingRetryClient client;
+
     public AWSSpeechToTextService(AWSSTTConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
+
         logger.info("aws region is {}", serviceConfig.region());
     }
 
@@ -148,10 +153,10 @@ public class AWSSpeechToTextService implements SpeechToText {
                     impl.onResponse(r);
                 })
                 .onError(e -> {
-                    // Do nothing here. Don't close any streams that shouldn't be cleaned up yet.
+                    impl.onError(e);
                 })
                 .onComplete(() -> {
-                    // Do nothing here. Don't close any streams that shouldn't be cleaned up yet.
+                    impl.onComplete();
                 })
 
                 .subscriber(event -> impl.onStream(event))
@@ -178,9 +183,17 @@ public class AWSSpeechToTextService implements SpeechToText {
             lang = language.replace("\"", "");
         }
 
+        String endpoint = "https://transcribestreaming."
+                + serviceConfig.region().toString().toLowerCase().replace('_', '-') + ".amazonaws.com";
+
         try {
+
+            ProfileCredentialsProvider credentialsProvider = ProfileCredentialsProvider.builder()
+                    .profileName("herman_ostengen")
+                    .build();
             TranscribeStreamingAsyncClient client = TranscribeStreamingAsyncClient.builder()
-                    .credentialsProvider(EnvironmentVariableCredentialsProvider.create())
+                    .credentialsProvider(credentialsProvider)
+                    .endpointOverride(new URI(endpoint))
                     .region(Region.of(serviceConfig.region()))
                     .build();
 
