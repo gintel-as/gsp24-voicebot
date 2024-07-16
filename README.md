@@ -16,7 +16,7 @@ Technologies used:
 - Apache Tomcat 9.0.41
 
 Prerequisites:
-- Updated API-keys in web.properties file (following the layout of included web.properties.schema file) (NB. Needs to be copied into conf-folder of local tomcat repository after every update)
+- Updated API-keys in **web.properties** file in /conf/ folder (following the layout of included web.properties.schema file) (NB. Needs to be copied into conf-folder of local tomcat repository after every update)
 - Configured Google Cloud credentials for local development environment (guide: https://cloud.google.com/docs/authentication/provide-credentials-adc#local-dev)
 
 ### Step 1:
