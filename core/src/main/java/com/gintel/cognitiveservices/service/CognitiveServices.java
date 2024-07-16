@@ -39,7 +39,7 @@ public class CognitiveServices implements CommunicationServiceListener {
 
     private List<String> sttProviders = Arrays.asList("azure", "google", "aws");
     private List<String> ttsProviders = Arrays.asList("azure", "google", "aws");
-    private int sttChosenProvider = 2;
+    private int sttChosenProvider = 0;
     private int ttsChosenProvider = 0;
     // 0 = Azure
     // 1 = Google
