@@ -1,2 +1,11 @@
-azure.tts.subscription_key = 
+azure.tts.subscription_key = azure_tts_key <-- insert key here
 azure.tts.region = norwayeast
+
+azure.openai.subscription_key = azure_stt_key <-- insert key here
+azure.openai.region = norwayeast
+
+openai.subscription_key = openai_subscription_key <-- insert key here
+
+aws.stt.access_key_id = access_key_id <-- insert key here
+aws.stt.secret_access_key = secret_access_key <-- insert key here
+aws.stt.region = eu-north-1
