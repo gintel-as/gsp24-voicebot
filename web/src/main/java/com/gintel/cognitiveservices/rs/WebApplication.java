@@ -35,6 +35,8 @@ import com.gintel.cognitiveservices.openai.openai.OpenaiOpenaiService;
 import com.gintel.cognitiveservices.openai.openai.OpenaiOpenaiConfig;
 import com.gintel.cognitiveservices.stt.azure.AzureSTTConfig;
 import com.gintel.cognitiveservices.stt.azure.AzureSpeechToTextService;
+import com.gintel.cognitiveservices.stt.aws.AWSSTTConfig;
+import com.gintel.cognitiveservices.stt.aws.AWSSpeechToTextService;
 import com.gintel.cognitiveservices.stt.google.GoogleSpeechToTextService;
 import com.gintel.cognitiveservices.tts.azure.AzureTTSConfig;
 import com.gintel.cognitiveservices.tts.azure.AzureTextToSpeechService;
@@ -99,8 +101,15 @@ public class WebApplication extends Application {
     }
 
     private List<SpeechToText> getSpeechToTextServices() {
-        return Arrays.asList(new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)),
-                new GoogleSpeechToTextService());
+        try {
+            return Arrays.asList(new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)),
+                    new GoogleSpeechToTextService(),
+                    new AWSSpeechToTextService(ConfigFactory.create(AWSSTTConfig.class)));
+        } catch (Exception ex) {
+            logger.info("Kunne ikke legge til AWS's stt service: " + ex);
+            return Arrays.asList(new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)),
+                    new GoogleSpeechToTextService());
+        }
     }
 
     private List<TextToSpeech> getTextToSpeechServices() {

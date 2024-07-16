@@ -37,12 +37,13 @@ public class CognitiveServices implements CommunicationServiceListener {
     private Map<String, String> ttsVoices = new ConcurrentHashMap<>();
     private Map<String, String> ttsLanguages = new ConcurrentHashMap<>();
 
-    private List<String> sttProviders = Arrays.asList("azure", "google");
+    private List<String> sttProviders = Arrays.asList("azure", "google", "aws");
     private List<String> ttsProviders = Arrays.asList("azure", "google");
-    private int sttChosenProvider = 0;
+    private int sttChosenProvider = 2;
     private int ttsChosenProvider = 0;
     // 0 = Azure
     // 1 = Google
+    // 2 = AWS
 
     private static CognitiveServices instance;
     private Map<String, Service> services;
