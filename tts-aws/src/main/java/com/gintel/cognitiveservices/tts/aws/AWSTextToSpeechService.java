@@ -35,12 +35,12 @@ public class AWSTextToSpeechService implements TextToSpeech {
         return "aws";
     }
 
-    public AWSTextToSpeechService() {
+    public AWSTextToSpeechService(AWSTTSConfig serviceConfig) {
         // Region region
         try {
             client = AmazonPollyClientBuilder.standard()
                     .withRegion(Regions.US_EAST_1)
-                    .withCredentials(new ProfileCredentialsProvider("herman_ostengen"))
+                    .withCredentials(new ProfileCredentialsProvider(serviceConfig.userName()))
                     .build();
         } catch (Exception e) {
             logger.error("Failed to initialize AWSTextToSpeechService", e);
