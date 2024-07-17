@@ -66,7 +66,7 @@ public class AWSTextToSpeechService implements TextToSpeech {
             OutputFormatCore outputFormat) {
         SynthesizeSpeechRequest synthReq = new SynthesizeSpeechRequest()
                 .withText(text)
-                .withVoiceId(voiceName)
+                .withVoiceId(VoiceId.fromValue(voiceName))
                 .withOutputFormat(OutputFormat.Mp3);
 
         SynthesizeSpeechResult synthRes = client.synthesizeSpeech(synthReq);
@@ -93,11 +93,11 @@ public class AWSTextToSpeechService implements TextToSpeech {
     private TextToSpeechByteResult synthesizeTextToStream(String language, String voiceName, String text,
             OutputFormatCore output, MediaStream outputStream) {
 
+        logger.info(voiceName);
         SynthesizeSpeechRequest synthesizeSpeechRequest = new SynthesizeSpeechRequest()
                 .withOutputFormat(OutputFormat.Mp3)
-                .withVoiceId(VoiceId.Joanna)
-                .withText(text)
-                .withEngine("neural");
+                .withVoiceId(VoiceId.fromValue(voiceName))
+                .withText(text);
 
         SynthesizeSpeechResult synthRes = client.synthesizeSpeech(synthesizeSpeechRequest);
         InputStream audioStream = synthRes.getAudioStream();

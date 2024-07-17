@@ -35,7 +35,8 @@ public class CognitiveServices implements CommunicationServiceListener {
     private static final Logger logger = LoggerFactory.getLogger(CognitiveServices.class);
 
     private Map<String, String> ttsVoices = new ConcurrentHashMap<>();
-    private Map<String, String> ttsLanguages = new ConcurrentHashMap<>();
+    private Map<String, String> googleTtsLanguages = new ConcurrentHashMap<>();
+    private Map<String, String> awsTtsLanguages = new ConcurrentHashMap<>();
 
     private List<String> sttProviders = Arrays.asList("azure", "google", "aws");
     private List<String> ttsProviders = Arrays.asList("azure", "google", "aws");
@@ -55,11 +56,17 @@ public class CognitiveServices implements CommunicationServiceListener {
         ttsVoices.put("google", "en-US-Standard-A");
         ttsVoices.put("aws", "Amy");
 
-        ttsLanguages.put("none", "en-US-Standard-A");
-        ttsLanguages.put("en-US", "en-US-Standard-A");
-        ttsLanguages.put("nb-NO", "nb-NO-Standard-A");
-        ttsLanguages.put("sv-SE", "sv-SE-Standard-A");
-        ttsLanguages.put("da-DK", "da-DK-Standard-A");
+        awsTtsLanguages.put("none", "Amy");
+        awsTtsLanguages.put("en-US", "Amy");
+        awsTtsLanguages.put("nb-NO", "Liv");
+        awsTtsLanguages.put("sv-SE", "Astrid");
+        awsTtsLanguages.put("da-DK", "Naja");
+
+        googleTtsLanguages.put("none", "en-US-Standard-A");
+        googleTtsLanguages.put("en-US", "en-US-Standard-A");
+        googleTtsLanguages.put("nb-NO", "nb-NO-Standard-A");
+        googleTtsLanguages.put("sv-SE", "sv-SE-Standard-A");
+        googleTtsLanguages.put("da-DK", "da-DK-Standard-A");
     }
 
     public static synchronized void init(List<Service> services) {
@@ -141,14 +148,19 @@ public class CognitiveServices implements CommunicationServiceListener {
                                                             ctx.getLanguage() != null && ctx.getLanguage() != "none"
                                                                     ? "en-US"
                                                                     : ctx.getLanguage(),
-                                                            ttsLanguages.get(ctx.getLanguage()),
+                                                            googleTtsLanguages.get(ctx.getLanguage()),
                                                             aiResult.getResponse().toString(),
                                                             null, null, null)
-                                                    : tts.textToStream(
+                                                    : (ctx.getChosenTts().contains("aws") ? tts.textToStream(
                                                             "en-US",
-                                                            "en-US-AvaMultilingualNeural",
+                                                            awsTtsLanguages.get(ctx.getLanguage()),
                                                             aiResult.getResponse().toString(),
-                                                            null, null, null);
+                                                            null, null, null)
+                                                            : tts.textToStream(
+                                                                    "en-US",
+                                                                    "en-US-AvaMultilingualNeural",
+                                                                    aiResult.getResponse().toString(),
+                                                                    null, null, null));
                                             long a2 = System.currentTimeMillis();
                                             long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
                                             service.playMedia(event.getSessionId(),
@@ -245,14 +257,19 @@ public class CognitiveServices implements CommunicationServiceListener {
                                                                 ctx.getLanguage() != null && ctx.getLanguage() != "none"
                                                                         ? "en-US"
                                                                         : ctx.getLanguage(),
-                                                                ttsLanguages.get(ctx.getLanguage()),
+                                                                googleTtsLanguages.get(ctx.getLanguage()),
                                                                 aiResult.getResponse().toString(),
                                                                 null, null, null)
-                                                        : tts.textToStream(
+                                                        : (ctx.getChosenTts().contains("aws") ? tts.textToStream(
                                                                 "en-US",
-                                                                "en-US-AvaMultilingualNeural",
+                                                                awsTtsLanguages.get(ctx.getLanguage()),
                                                                 aiResult.getResponse().toString(),
-                                                                null, null, null);
+                                                                null, null, null)
+                                                                : tts.textToStream(
+                                                                        "en-US",
+                                                                        "en-US-AvaMultilingualNeural",
+                                                                        aiResult.getResponse().toString(),
+                                                                        null, null, null));
                                                 long a2 = System.currentTimeMillis();
                                                 long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
                                                 service.playMedia(event.getSessionId(),
