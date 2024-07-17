@@ -41,6 +41,10 @@ public class CognitiveServices implements CommunicationServiceListener {
     private List<String> sttProviders = Arrays.asList("azure", "google", "aws");
     private List<String> ttsProviders = Arrays.asList("azure", "google", "aws");
     private int sttChosenProvider = 0;
+    // 0 = Azure
+    // 1 = Google (NB. Implementation of google stt is a bit unstable. Deployment
+    // requires restarting Tomcat server after every session in the client. )
+
     private int ttsChosenProvider = 0;
     // 0 = Azure
     // 1 = Google
@@ -56,6 +60,9 @@ public class CognitiveServices implements CommunicationServiceListener {
         ttsVoices.put("google", "en-US-Standard-A");
         ttsVoices.put("aws", "Amy");
 
+        // Additional VoiceName management for Google and AWS depending on chosen
+        // language in client as provider doesn't include a multilingual option (like
+        // Azure's en-US-AvaMultilingualNeural).
         awsTtsLanguages.put("none", "Amy");
         awsTtsLanguages.put("en-US", "Amy");
         awsTtsLanguages.put("nb-NO", "Liv");
