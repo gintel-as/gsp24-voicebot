@@ -21,24 +21,24 @@ To-do:
 - Configured AWS credentials for local user. Done by downloading and setting up AWS CLI and configure credentials and config in local .aws folder to this format:
 
 **Credentials:**
-[default]
-aws_access_key_id = access_key
-aws_secret_access_key = secret_access
-
-
-[your_user_name]
-aws_access_key_id = access_key
-aws_secret_access_key = secret_access
+<br />
+[default]<br />
+aws_access_key_id = access_key<br />
+aws_secret_access_key = secret_access<br />
+<br />
+[your_user_name]<br />
+aws_access_key_id = access_key<br />
+aws_secret_access_key = secret_access<br />
 
 **Config:**
-
-[default]
-region = us-east-1
-output = text
-
-[profile you_user_name]
-region = us-east-1
-output = text
+<br />
+[default]<br />
+region = us-east-1<br />
+output = text<br />
+<br />
+[profile you_user_name]<br />
+region = us-east-1<br />
+output = text<br />
 
 
 ### Step 1:
