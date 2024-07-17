@@ -12,7 +12,7 @@ import com.gintel.cognitiveservices.core.communication.types.MediaSession;
 import com.gintel.cognitiveservices.core.tts.TextToSpeech;
 import com.gintel.cognitiveservices.core.tts.TextToSpeechEvent;
 import com.gintel.cognitiveservices.core.tts.types.InputFormat;
-import com.gintel.cognitiveservices.core.tts.types.OutputFormat;
+import com.gintel.cognitiveservices.core.tts.types.OutputFormatCore;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechStatus;
@@ -40,13 +40,13 @@ public class GoogleTextToSpeechService implements TextToSpeech {
 
     @Override
     public TextToSpeechResult textToSpeech(String language, String voiceName, String text, InputFormat input,
-            OutputFormat output) {
+            OutputFormatCore output) {
         return synthesizeTextToByteArray(language, voiceName, text, null);
     }
 
     @Override
     public TextToSpeechByteResult textToStream(String language, String voiceName, String text, InputFormat input,
-            OutputFormat output, MediaStream outputStream) {
+            OutputFormatCore output, MediaStream outputStream) {
         return synthesizeTextToStream(language, voiceName, text, null, outputStream);
     }
 
