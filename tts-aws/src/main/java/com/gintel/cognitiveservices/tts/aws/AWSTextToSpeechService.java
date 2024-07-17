@@ -6,7 +6,7 @@ import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
+import com.amazonaws.auth.profile.ProfileCredentialsProvider;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.polly.AmazonPolly;
 import com.amazonaws.services.polly.AmazonPollyClientBuilder;
@@ -23,6 +23,7 @@ import com.gintel.cognitiveservices.core.tts.types.InputFormat;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechByteResult;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechResult;
 import com.gintel.cognitiveservices.core.tts.types.TextToSpeechStatus;
+
 import com.gintel.cognitiveservices.core.tts.types.OutputFormatCore;
 
 public class AWSTextToSpeechService implements TextToSpeech {
@@ -38,8 +39,8 @@ public class AWSTextToSpeechService implements TextToSpeech {
         // Region region
         try {
             client = AmazonPollyClientBuilder.standard()
-                    .withRegion(Regions.EU_NORTH_1)
-                    .withCredentials(new DefaultAWSCredentialsProviderChain())
+                    .withRegion(Regions.US_EAST_1)
+                    .withCredentials(new ProfileCredentialsProvider("herman_ostengen"))
                     .build();
         } catch (Exception e) {
             logger.error("Failed to initialize AWSTextToSpeechService", e);

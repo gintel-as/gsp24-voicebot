@@ -13,7 +13,6 @@
             <artifactId>jlayer</artifactId>
             <version>1.0.1</version>
         </dependency>
-
         <dependency>
             <groupId>com.gintel</groupId>
             <artifactId>core</artifactId>
@@ -34,7 +33,10 @@
         <dependency>
             <groupId>com.amazonaws</groupId>
             <artifactId>aws-java-sdk-polly</artifactId>
-            <version>1.12.760</version>
+        </dependency>
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>polly</artifactId>
         </dependency>
 
     </dependencies>
