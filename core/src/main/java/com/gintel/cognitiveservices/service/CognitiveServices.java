@@ -43,7 +43,7 @@ public class CognitiveServices implements CommunicationServiceListener {
     private int sttChosenProvider = 0;
     // 0 = Azure
     // 1 = Google (NB. Implementation of google stt is a bit unstable. Deployment
-    // requires restarting Tomcat server after every session in the client. )
+    // requires restarting Tomcat server after every session in the client)
 
     private int ttsChosenProvider = 0;
     // 0 = Azure
@@ -117,7 +117,7 @@ public class CognitiveServices implements CommunicationServiceListener {
             try {
                 if (e instanceof SpeechToTextEvent && event.getTranslationService() != null
                         && event.getAiService() == null) {
-                    // Pure translation service
+                    // Translation service without AI in pipeline
                     String language = ctx.getLanguage();
                     SpeechToTextEvent se = (SpeechToTextEvent) e;
                     service.playMedia(event.getSessionId(), se.getData());
