@@ -317,6 +317,7 @@
       var responsePending = false;
       var isProcessing = 0;
       var hrefButton = document.getElementById("hrefButton");
+      var language = document.getElementById("language").value;
 
       hrefButton.onclick = () => {
         location.href = "/web/";
@@ -337,6 +338,8 @@
 
         ws.onmessage = (event) => {
           stopButton.disabled = false;
+          console.log(language + "language is here");
+
           let responseContainer = document.getElementById("responseContainer");
           if (typeof event.data === "string" && event.data.trim() !== "") {
             responseContainer.innerHTML += `<p style="border-radius: 16px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); background-color: #cfcfcf ; color:black; width: fit-content; padding-top: 8px; padding-bottom: 8px; padding-left: 24px; padding-right: 24px; right: 0px;">${event.data}</p>`;
@@ -355,10 +358,6 @@
               isProcessing = 0;
             });
           }
-          language = document.getElementById("language").value;
-          if (input.value.trim() !== "" && language !== null) {
-            ws.send("Language:" + language);
-          }
         };
       }
 
@@ -367,7 +366,8 @@
       function changeLanguage() {
         console.log("language is changed");
         language = document.getElementById("language").value;
-        if (input.value.trim() !== "" && language !== null) {
+        if (sendButton.disabled !== true) {
+          console.log("language is sent");
           ws.send("Language:" + language);
         }
       }
@@ -375,13 +375,13 @@
       function changeTts() {
         console.log("tts is changed");
         chosenTts = document.getElementById("ttsDd").value;
-        if (input.value.trim() !== "") {
+        if (sendButton.disabled !== true) {
           ws.send("newTTS:" + chosenTts);
         }
       }
       function changeAi() {
         chosenAi = document.getElementById("aiDd").value;
-        if (input.value.trim() !== "") {
+        if (sendButton.disabled !== true) {
           ws.send("newAI:" + chosenAi);
         }
       }
@@ -393,6 +393,7 @@
           !responsePending &&
           input.value.trim() !== ""
         ) {
+          ws.send("Language:" + language);
           let message = input.value;
           audio.pause();
           ws.send(message);

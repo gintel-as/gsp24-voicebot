@@ -122,6 +122,7 @@ public class CognitiveServices implements CommunicationServiceListener {
                         long l1 = System.currentTimeMillis();
                         if (language != "none" && language != null) {
                             Translation translation = getService(Translation.class, event.getTranslationService());
+                            logger.info("look here:" + event.getTranslationService());
                             TranslationResult translationResult = translation.translation(aiInput, null, language);
                             service.playMedia(event.getSessionId(),
                                     aiInput + " -- WAS TRANSLATED TO --" + translationResult.getOutput());
