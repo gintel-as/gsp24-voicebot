@@ -85,6 +85,8 @@
             <option value="none">-- Select output language --</option>
             <option value="nb-NO">Norsk</option>
             <option value="en-US">English</option>
+            <option value="sv-SE">Swedish</option>
+            <option value="da-DK">Danish</option>
           </select>
         </div>
         <div
@@ -227,7 +229,22 @@
           gap: 18px;
         "
       >
-        <button id="hrefButton">Speech-To-Text</button>
+        <div
+          style="
+            display: flex;
+            flex-direction: row;
+            width: 100%;
+            height: min-content;
+            justify-content: space-between;
+          "
+        >
+          <button id="hrefButton">Speech-To-Text</button>
+          <img
+            src="https://www.gintel.com/images/gintel-logo-main.svg"
+            style="height: 100%; padding-right: 8px"
+          />
+        </div>
+
         <div
           style="
             display: flex;
@@ -235,8 +252,57 @@
             border-top: 1px solid black;
             width: 100%;
             height: 100%;
+            padding-top: 16px;
           "
-        ></div>
+        >
+          <label for="ttsDd">Choose TTS provider: </label>
+          <select
+            onchange="changeTts()"
+            name="ttsDd"
+            id="ttsDd"
+            style="
+              border-radius: 16px;
+              background-color: white;
+              color: black;
+              border: 1px solid #bfbfbd;
+              width: fit-content;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+              margin-bottom: 18px;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+            "
+          >
+            <option value="azure">Azure</option>
+            <option value="google">Google</option>
+            <option value="aws">AWS</option>
+          </select>
+          <label for="aiDd">Choose AI-engine: </label>
+          <select
+            onchange="changeAi()"
+            name="aiDd"
+            id="aiDd"
+            style="
+              border-radius: 16px;
+              background-color: white;
+              color: black;
+              border: 1px solid #bfbfbd;
+              width: fit-content;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              padding-left: 24px;
+              padding-right: 24px;
+              margin-bottom: 18px;
+              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
+                0 2px 4px -2px rgb(0 0 0 / 0.1);
+            "
+          >
+            <option value="azure">Azure</option>
+            <option value="openai">OpenAI</option>
+          </select>
+        </div>
       </div>
     </div>
     <script src="https://www.WebRTC-Experiment.com/RecordRTC.js"></script>
@@ -289,15 +355,34 @@
               isProcessing = 0;
             });
           }
+          language = document.getElementById("language").value;
+          if (input.value.trim() !== "" && language !== null) {
+            ws.send("Language:" + language);
+          }
         };
       }
 
       openWebSocket();
 
       function changeLanguage() {
+        console.log("language is changed");
         language = document.getElementById("language").value;
-        if (document.getElementById("startButton").disabled !== true) {
+        if (input.value.trim() !== "" && language !== null) {
           ws.send("Language:" + language);
+        }
+      }
+
+      function changeTts() {
+        console.log("tts is changed");
+        chosenTts = document.getElementById("ttsDd").value;
+        if (input.value.trim() !== "") {
+          ws.send("newTTS:" + chosenTts);
+        }
+      }
+      function changeAi() {
+        chosenAi = document.getElementById("aiDd").value;
+        if (input.value.trim() !== "") {
+          ws.send("newAI:" + chosenAi);
         }
       }
 

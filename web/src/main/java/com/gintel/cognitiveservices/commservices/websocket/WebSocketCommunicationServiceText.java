@@ -59,62 +59,65 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
             }
             if (msg.contains("Language:")) {
                 contexts.get(session.getId()).setLanguage(msg.replace("Language:", ""));
-            } else {
+            } else if (msg.contains("newTTS:")) {
+                contexts.get(session.getId()).setChosenTts(msg.replace("newTTS:", ""));
+            } else if (msg.contains("newAI:")) {
+                contexts.get(session.getId()).setChosenAi(msg.replace("newAI:", ""));
+            }
 
-                EventHandler<BaseEvent> handler = (s, e) -> {
-                    try {
-                        logger.info(e.toString() + "hello");
-                        session.getBasicRemote().sendText(e.toString());
-                    } catch (IOException ex) {
-                        logger.error("Exception when sending text to client", ex);
+            EventHandler<BaseEvent> handler = (s, e) -> {
+                try {
+                    logger.info(e.toString() + "hello");
+                    session.getBasicRemote().sendText(e.toString());
+                } catch (IOException ex) {
+                    logger.error("Exception when sending text to client", ex);
+                }
+            };
+            MediaStream outputStream;
+            if (synchronousTts) {
+                outputStream = null;
+            } else {
+                outputStream = new MediaStream() {
+                    @Override
+                    public void write(String data) {
+                        logger.info("write(data={} bytes)", data.length());
+
+                        try {
+                            wsSessions.get(sessionId).getBasicRemote().sendText(new String(data));
+                        } catch (Exception e) {
+                            logger.error("Exception writing output mediaStream for session {}",
+                                    session.getId(), e);
+                        }
+                    }
+
+                    @Override
+                    public void write(byte[] data) {
+                        // TODO Auto-generated method stub
+                        throw new UnsupportedOperationException("Unimplemented method 'write'");
+                    }
+
+                    @Override
+                    public void close() {
+                        // TODO Auto-generated method stub
+                        throw new UnsupportedOperationException("Unimplemented method 'close'");
                     }
                 };
-                MediaStream outputStream;
-                if (synchronousTts) {
-                    outputStream = null;
-                } else {
-                    outputStream = new MediaStream() {
-                        @Override
-                        public void write(String data) {
-                            logger.info("write(data={} bytes)", data.length());
+            }
 
-                            try {
-                                wsSessions.get(sessionId).getBasicRemote().sendText(new String(data));
-                            } catch (Exception e) {
-                                logger.error("Exception writing output mediaStream for session {}",
-                                        session.getId(), e);
-                            }
-                        }
+            // TextToSpeechResult ttsResult = ttsService.textToSpeech(lang,
+            // "en-US-AvaMultilingualNeural", decodedMsg, null, null);
+            // sessions.get(sessionId).getTextInput(ttsResult);
+            String translationService = session.getPathParameters().get("translationService");
+            String translationLanguage = session.getPathParameters().get("translationLanguage");
+            String ttsService = session.getPathParameters().get("ttsService");
+            String sttService = session.getPathParameters().get("sttService");
+            String aiService = session.getPathParameters().get("aiService");
 
-                        @Override
-                        public void write(byte[] data) {
-                            // TODO Auto-generated method stub
-                            throw new UnsupportedOperationException("Unimplemented method 'write'");
-                        }
-
-                        @Override
-                        public void close() {
-                            // TODO Auto-generated method stub
-                            throw new UnsupportedOperationException("Unimplemented method 'close'");
-                        }
-                    };
-                }
-
-                // TextToSpeechResult ttsResult = ttsService.textToSpeech(lang,
-                // "en-US-AvaMultilingualNeural", decodedMsg, null, null);
-                // sessions.get(sessionId).getTextInput(ttsResult);
-                String translationService = session.getPathParameters().get("translationService");
-                String translationLanguage = session.getPathParameters().get("translationLanguage");
-                String ttsService = session.getPathParameters().get("ttsService");
-                String sttService = session.getPathParameters().get("sttService");
-                String aiService = session.getPathParameters().get("aiService");
-
-                for (CommunicationServiceListener listener : listeners) {
-                    listener.onEvent(
-                            this, new IncomingEventText(sessionId, handler, outputStream, msg, translationService,
-                                    translationLanguage, ttsService, sttService, aiService),
-                            contexts.get(sessionId));
-                }
+            for (CommunicationServiceListener listener : listeners) {
+                listener.onEvent(
+                        this, new IncomingEventText(sessionId, handler, outputStream, msg, translationService,
+                                translationLanguage, ttsService, sttService, aiService),
+                        contexts.get(sessionId));
 
             }
 

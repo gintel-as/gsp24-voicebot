@@ -223,12 +223,15 @@ public class CognitiveServices implements CommunicationServiceListener {
                     String language = ctx.getLanguage();
 
                     if (!event.toString().isEmpty() && !text[0].equals(event.toString())) {
-                        String aiInput = event.toString().replaceAll("RECOGNIZED: ", "").replaceAll("(google)", "")
-                                .replaceAll("(azure)", "");
+                        String aiInput = event.toString().replaceAll("(google)", "")
+                                .replaceAll("(azure)", "").replaceAll("(aws)", "").replace("()", "");
+                        ;
                         service.playMedia(event.getSessionId(), e.toString());
                         long l1 = System.currentTimeMillis();
                         if (language != "none" && language != null) {
+                            logger.info("did change language");
                             Translation translation = getService(Translation.class, event.getTranslationService());
+                            logger.info(event.getTranslationService() + "hello this is event.getTranslationService");
                             TranslationResult translationResult = translation.translation(aiInput, null, language);
                             service.playMedia(event.getSessionId(),
                                     aiInput + " -- WAS TRANSLATED TO --" + translationResult.getOutput());
