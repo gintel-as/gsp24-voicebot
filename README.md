@@ -4,7 +4,7 @@ This repository contains progress and results accomplished during the **Voice Bo
 # Overview
 The task at hand during this project has been creating a chat-bot application, utilizing different cloud services from industry-leading providers in speech-to-text, text-to-speech, AI-chat completions and language-translation. The providers we have gained experience with through testing different services are Azure, OpenAI, Google and AWS. We took advantage of different services from the different providers due to differences in service-structure, functionality, level of documentation and insights in performence pre-development. 
 
-The development timeline was started by familiarizing ourselves with and planning the project's structure and technologies. We then implemented and tested Azure's Speech and OpenAI services through a web-client interface, before expanding our services to OpenAI's chat-bot (through Azure's framework), Google's Speech-to-Text and Text-to-Speech, and AWS's Text-to-Speech. As a product of our project development and testing we lastly created an performance analysis for the different services, which we hope can be of use for Gintel in future business.
+The development timeline was started by familiarizing ourselves with and planning the project's structure and technologies. We then implemented and tested Azure's Speech and OpenAI services through a web-client interface, before expanding our services to OpenAI's chat-bot (through Azure's framework), Google's Speech-to-Text and Text-to-Speech, and AWS's Text-to-Speech. As a product of our project development and testing we lastly created a performance analysis for the different services, which we hope can be of use for Gintel in future business.
 
 # Deployment
 
