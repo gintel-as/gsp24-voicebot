@@ -41,6 +41,10 @@ public class CognitiveServices implements CommunicationServiceListener {
     private List<String> sttProviders = Arrays.asList("azure", "google", "aws");
     private List<String> ttsProviders = Arrays.asList("azure", "google", "aws");
     private int sttChosenProvider = 0;
+    // 0 = Azure
+    // 1 = Google (NB. Implementation of google stt is a bit unstable. Deployment
+    // requires restarting Tomcat server after every session in the client. )
+
     private int ttsChosenProvider = 0;
     // 0 = Azure
     // 1 = Google
@@ -56,6 +60,9 @@ public class CognitiveServices implements CommunicationServiceListener {
         ttsVoices.put("google", "en-US-Standard-A");
         ttsVoices.put("aws", "Amy");
 
+        // Additional VoiceName management for Google and AWS depending on chosen
+        // language in client as provider doesn't include a multilingual option (like
+        // Azure's en-US-AvaMultilingualNeural).
         awsTtsLanguages.put("none", "Amy");
         awsTtsLanguages.put("en-US", "Amy");
         awsTtsLanguages.put("nb-NO", "Liv");
@@ -105,13 +112,59 @@ public class CognitiveServices implements CommunicationServiceListener {
     }
 
     private void handleIncoming(CommunicationService service, IncomingEvent event, ChatBotContext ctx) {
-        if (event.getTranslationService() != null && event.getAiService() == null) {
-            // TODO pure translation service
-        }
-
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
-                if (e instanceof SpeechToTextEvent) {
+                if (e instanceof SpeechToTextEvent && event.getTranslationService() != null
+                        && event.getAiService() == null) {
+                    // Pure translation service
+                    String language = ctx.getLanguage();
+                    SpeechToTextEvent se = (SpeechToTextEvent) e;
+                    service.playMedia(event.getSessionId(), se.getData());
+                    if (se.getResult() == SpeechToTextStatus.RECOGNIZED) {
+                        service.playMedia(event.getSessionId(), "stop_recording");
+                        String ttsInput = se.getData().replaceAll("RECOGNIZED: ", "").replaceAll("(google)", "")
+                                .replaceAll("(azure)", "").replaceAll("(aws)", "").replace("()", "");
+                        long l1 = System.currentTimeMillis();
+                        if (language != "none" && language != null) {
+                            Translation translation = getService(Translation.class, event.getTranslationService());
+                            TranslationResult translationResult = translation.translation(ttsInput, null, language);
+                            service.playMedia(event.getSessionId(),
+                                    ttsInput + " -- WAS TRANSLATED TO --" + translationResult.getOutput());
+                            ttsInput = translationResult.getOutput();
+                        }
+                        long l2 = System.currentTimeMillis();
+                        long translationTime = TimeUnit.MILLISECONDS.toSeconds(l2 - l1);
+                        for (TextToSpeech tts : getServices(TextToSpeech.class)) {
+                            if (ctx.getChosenTts().contains(tts.getProvider())) {
+                                long a1 = System.currentTimeMillis();
+                                TextToSpeechByteResult ttsResult = ctx.getChosenTts().contains("google")
+                                        ? tts.textToStream(
+                                                ctx.getLanguage() != null && ctx.getLanguage() != "none"
+                                                        ? "en-US"
+                                                        : ctx.getLanguage(),
+                                                googleTtsLanguages.get(ctx.getLanguage()),
+                                                ttsInput,
+                                                null, null, null)
+                                        : (ctx.getChosenTts().contains("aws") ? tts.textToStream(
+                                                "en-US",
+                                                awsTtsLanguages.get(ctx.getLanguage()),
+                                                ttsInput,
+                                                null, null, null)
+                                                : tts.textToStream(
+                                                        "en-US",
+                                                        "en-US-AvaMultilingualNeural",
+                                                        ttsInput,
+                                                        null, null, null));
+                                long a2 = System.currentTimeMillis();
+                                long ttsTime = TimeUnit.MILLISECONDS.toSeconds(a2 - a1);
+                                service.playMedia(event.getSessionId(),
+                                        "Translation time: " + translationTime + " seconds. TTS time: " + ttsTime
+                                                + " seconds.");
+                                service.playMedia(event.getSessionId(), ttsResult.getAudio());
+                            }
+                        }
+                    }
+                } else if (e instanceof SpeechToTextEvent) {
                     String language = ctx.getLanguage();
                     SpeechToTextEvent se = (SpeechToTextEvent) e;
                     service.playMedia(event.getSessionId(), se.getData());
