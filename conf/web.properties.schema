@@ -6,6 +6,5 @@ azure.openai.region = norwayeast
 
 openai.subscription_key = openai_subscription_key <-- insert key here
 
-aws.stt.access_key_id = access_key_id <-- insert key here
-aws.stt.secret_access_key = secret_access_key <-- insert key here
-aws.stt.region = eu-north-1
+aws.stt.profile_user_name = your_aws_username (the same as in local AWS CLI configuration)
+aws.stt.region = eu-north-1 (service deployment region)
