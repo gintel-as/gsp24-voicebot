@@ -45,14 +45,14 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
     public AzureTextToSpeechService(AzureTTSConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
-
         logger.info("region is {}", serviceConfig.region());
     }
 
+    // Generates speech from text in undefined audio-byte format
     @Override
     public TextToSpeechResult textToSpeech(String language, String voiceName, String text,
             InputFormat input, OutputFormatCore output) {
-
+        // Creates a SpeechConfig with subscription key and region
         SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceConfig.region());
         if (voiceName != null) {
             config.setSpeechSynthesisVoiceName(voiceName);
@@ -68,16 +68,18 @@ public class AzureTextToSpeechService implements TextToSpeech {
                 wordBoundaries.add(e);
             });
 
+            // Asynchronously synthesizes the text to speech
             Future<SpeechSynthesisResult> task = synth.SpeakTextAsync(text);
             assert (task != null);
 
             SpeechSynthesisResult result = task.get();
             assert (result != null);
 
+            // Trims and returns data, and handles result errors
             if (result.getReason() == ResultReason.SynthesizingAudioCompleted) {
                 String srt = generateSrt(wordBoundaries, text);
-                byte[] audioData = result.getAudioData(); // Get the audio data
-                byte[] trimmedAudioData = new byte[Math.min(1000, audioData.length)]; // Trim to first 100 bytes
+                byte[] audioData = result.getAudioData();
+                byte[] trimmedAudioData = new byte[Math.min(1000, audioData.length)];
                 System.arraycopy(audioData, 0, trimmedAudioData, 0, trimmedAudioData.length);
                 return new TextToSpeechResult(TextToSpeechStatus.OK, trimmedAudioData, srt);
             } else if (result.getReason() == ResultReason.Canceled) {
@@ -97,10 +99,11 @@ public class AzureTextToSpeechService implements TextToSpeech {
         return new TextToSpeechResult(TextToSpeechStatus.ERROR, null, null);
     }
 
+    // Initites SpeechConfig and handle output stream configuration
     @Override
     public TextToSpeechByteResult textToStream(String language, String voiceName, String text,
             InputFormat input, OutputFormatCore output, MediaStream outputStream) {
-        ;
+        // Creates a SpeechConfig with subscription key and region
         SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(),
                 serviceConfig.region());
         if (voiceName != null) {
@@ -110,14 +113,18 @@ public class AzureTextToSpeechService implements TextToSpeech {
         config.setSpeechSynthesisOutputFormat(SpeechSynthesisOutputFormat.Audio16Khz32KBitRateMonoMp3);
 
         if (outputStream != null) {
+            // If an output stream is provided, process asynchronously
             TaskExecutorService.getInstance().submit(() -> doAsync(config, outputStream, text));
         } else {
+            // Otherwise, process synchronously
             return doSynchronous(config, text);
         }
 
         return new TextToSpeechByteResult(TextToSpeechStatus.ERROR, null);
     }
 
+    // Generates speech from text synchronously and returns result as one chunck of
+    // Mp3 data in byte[] format
     private TextToSpeechByteResult doSynchronous(SpeechConfig config, String text) {
         List<SpeechSynthesisWordBoundaryEventArgs> wordBoundaries = new ArrayList<>();
 
@@ -152,6 +159,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
         return new TextToSpeechByteResult(TextToSpeechStatus.ERROR, null);
     }
 
+    // Generates speech from text asynchronously and return stream of Mp3 audio
     private void doAsync(SpeechConfig config, MediaStream outputStream, String text) {
         logger.info("doAsync: text = {}", text);
 
@@ -162,6 +170,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
                 wordBoundaries.add(e);
             });
 
+            // Starts synthesizing the text to speech
             SpeechSynthesisResult result = synth.StartSpeakingText(text);
             try (AudioDataStream audioDataStream = AudioDataStream.fromResult(result)
             // FileOutputStream for testing - uncomment to listen to audio via the
@@ -194,10 +203,11 @@ public class AzureTextToSpeechService implements TextToSpeech {
             }
         } catch (Exception ex) {
             logger.error("Exception in doAsync", ex);
-            // TODO notify client
+            // Implement: notifying client
         }
     }
 
+    // Generates SRT (SubRip Subtitle) format from word boundaries and text
     private String generateSrt(List<SpeechSynthesisWordBoundaryEventArgs> wordBoundaries, String text) {
         StringBuilder srt = new StringBuilder();
         int counter = 1;
@@ -224,6 +234,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
         return srt.toString();
     }
 
+    // Formats time in milliseconds to HH:mm:ss,SSS format
     private String formatTime(long timeInMilliseconds) {
         long hours = TimeUnit.MILLISECONDS.toHours(timeInMilliseconds);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeInMilliseconds) % 60;
@@ -233,11 +244,11 @@ public class AzureTextToSpeechService implements TextToSpeech {
         return String.format("%02d:%02d:%02d,%03d", hours, minutes, seconds, milliseconds);
     }
 
+    // Starts a text-to-speech session and returns a MediaSession object
     public MediaSession startTextToSpeechSession(String sessionId, String text, String language,
             EventHandler<BaseEvent> eventHandler) {
         logger.info("createSession(sessionId={}, language={})", sessionId, language);
         String serviceRegion = serviceConfig.region();
-        // String lang = language != null ? language.replace("\"", "") : "nb-NO";
 
         try {
             SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(), serviceRegion);
@@ -268,8 +279,7 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
                 @Override
                 public void write(String data) {
-                    // TODO Auto-generated method stub
-                    throw new UnsupportedOperationException("Unimplemented method 'write'");
+                    throw new UnsupportedOperationException("Unimplemented method 'write' for String input");
                 }
 
             });

@@ -35,8 +35,8 @@ public class AWSTextToSpeechService implements TextToSpeech {
         return "aws";
     }
 
+    // Constructor to initialize the AWS Polly client
     public AWSTextToSpeechService(AWSTTSConfig serviceConfig) {
-        // Region region
         try {
             client = AmazonPollyClientBuilder.standard()
                     .withRegion(Regions.US_EAST_1)
@@ -46,13 +46,11 @@ public class AWSTextToSpeechService implements TextToSpeech {
             logger.error("Failed to initialize AWSTextToSpeechService", e);
             throw new RuntimeException("Failed to initialize AWSTextToSpeechService", e);
         }
-
     }
 
     @Override
     public TextToSpeechResult textToSpeech(String language, String voiceName, String text, InputFormat input,
             OutputFormatCore output) {
-
         return synthesizeTextToByteArray(language, voiceName, text, null);
     }
 
@@ -64,22 +62,25 @@ public class AWSTextToSpeechService implements TextToSpeech {
 
     private TextToSpeechResult synthesizeTextToByteArray(String languageCode, String voiceName, String text,
             OutputFormatCore outputFormat) {
+        // Creates a request to synthesize speech with the given parameters
         SynthesizeSpeechRequest synthReq = new SynthesizeSpeechRequest()
                 .withText(text)
                 .withVoiceId(VoiceId.fromValue(voiceName))
                 .withOutputFormat(OutputFormat.Mp3);
 
+        // Sends the request to AWS Polly and gets the result
         SynthesizeSpeechResult synthRes = client.synthesizeSpeech(synthReq);
         InputStream audioStream = synthRes.getAudioStream();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[2048];
         int read;
         try {
+            // Reads the audio stream and writes it to a byte array output stream
             while ((read = audioStream.read(buffer)) != -1) {
                 baos.write(buffer, 0, read);
-
             }
             byte[] audioData = baos.toByteArray();
+            // Trims the audio data to the first 1000 bytes if needed
             byte[] trimmedAudioData = new byte[Math.min(1000, audioData.length)];
             System.arraycopy(audioData, 0, trimmedAudioData, 0, trimmedAudioData.length);
             return new TextToSpeechResult(TextToSpeechStatus.OK, null, null);
@@ -94,17 +95,20 @@ public class AWSTextToSpeechService implements TextToSpeech {
             OutputFormatCore output, MediaStream outputStream) {
 
         logger.info(voiceName);
+        // Creates a request to synthesize speech with the given parameters
         SynthesizeSpeechRequest synthesizeSpeechRequest = new SynthesizeSpeechRequest()
                 .withOutputFormat(OutputFormat.Mp3)
                 .withVoiceId(VoiceId.fromValue(voiceName))
                 .withText(text);
 
+        // Sends the request to AWS Polly and gets the result
         SynthesizeSpeechResult synthRes = client.synthesizeSpeech(synthesizeSpeechRequest);
         InputStream audioStream = synthRes.getAudioStream();
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         byte[] buffer = new byte[2048];
         int read;
         try {
+            // Reads the audio stream and writes it to a byte array output stream
             while ((read = audioStream.read(buffer)) > 0) {
                 baos.write(buffer, 0, read);
             }
@@ -124,5 +128,4 @@ public class AWSTextToSpeechService implements TextToSpeech {
             EventHandler<BaseEvent> handler) {
         return null;
     }
-
 }

@@ -38,24 +38,27 @@ public class GoogleTextToSpeechService implements TextToSpeech {
         }
     }
 
+    // Initiates speech from text in undefined audio-byte format
     @Override
     public TextToSpeechResult textToSpeech(String language, String voiceName, String text, InputFormat input,
             OutputFormatCore output) {
         return synthesizeTextToByteArray(language, voiceName, text, null);
     }
 
+    // Initiates speech from text as Mp3 data in byte[] format
     @Override
     public TextToSpeechByteResult textToStream(String language, String voiceName, String text, InputFormat input,
             OutputFormatCore output, MediaStream outputStream) {
         return synthesizeTextToStream(language, voiceName, text, null, outputStream);
     }
 
+    // Generates speech from text in undefined audio-byte format
     private TextToSpeechResult synthesizeTextToByteArray(String languageCode, String voiceName, String text,
             AudioEncoding audioEncoding) {
         SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
         VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
                 .setLanguageCode(languageCode)
-                .setName(voiceName) // Nerual2 + others give neural voices
+                .setName(voiceName)
                 .build();
         AudioConfig audioConfig = AudioConfig.newBuilder()
                 .setAudioEncoding(audioEncoding)
@@ -71,6 +74,7 @@ public class GoogleTextToSpeechService implements TextToSpeech {
         return new TextToSpeechResult(TextToSpeechStatus.OK, trimmedAudioData, null);
     }
 
+    // Generates speech from text as Mp3 data in byte[] format
     private TextToSpeechByteResult synthesizeTextToStream(String languageCode, String voiceName, String text,
             AudioEncoding audioEncoding, MediaStream outputStream) {
 
@@ -79,7 +83,7 @@ public class GoogleTextToSpeechService implements TextToSpeech {
             SynthesisInput input = SynthesisInput.newBuilder().setText(text).build();
             VoiceSelectionParams voice = VoiceSelectionParams.newBuilder()
                     .setLanguageCode(languageCode)
-                    .setName(voiceName) // Nerual2 + others give neural voices
+                    .setName(voiceName)
                     .build();
             AudioConfig audioConfig = AudioConfig.newBuilder()
                     .setAudioEncoding(AudioEncoding.MP3)
@@ -97,13 +101,14 @@ public class GoogleTextToSpeechService implements TextToSpeech {
         return new TextToSpeechByteResult(TextToSpeechStatus.ERROR, null);
     }
 
+    // Starts a text-to-speech session and returns a MediaSession object.
+    // Unfinished implementation
     @Override
     public MediaSession startTextToSpeechSession(String sessionId, String text, String language,
             EventHandler<BaseEvent> eventHandler) {
         logger.info("createSession(sessionId={}, language={})", sessionId, language);
 
         try {
-            // Replace with your region
             GoogleCredentials credentials = GoogleCredentials.getApplicationDefault()
                     .createScoped("https://www.googleapis.com/auth/cloud-platform");
 
@@ -143,8 +148,7 @@ public class GoogleTextToSpeechService implements TextToSpeech {
 
                 @Override
                 public void write(String data) {
-                    // TODO Auto-generated method stub
-                    throw new UnsupportedOperationException("Unimplemented method 'write'");
+                    throw new UnsupportedOperationException("Unimplemented method 'write' for String input");
                 }
             });
         } catch (Exception e) {

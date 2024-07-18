@@ -43,6 +43,8 @@ public class OpenaiOpenaiService implements Openai {
         this.serviceConfig = serviceConfig;
     }
 
+    // Pretty much identical implementation as full-azure OpenAI, as this is using
+    // an Azure framework for accessing OpenAI's own API
     @Override
     public OpenaiResult openai(String text, ChatBotContext ctx, InputFormat input, OutputFormat output) {
         try {

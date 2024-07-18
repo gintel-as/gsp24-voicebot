@@ -21,7 +21,8 @@ public class ExampleController {
     private List<Openai> openaiServices;
     private List<Translation> translationServices;
 
-    public ExampleController(WebConfig config, List<TextToSpeech> ttsServices, List<SpeechToText> sttServices, List<Openai> openaiServices, List<Translation> translationServices) {
+    public ExampleController(WebConfig config, List<TextToSpeech> ttsServices, List<SpeechToText> sttServices,
+            List<Openai> openaiServices, List<Translation> translationServices) {
         this.config = config;
         this.ttsServices = ttsServices;
         this.sttServices = sttServices;
@@ -31,32 +32,28 @@ public class ExampleController {
 
     public TextToSpeechResult textToSpeech(String language, String voiceName, String text) {
         for (TextToSpeech impl : ttsServices) {
-            // for now, just pick the first one
-            return impl.textToSpeech(language, voiceName, text, null, null);            
+            return impl.textToSpeech(language, voiceName, text, null, null);
         }
         throw new RuntimeException("No tts implementations found");
     }
 
     public SpeechToTextResult speechToText(String language) {
         for (SpeechToText impl : sttServices) {
-            // for now, just pick the first one
-            return impl.speechToText(language, null, null);            
+            return impl.speechToText(language, null, null);
         }
         throw new RuntimeException("No stt implementations found");
     }
 
-    public OpenaiResult openai(String text, ChatBotContext ctx){
+    public OpenaiResult openai(String text, ChatBotContext ctx) {
         for (Openai impl : openaiServices) {
-            // for now, just pick the first one
-            return impl.openai(text, ctx, null, null); 
+            return impl.openai(text, ctx, null, null);
         }
         throw new RuntimeException("No openai implementations found");
     }
 
-    public TranslationResult translation(String text, String fromLanguage, String toLanguage){
+    public TranslationResult translation(String text, String fromLanguage, String toLanguage) {
         for (Translation impl : translationServices) {
-            // for now, just pick the first one
-            return impl.translation(text, fromLanguage, toLanguage); 
+            return impl.translation(text, fromLanguage, toLanguage);
         }
         throw new RuntimeException("No translation implementations found");
     }

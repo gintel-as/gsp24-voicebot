@@ -6,11 +6,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ChatBotContext {
-    private List<ChatRequestMessage> conversation;
-    private List<Integer> messageTokens = new ArrayList<>();
-    private String language = "none";
-    private String chosenTts = "azure";
-    private String chosenAi = "azure";
+    private List<ChatRequestMessage> conversation; // Chat-history input used in both Azure's and OpenAI's AI-engine
+    private List<Integer> messageTokens = new ArrayList<>(); // Tokens per-message, used for chat deletion in token
+                                                             // management
+    private String language = "none"; // Language used for translation and Google's and AWS's tts output
+    private String chosenTts = "azure"; // TTS chosen in client dropdown
+    private String chosenAi = "azure"; // AI-engine chosen in client dropdown
 
     public void addMessages(List<ChatRequestMessage> chatMessages) {
         if (chatMessages != null) {

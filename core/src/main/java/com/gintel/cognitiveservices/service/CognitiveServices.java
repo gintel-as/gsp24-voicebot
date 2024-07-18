@@ -111,6 +111,7 @@ public class CognitiveServices implements CommunicationServiceListener {
         }
     }
 
+    // Pipeline of cognitive service implementations, handeling incoming speech data
     private void handleIncoming(CommunicationService service, IncomingEvent event, ChatBotContext ctx) {
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
@@ -267,6 +268,7 @@ public class CognitiveServices implements CommunicationServiceListener {
         }
     }
 
+    // Pipeline of cognitive service implementations, handeling incoming text data
     private void handleIncomingText(CommunicationService service, IncomingEventText event,
             ChatBotContext ctx) {
         String[] text = { "" };

@@ -58,6 +58,7 @@ public class AzureOpenaiService implements Openai {
                     .credential(new AzureKeyCredential(azureOpenaiKey))
                     .buildClient();
 
+            // Starting or retrieving a history of chat request messages
             List<ChatRequestMessage> chatMessages = new ArrayList<>();
             if (ctx.getMessages() != null) {
                 chatMessages = ctx.getMessages();
@@ -75,7 +76,7 @@ public class AzureOpenaiService implements Openai {
             }
 
             ChatCompletionsOptions completionsOptions = new ChatCompletionsOptions(chatMessages);
-            completionsOptions.setMaxTokens(1000);
+            completionsOptions.setMaxTokens(1000); // Token limit defined in service configuration
 
             ChatCompletions chatCompletions = client.getChatCompletions(deploymentOrModelId, completionsOptions);
             CompletionsUsage usage = chatCompletions.getUsage();
@@ -85,6 +86,7 @@ public class AzureOpenaiService implements Openai {
                 logger.info("Total tokens used: {}", usage.getTotalTokens());
                 logger.info("" + ctx.getMessageTokens());
 
+                // Token management
                 if (usage.getTotalTokens() >= completionsOptions.getMaxTokens()) {
                     Integer messages = 1;
                     Integer diff = usage.getTotalTokens() - completionsOptions.getMaxTokens();

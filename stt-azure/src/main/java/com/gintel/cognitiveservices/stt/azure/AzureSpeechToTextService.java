@@ -43,6 +43,7 @@ public class AzureSpeechToTextService implements SpeechToText {
         logger.info("region is {}", serviceConfig.region());
     }
 
+    // One-time speech-recognition API with microphone input
     @Override
     public SpeechToTextResult speechToText(String language, InputFormat input, OutputFormat output) {
 
@@ -101,6 +102,7 @@ public class AzureSpeechToTextService implements SpeechToText {
         return new SpeechToTextResult(SpeechToTextStatus.ERROR, null, null);
     }
 
+    // Speech-recognition session used for continous transcription
     @Override
     public MediaSession startSpeechToTextSession(String sessionId, String language,
             EventHandler<BaseEvent> eventHandler) {
@@ -113,6 +115,7 @@ public class AzureSpeechToTextService implements SpeechToText {
             PushAudioInputStream is = AudioInputStream.createPushStream();
             AudioConfig audioCfg = AudioConfig.fromStreamInput(is);
 
+            // Defines list of languages which can be recognized automatically
             AutoDetectSourceLanguageConfig autoDetectLanguages = AutoDetectSourceLanguageConfig
                     .fromLanguages(Arrays.asList("en-US", "nb-NO", "es-ES"));
 
@@ -123,8 +126,7 @@ public class AzureSpeechToTextService implements SpeechToText {
             SpeechConfig config = SpeechConfig.fromSubscription(serviceConfig.subscriptionKey(),
                     serviceRegion);
             // config.setProperty(PropertyId.Speech_SegmentationSilenceTimeoutMs,"2000");
-            // Set timout after end of detected speech before finishing segment (default is
-            // 500)
+            // Set timout after end of speech before finishing segment (default is 500)
             config.setProperty(PropertyId.SpeechServiceConnection_LanguageIdMode, "Continuous");
             SpeechRecognizer recognizer = new SpeechRecognizer(config, autoDetectLanguages, audioCfg);
 
@@ -182,8 +184,7 @@ public class AzureSpeechToTextService implements SpeechToText {
 
                 @Override
                 public void write(String data) {
-                    // TODO Auto-generated method stub
-                    throw new UnsupportedOperationException("Unimplemented method 'write'");
+                    throw new UnsupportedOperationException("Unimplemented method 'write' for String input");
                 }
             });
         } catch (Exception ex) {

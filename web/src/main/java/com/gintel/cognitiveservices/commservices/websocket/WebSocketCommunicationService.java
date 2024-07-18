@@ -59,6 +59,8 @@ public class WebSocketCommunicationService implements CommunicationService {
                 return;
             }
 
+            // Handle different inputs from client, seperating session-variable changes
+            // from raw audio data
             if (msg.contains("Language:")) {
                 contexts.get(session.getId()).setLanguage(msg.replace("Language:", ""));
             } else if (msg.contains("newTTS:")) {
@@ -132,8 +134,7 @@ public class WebSocketCommunicationService implements CommunicationService {
 
                     @Override
                     public void write(String data) {
-                        // TODO Auto-generated method stub
-                        throw new UnsupportedOperationException("Unimplemented method 'write'");
+                        throw new UnsupportedOperationException("Unimplemented method 'write' for String input");
                     }
                 };
             }

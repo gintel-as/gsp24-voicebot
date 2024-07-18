@@ -24,6 +24,7 @@ public class OpenaiExampleResource implements OpenaiExample {
         ChatBotContext ctx;
         HttpSession session = request.getSession();
 
+        // Initiates or updates ChatBotContext in relation to HTTP session
         if (session.getAttribute("ctx") != null) {
             ctx = (ChatBotContext) session.getAttribute("ctx");
         } else {

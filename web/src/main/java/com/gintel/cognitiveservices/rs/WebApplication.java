@@ -100,6 +100,9 @@ public class WebApplication extends Application {
         return singletons;
     }
 
+    // Services added to the lists below are available for use in
+    // CogitiveServices.java
+
     private List<SpeechToText> getSpeechToTextServices() {
         return Arrays.asList(new AzureSpeechToTextService(ConfigFactory.create(AzureSTTConfig.class)),
                 new GoogleSpeechToTextService());

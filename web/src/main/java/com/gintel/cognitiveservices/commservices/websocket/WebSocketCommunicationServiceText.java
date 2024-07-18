@@ -87,13 +87,11 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
 
                         @Override
                         public void write(byte[] data) {
-                            // TODO Auto-generated method stub
                             throw new UnsupportedOperationException("Unimplemented method 'write'");
                         }
 
                         @Override
                         public void close() {
-                            // TODO Auto-generated method stub
                             throw new UnsupportedOperationException("Unimplemented method 'close'");
                         }
                     };
@@ -155,7 +153,6 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
 
                 @Override
                 public void write(byte[] data) {
-                    // TODO Auto-generated method stub
                     throw new UnsupportedOperationException("Unimplemented method 'write'");
                 }
             };
