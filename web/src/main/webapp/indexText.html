@@ -43,52 +43,7 @@
             flex-direction: row;
             justify-content: space-between;
           "
-        >
-          <div
-            id="speech-output"
-            class="speech-output"
-            style="
-              border-radius: 16px;
-              background-color: white;
-              color: black;
-              border: 1px solid #bfbfbd;
-              width: fit-content;
-              padding-top: 8px;
-              padding-bottom: 8px;
-              padding-left: 24px;
-              padding-right: 24px;
-              margin-bottom: 18px;
-              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-                0 2px 4px -2px rgb(0 0 0 / 0.1);
-            "
-          >
-            Text input:
-          </div>
-          <select
-            onchange="changeLanguage()"
-            name="language"
-            id="language"
-            style="
-              border-radius: 16px;
-              background-color: white;
-              color: black;
-              border: 1px solid #bfbfbd;
-              padding-top: 8px;
-              padding-bottom: 8px;
-              padding-left: 24px;
-              padding-right: 24px;
-              margin-bottom: 18px;
-              box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1),
-                0 2px 4px -2px rgb(0 0 0 / 0.1);
-            "
-          >
-            <option value="none">-- Select output language --</option>
-            <option value="nb-NO">Norsk</option>
-            <option value="en-US">English</option>
-            <option value="sv-SE">Swedish</option>
-            <option value="da-DK">Danish</option>
-          </select>
-        </div>
+        ></div>
         <div
           style="
             display: flex;
@@ -317,7 +272,7 @@
       var responsePending = false;
       var isProcessing = 0;
       var hrefButton = document.getElementById("hrefButton");
-      var language = document.getElementById("language").value;
+      //var language = document.getElementById("language").value;
 
       hrefButton.onclick = () => {
         location.href = "/web/";
@@ -338,7 +293,6 @@
 
         ws.onmessage = (event) => {
           stopButton.disabled = false;
-          console.log(language + "language is here");
 
           let responseContainer = document.getElementById("responseContainer");
           if (typeof event.data === "string" && event.data.trim() !== "") {
@@ -363,15 +317,6 @@
 
       openWebSocket();
 
-      function changeLanguage() {
-        console.log("language is changed");
-        language = document.getElementById("language").value;
-        if (sendButton.disabled !== true) {
-          console.log("language is sent");
-          ws.send("Language:" + language);
-        }
-      }
-
       function changeTts() {
         console.log("tts is changed");
         chosenTts = document.getElementById("ttsDd").value;
@@ -393,7 +338,8 @@
           !responsePending &&
           input.value.trim() !== ""
         ) {
-          ws.send("Language:" + language);
+          changeTts();
+          changeAi();
           let message = input.value;
           audio.pause();
           ws.send(message);

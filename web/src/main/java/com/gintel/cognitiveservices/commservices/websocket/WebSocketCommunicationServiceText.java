@@ -56,9 +56,7 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
                 session.getBasicRemote().sendText("Session " + session.getId() + " not found");
                 return;
             }
-            if (msg.contains("Language:")) {
-                contexts.get(session.getId()).setLanguage(msg.replace("Language:", ""));
-            } else if (msg.contains("newTTS:")) {
+           if (msg.contains("newTTS:")) {
                 contexts.get(session.getId()).setChosenTts(msg.replace("newTTS:", ""));
             } else if (msg.contains("newAI:")) {
                 contexts.get(session.getId()).setChosenAi(msg.replace("newAI:", ""));
