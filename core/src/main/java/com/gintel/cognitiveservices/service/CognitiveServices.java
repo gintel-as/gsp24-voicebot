@@ -86,7 +86,6 @@ public class CognitiveServices implements CommunicationServiceListener {
 
     @Override
     public void onEvent(CommunicationService service, BaseEvent event, ChatBotContext ctx) {
-        logger.info("onEvent(service={}, event={})", service, event);
 
         try {
             if (event instanceof IncomingEvent) {

@@ -43,7 +43,6 @@ public class WebSocketCommunicationService implements CommunicationService {
     private boolean synchronousTts = true;
 
     public WebSocketCommunicationService() {
-        logger.info("Created");
 
         addListener(CognitiveServices.getInstance());
     }
@@ -84,7 +83,6 @@ public class WebSocketCommunicationService implements CommunicationService {
 
     @OnMessage
     public void onVoiceInput(Session session, ByteBuffer bb, boolean last) {
-        logger.trace("onVoiceInputBinary");
 
         try {
             session.close();
@@ -118,7 +116,6 @@ public class WebSocketCommunicationService implements CommunicationService {
                 outputStream = new MediaStream() {
                     @Override
                     public void write(byte[] data) {
-                        logger.info("write(data={} bytes)", data.length);
 
                         try {
                             wsSessions.get(sessionId).getBasicRemote().sendBinary(ByteBuffer.wrap(data));
@@ -195,7 +192,6 @@ public class WebSocketCommunicationService implements CommunicationService {
 
     @Override
     public void answer(MediaSession mediaSession) {
-        logger.info("answer(session={})", mediaSession);
 
         // if (!(mediaSession instanceof WebSocketMediaSession)) {
         // logger.warn("answer({}): Unsupported session type", mediaSession);

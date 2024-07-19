@@ -45,7 +45,6 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
     public AzureTextToSpeechService(AzureTTSConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
-        logger.info("region is {}", serviceConfig.region());
     }
 
     // Generates speech from text in undefined audio-byte format
@@ -161,7 +160,6 @@ public class AzureTextToSpeechService implements TextToSpeech {
 
     // Generates speech from text asynchronously and return stream of Mp3 audio
     private void doAsync(SpeechConfig config, MediaStream outputStream, String text) {
-        logger.info("doAsync: text = {}", text);
 
         List<SpeechSynthesisWordBoundaryEventArgs> wordBoundaries = new ArrayList<>();
 
@@ -247,7 +245,6 @@ public class AzureTextToSpeechService implements TextToSpeech {
     // Starts a text-to-speech session and returns a MediaSession object
     public MediaSession startTextToSpeechSession(String sessionId, String text, String language,
             EventHandler<BaseEvent> eventHandler) {
-        logger.info("createSession(sessionId={}, language={})", sessionId, language);
         String serviceRegion = serviceConfig.region();
 
         try {

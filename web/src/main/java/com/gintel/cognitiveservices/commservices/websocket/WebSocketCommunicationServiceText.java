@@ -40,7 +40,6 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
     private boolean synchronousTts = true;
 
     public WebSocketCommunicationServiceText() {
-        logger.info("Created");
         addListener(CognitiveServices.getInstance());
     }
 
@@ -48,7 +47,6 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
     public void onTextInput(Session session, String msg, boolean last) {
         String sessionId = session.getId();
 
-        logger.info("onTextInput: {}", msg);
         try {
             if (!sessions.containsKey(session.getId())) {
                 logger.warn("Session {} not found in sessions map. Current sessions: {}", session.getId(),
@@ -62,7 +60,6 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
 
                 EventHandler<BaseEvent> handler = (s, e) -> {
                     try {
-                        logger.info(e.toString() + "hello");
                         session.getBasicRemote().sendText(e.toString());
                     } catch (IOException ex) {
                         logger.error("Exception when sending text to client", ex);
@@ -75,7 +72,6 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
                     outputStream = new MediaStream() {
                         @Override
                         public void write(String data) {
-                            logger.info("write(data={} bytes)", data.length());
 
                             try {
                                 wsSessions.get(sessionId).getBasicRemote().sendText(new String(data));
@@ -125,10 +121,8 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
         String sessionId = session.getId();
-        logger.info("onOpen({}, {})", sessionId, config);
         wsSessions.put(session.getId(), session);
         contexts.put(sessionId, new ChatBotContext());
-        logger.info(contexts.toString() + "this is context");
         MediaStream outputStream;
         if (synchronousTts) {
             outputStream = null;
@@ -136,7 +130,6 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
             outputStream = new MediaStream() {
                 @Override
                 public void write(String data) {
-                    logger.info("write(data={} bytes)", data.length());
 
                     try {
                         wsSessions.get(sessionId).getBasicRemote().sendText(new String(data));
@@ -166,7 +159,6 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
 
         EventHandler<BaseEvent> handler = (s, e) -> {
             try {
-                logger.info("Sending event data to client: {}", e);
                 session.getBasicRemote().sendText(e.toString());
             } catch (IOException ex) {
                 logger.error("Exception when sending text to client", ex);
@@ -230,7 +222,6 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
         // String sessionId = mediaSession.getId();
         logger.info("answer(session={})", mediaSession);
         sessions.put(mediaSession.getId(), mediaSession);
-        logger.info("Current sessions after adding: {}", sessions.keySet());
     }
 
     @Override

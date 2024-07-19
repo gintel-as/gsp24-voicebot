@@ -117,7 +117,7 @@ public class AWSTextToSpeechService implements TextToSpeech {
             }
             return new TextToSpeechByteResult(TextToSpeechStatus.OK, audioData);
         } catch (IOException e) {
-            logger.error("Exception in synthesizeTextToByteArray", e);
+            logger.error("Exception in synthesizeTextToStream", e);
         }
         return new TextToSpeechByteResult(TextToSpeechStatus.ERROR, null);
     }

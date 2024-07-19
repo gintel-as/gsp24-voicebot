@@ -53,7 +53,6 @@ public class OpenaiOpenaiService implements Openai {
                 logger.error("OpenAI subscription key is null or empty.");
                 return new OpenaiResult(OpenaiStatus.ERROR, "OpenAI subscription key is missing.", text);
             }
-            logger.info("Retrieved OpenAI subscription key successfully.");
             String deploymentOrModelId = "gpt-3.5-turbo";
 
             EncodingRegistry registry = Encodings.newDefaultEncodingRegistry();
@@ -88,7 +87,6 @@ public class OpenaiOpenaiService implements Openai {
                 logger.info("Prompt tokens used: {}", usage.getPromptTokens());
                 logger.info("Completion tokens used: {}", usage.getCompletionTokens());
                 logger.info("Total tokens used: {}", usage.getTotalTokens());
-                logger.info("" + ctx.getMessageTokens());
 
                 if (usage.getTotalTokens() >= completionsOptions.getMaxTokens()) {
                     Integer messages = 1;
@@ -114,9 +112,6 @@ public class OpenaiOpenaiService implements Openai {
                                 logger.info("Prompt tokens used (after deletion): {}", usage.getPromptTokens());
                                 logger.info("Completion tokens used (after deletion): {}", usage.getCompletionTokens());
                                 logger.info("Total tokens used (after deletion): {}", usage.getTotalTokens());
-                                logger.info("" + ctx.getMessageTokens());
-                                logger.info("chatMessages lengde = tokens lengde\n" + ctx.getMessages().size() + " = "
-                                        + ctx.getMessageTokens().size());
                             }
                             String mld = "";
                             for (ChatChoice choice : chatCompletions.getChoices()) {

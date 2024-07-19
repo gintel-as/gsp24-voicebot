@@ -14,43 +14,41 @@ import com.gintel.cognitiveservices.core.translation.Translation;
 import com.gintel.cognitiveservices.core.translation.types.TranslationResult;
 import com.gintel.cognitiveservices.core.translation.types.TranslationStatus;
 
-
 public class AzureTranslationService implements Translation {
     private static final Logger logger = LoggerFactory.getLogger(AzureTranslationService.class);
     private AzureTranslationConfig serviceConfig;
 
     public AzureTranslationService(AzureTranslationConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
-
-        logger.info("region is {}", serviceConfig.region());
-     }
+    }
 
     @Override
     public TranslationResult translation(String text, String fromLanguage, String toLanguage) {
 
         try {
-        AzureKeyCredential credential = new AzureKeyCredential(serviceConfig.subscriptionKey());
+            AzureKeyCredential credential = new AzureKeyCredential(serviceConfig.subscriptionKey());
 
-        TextTranslationClient client = new TextTranslationClientBuilder().region(serviceConfig.region()).credential(credential).buildClient();
-        
-        List<String> targetLanguages = new ArrayList<>();
-        targetLanguages.add(toLanguage);
+            TextTranslationClient client = new TextTranslationClientBuilder().region(serviceConfig.region())
+                    .credential(credential).buildClient();
 
-        List<String> content = new ArrayList<>();
-        content.add(text);
+            List<String> targetLanguages = new ArrayList<>();
+            targetLanguages.add(toLanguage);
 
-        TranslateOptions translateOptions = new TranslateOptions();
+            List<String> content = new ArrayList<>();
+            content.add(text);
 
-        translateOptions.addTargetLanguage(toLanguage);
-        translateOptions.setSourceLanguage(fromLanguage);
+            TranslateOptions translateOptions = new TranslateOptions();
 
-        List<TranslatedTextItem> translations = client.translate(content, translateOptions);
+            translateOptions.addTargetLanguage(toLanguage);
+            translateOptions.setSourceLanguage(fromLanguage);
 
-        for (TranslatedTextItem translation : translations) {
-            for (TranslationText textTranslation : translation.getTranslations()) {
-                return new TranslationResult(TranslationStatus.OK, textTranslation.getText());
+            List<TranslatedTextItem> translations = client.translate(content, translateOptions);
+
+            for (TranslatedTextItem translation : translations) {
+                for (TranslationText textTranslation : translation.getTranslations()) {
+                    return new TranslationResult(TranslationStatus.OK, textTranslation.getText());
+                }
             }
-        }
         } catch (Exception ex) {
             logger.error("Exception in translation", ex);
         }

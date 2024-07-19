@@ -39,8 +39,6 @@ public class AzureSpeechToTextService implements SpeechToText {
 
     public AzureSpeechToTextService(AzureSTTConfig serviceConfig) {
         this.serviceConfig = serviceConfig;
-
-        logger.info("region is {}", serviceConfig.region());
     }
 
     // One-time speech-recognition API with microphone input
@@ -106,8 +104,6 @@ public class AzureSpeechToTextService implements SpeechToText {
     @Override
     public MediaSession startSpeechToTextSession(String sessionId, String language,
             EventHandler<BaseEvent> eventHandler) {
-
-        logger.info("createSession(sessionId={}, language={})", sessionId, language);
 
         String serviceRegion = serviceConfig.region();
 

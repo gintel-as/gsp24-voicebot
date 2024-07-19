@@ -49,7 +49,6 @@ public class GoogleSpeechToTextService implements SpeechToText {
     @Override
     public MediaSession startSpeechToTextSession(String sessionId, String language,
             EventHandler<BaseEvent> eventHandler) {
-        logger.info("createSession(sessionId={}, language={})", sessionId, language);
 
         try {
             client = SpeechClient.create();
@@ -74,7 +73,6 @@ public class GoogleSpeechToTextService implements SpeechToText {
             ResponseObserver<StreamingRecognizeResponse> responseObserver = new ResponseObserver<StreamingRecognizeResponse>() {
                 @Override
                 public void onStart(StreamController controller) {
-                    logger.info("Stream started");
                 }
 
                 @Override
@@ -98,7 +96,6 @@ public class GoogleSpeechToTextService implements SpeechToText {
 
                 @Override
                 public void onComplete() {
-                    logger.info("Stream completed");
                     eventHandler.onEvent(this,
                             new SpeechToTextEvent("Session stopped event.", SpeechToTextStatus.STOPPED));
                 }

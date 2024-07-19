@@ -84,7 +84,6 @@ public class AzureOpenaiService implements Openai {
                 logger.info("Prompt tokens used: {}", usage.getPromptTokens());
                 logger.info("Completion tokens used: {}", usage.getCompletionTokens());
                 logger.info("Total tokens used: {}", usage.getTotalTokens());
-                logger.info("" + ctx.getMessageTokens());
 
                 // Token management
                 if (usage.getTotalTokens() >= completionsOptions.getMaxTokens()) {
@@ -111,9 +110,6 @@ public class AzureOpenaiService implements Openai {
                                 logger.info("Prompt tokens used (after deletion): {}", usage.getPromptTokens());
                                 logger.info("Completion tokens used (after deletion): {}", usage.getCompletionTokens());
                                 logger.info("Total tokens used (after deletion): {}", usage.getTotalTokens());
-                                logger.info("" + ctx.getMessageTokens());
-                                logger.info("chatMessages lengde = tokens lengde\n" + ctx.getMessages().size() + " = "
-                                        + ctx.getMessageTokens().size());
                             }
                             String mld = "";
                             for (ChatChoice choice : chatCompletions.getChoices()) {

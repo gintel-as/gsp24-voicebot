@@ -106,7 +106,6 @@ public class GoogleTextToSpeechService implements TextToSpeech {
     @Override
     public MediaSession startTextToSpeechSession(String sessionId, String text, String language,
             EventHandler<BaseEvent> eventHandler) {
-        logger.info("createSession(sessionId={}, language={})", sessionId, language);
 
         try {
             GoogleCredentials credentials = GoogleCredentials.getApplicationDefault()
