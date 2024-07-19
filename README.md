@@ -68,3 +68,5 @@ During the session, one can interrupt the audio of the chatbot answer by using t
   - Wasn't prioritized because of time constraints and customer interests
 - google-STT: Google Speech-to-Text implementation which is included in main but branch is kept for research because of the unstable service behaviour
 - tts-addprovider: An initiated attemt at implementing chooice of tts and ai-engine providers from client in the text-input web client
+
+**Further documentation and results provided in Word/Excel files**
