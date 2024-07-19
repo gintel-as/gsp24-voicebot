@@ -83,12 +83,12 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
 
                         @Override
                         public void write(byte[] data) {
-                            throw new UnsupportedOperationException("Unimplemented method 'write'");
+
                         }
 
                         @Override
                         public void close() {
-                            throw new UnsupportedOperationException("Unimplemented method 'close'");
+
                         }
                     };
                 }
@@ -146,7 +146,7 @@ public class WebSocketCommunicationServiceText implements CommunicationService {
 
                 @Override
                 public void write(byte[] data) {
-                    throw new UnsupportedOperationException("Unimplemented method 'write'");
+
                 }
             };
         }
