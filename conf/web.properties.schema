@@ -1,0 +1,10 @@
+azure.tts.subscription_key = azure_tts_key <-- insert key here
+azure.tts.region = norwayeast
+
+azure.openai.subscription_key = azure_stt_key <-- insert key here
+azure.openai.region = norwayeast
+
+openai.subscription_key = openai_subscription_key <-- insert key here
+
+aws.stt.profile_user_name = your_aws_username (the same as in local AWS CLI configuration)
+aws.stt.region = eu-north-1 (service deployment region)

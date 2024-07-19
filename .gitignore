@@ -1,0 +1,14 @@
+**/.metadata/
+**/.gitignore
+**/.settings/*
+*/target/*
+*/.metadata/*
+*/.settings/*
+*/.project
+**/.classpath
+**/.idea
+*.iml
+*/web.properties
+**/web.properties
+**/.vscode
+**/bin/*
