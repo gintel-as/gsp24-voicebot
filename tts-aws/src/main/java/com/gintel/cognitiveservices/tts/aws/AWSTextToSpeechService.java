@@ -94,7 +94,6 @@ public class AWSTextToSpeechService implements TextToSpeech {
     private TextToSpeechByteResult synthesizeTextToStream(String language, String voiceName, String text,
             OutputFormatCore output, MediaStream outputStream) {
 
-        logger.info(voiceName);
         // Creates a request to synthesize speech with the given parameters
         SynthesizeSpeechRequest synthesizeSpeechRequest = new SynthesizeSpeechRequest()
                 .withOutputFormat(OutputFormat.Mp3)
